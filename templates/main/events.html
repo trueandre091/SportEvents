@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты поиска</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='events.css') }}">
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="header__logo">
+            <img src="https://storage.minsport.gov.ru/cms-uploads/cms/minsport_main_be87ebd686.svg" alt="Логотип">
+        </a>
+        <h1 class="header__title">КАЛЕНДАРЬ СОБЫТИЙ</h1>
+    </div>
+
+    <div class="events-header">
+        <h2 class="sport-title">{{ sport if sport else "Спортивные события, проходящие " ~ selected_date.strftime('%d.%m.%Y') }}</h2>
+        {% if sport %}
+        <button class="subscribe-button">Подписаться</button>
+        {% endif %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const subscribeButton = document.querySelector('.subscribe-button');
+            
+            if (subscribeButton) {
+                subscribeButton.addEventListener('click', function() {
+                    // Получаем текст из заголовка
+                    const sportTitle = document.querySelector('.sport-title').textContent;
+                    
+                    // Получаем значение поиска, если есть
+                    const searchInput = document.getElementById('eventSearch');
+                    const searchValue = searchInput ? searchInput.value : '';
+                    
+                    // Формируем URL с параметрами
+                    const params = new URLSearchParams({
+                        sport: sportTitle,
+                        search: searchValue
+                    });
+                    
+                    // Перенаправляем на страницу добавления уведомления
+                    window.location.href = `/add_notification?${params.toString()}`;
+                });
+            }
+        });
+    </script>
+
+    <div class="search-container">
+        <input type="text" id="eventSearch" class="search-input" placeholder="Поиск по событиям...">
+    </div>
+
+    <div class="table-container">
+        {% if events %}
+            <table class="events-table">
+                <thead>
+                    <tr>
+                        <th>Название события</th>
+                        <th>Место проведения</th>
+                        <th>Начало события</th>
+                        <th>Конец события</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr class="event-row" onclick="window.location.href='/events/{{ event.event_id }}'" style="cursor: pointer;">
+                        <td>
+                            {% if all %}
+                                <div class="event-sport">{{ event.sport }}</div>
+                            {% endif %}
+                            <div class="event-title">{{ event.title }}</div>
+                            <div class="event-participants">{{ event.participants }}</div>
+                        </td>
+                        <td>{{ event.place }}</td>
+                        <td>{{ event.date_start.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ event.date_end.strftime('%d.%m.%Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-results">По вашему запросу ничего не найдено</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('eventSearch').addEventListener('input', function(e) {
+            const searchText = e.target.value.toLowerCase();
+            const eventRows = document.querySelectorAll('.event-row');
+            
+            eventRows.forEach(row => {
+                const title = row.querySelector('.event-title').textContent.toLowerCase();
+                const participants = row.querySelector('.event-participants').textContent.toLowerCase();
+                const place = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                
+                if (title.includes(searchText) || participants.includes(searchText) || place.includes(searchText)) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

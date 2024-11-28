@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Министерство спорта</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="header__logo">
+            <img src="https://storage.minsport.gov.ru/cms-uploads/cms/minsport_main_be87ebd686.svg" alt="Логотип">
+        </a>
+        <h1 class="header__title">РЕГИСТРАЦИЯ</h1>
+    </header>
+
+    <main>
+        <div class="register-container">
+            <h2 class="register-title">Создание аккаунта</h2>
+            
+            {% if not request.args.get('tg_id') %}
+            <div class="error-message">
+                Регистрация доступна только через <a href="https://t.me/my_091_bot" class="telegram-link">Telegram бота</a>
+            </div>
+            {% else %}
+            <form class="register-form" method="POST" action="{{ url_for('auth.register') }}">
+                <input type="hidden" name="tg_id" value="{{ request.args.get('tg_id') }}">
+                
+                <div class="form-group">
+                    <label>Telegram ID</label>
+                    <input type="text" value="{{ request.args.get('tg_id') }}" disabled class="disabled-input">
+                </div>
+
+                {% if request.args.get('username') %}
+                <div class="form-group">
+                    <label>Имя пользователя Telegram</label>
+                    <input type="text" value="{{ request.args.get('username') }}" disabled class="disabled-input">
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" required>
+                        <a href="" class="password-control" onclick="return show_hide_password(this, 'password');"></a>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Подтверждение пароля</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                    <span class="password-error" style="display: none;">Пароли не совпадают</span>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember_me" id="remember_me">
+                        <span class="checkbox-text">Запомнить меня</span>
+                    </label>
+                </div>
+
+                {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <button type="submit" class="register-button">Зарегистрироваться</button>
+            </form>
+            {% endif %}
+
+            <div class="login-link">
+                Уже есть аккаунт? <a href="{{ url_for('auth.login') }}">Войти</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+</body>
+</html>

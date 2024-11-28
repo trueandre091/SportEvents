@@ -1,0 +1,255 @@
+*,
+*::before,
+*:after {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  box-sizing: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+.wrapper {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  max-width: 95%;
+  margin: 0px;
+  padding: 0px 10px;
+}
+
+.header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 2;
+}
+
+.header:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(210, 210, 210);
+  z-index: 2;
+  border-style: outset;
+  border-width: 0px 0px 1px 0px;
+  border-color: rgb(0, 0, 0);
+  border-radius: 0px;
+}
+
+.header__body {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  height: 60px;
+  align-items: center;
+}
+
+.header__logo {
+  margin-left: 5%;
+  font-family: "Yellowtail";
+  font-size: 45px;
+  position: relative;
+  z-index: 3;
+}
+
+.header__logo a {
+  text-decoration: none;
+  color: black;
+}
+
+.header__burger {
+  display: none;
+}
+
+.header__menu {
+  margin-right: 5%;
+  align-items: center;
+}
+
+.header__list {
+  display: flex;
+  position: relative;
+  z-index: 2;
+}
+
+.header__list li {
+  list-style: none;
+  margin: 20px 0px 0px 20px;
+}
+
+.header__link {
+  color: black;
+  text-transform: uppercase;
+  font-size: 18px;
+  text-decoration: none;
+}
+.form-holder {
+  width: 100%;
+  height: 100%;
+  margin-top: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: auto;
+  background: linear-gradient(rgb(202, 202, 202), rgb(95, 95, 95));
+}
+.bg-form {
+  display: block;
+  height: 380px;
+  margin-top: 120px;
+  background-color: rgb(185, 185, 185);
+  box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.6);
+  border-radius: 15px;
+}
+form {
+  height: 100%;
+  padding: 0 20px 0 20px;
+}
+.form-control:focus {
+  border-color: #0000007a;
+  outline: 0;
+  -webkit-box-shadow: 0 5px 5px rgba(0,0,0,.075),0 0 8px rgba(255, 255, 255, 0.6);
+  box-shadow: 0 5px 5px rgba(0,0,0,.075),0 0 8px rgba(255, 255, 255, 0.6);
+}
+.form-check-input:focus{
+  border-color: #00000060;
+  outline: 0;
+  -webkit-box-shadow: inset 0 5px 5px rgba(0,0,0,.075),0 0 8px rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 5px 5px rgba(0,0,0,.075),0 0 8px rgba(255, 255, 255, 0.6);
+}
+a{
+  text-decoration: underline;
+  text-decoration-color: black;
+  color: black;
+}
+.form-check-input:checked{
+  background-color: rgb(140, 140, 140);
+  border-color: rgba(0, 0, 0, 0.6);
+}
+.cust-btn{
+  margin: 0 auto;
+  margin-top: 30px;
+  display: block;
+  width: 100px;
+  height: 40px;
+  background: white;
+  border-radius: 15px;
+  transition: all 0.3s ease 0s;
+}
+.cust-btn:hover{
+  background: rgb(150, 150, 150);
+  transform: scale(1.1);
+}
+.password-control {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	background: url(../static/viewimg/view.svg) 0 0 no-repeat;
+  transition: all 0.3s ease 0s;
+}
+.password-control.view {
+	background: url(../static/viewimg/no-view.svg) 0 0 no-repeat;
+}
+@media (max-width: 767px) {
+  .header {
+    position: fixed;
+  }
+  body.lock {
+    overflow: hidden;
+  }
+  .header__body {
+    height: 50px;
+    width: 95%;
+    justify-content: space-between;
+  }
+  .header__logo {
+    font-size: 40px;
+  }
+  .header__burger {
+    margin-right: 5%;
+    display: block;
+    position: relative;
+    width: 30px;
+    height: 20px;
+    position: relative;
+    z-index: 3;
+  }
+  .header__burger span {
+    position: absolute;
+    background-color: black;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    top: 9px;
+    transition: all 0.3s ease 0s;
+  }
+  .header__burger:before,
+  .header__burger:after {
+    content: "";
+    background-color: black;
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    left: 0;
+    transition: all 0.3s ease 0s;
+  }
+  .header__burger:before {
+    top: 0;
+  }
+  .header__burger:after {
+    bottom: 0;
+  }
+  .header__burger.active:before {
+    transform: rotate(45deg);
+    top: 9px;
+  }
+  .header__burger.active:after {
+    transform: rotate(-45deg);
+    bottom: 9px;
+  }
+  .header__burger.active span {
+    transform: scale(0);
+  }
+  .header__menu {
+    position: fixed;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all 0.5s ease 0s;
+    overflow: hidden;
+    background-color: rgb(210, 210, 210);
+    padding: 70px 10px 20px 10px;
+  }
+  .header__menu.active {
+    top: 0;
+  }
+  .header__list {
+    display: block;
+    text-align: right;
+    margin-right: 5%;
+  }
+  .form {
+    width: 90%;
+  }
+  .cust-btn{
+    margin-top: 20px;
+  }
+}
+@media (max-width: 575px){
+  .bg-form{
+    width: 90%;
+  }
+}

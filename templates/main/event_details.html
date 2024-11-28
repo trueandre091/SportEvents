@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ event.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='event_details.css') }}">
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="header__logo">
+            <img src="https://storage.minsport.gov.ru/cms-uploads/cms/minsport_main_be87ebd686.svg" alt="Логотип">
+        </a>
+        <h1 class="header__title">КАЛЕНДАРЬ СОБЫТИЙ</h1>
+    </div>
+
+    <div class="event-container">
+        <div class="event-header">
+            <a href="javascript:history.back()" class="back-button">← Назад</a>
+        </div>
+
+        <div class="event-card">
+            <h1 class="event-title">{{ event.title }}</h1>
+            
+            <div class="event-meta">
+                <div class="meta-group">
+                    <div class="meta-item">
+                        <span class="meta-label">Вид спорта:</span>
+                        <span class="meta-value">{{ event.sport }}</span>
+                    </div>
+                    {% if event.discipline %}
+                    <div class="meta-item">
+                        <span class="meta-label">Дисциплина:</span>
+                        <span class="meta-value">{{ event.discipline }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="event-details">
+                <div class="detail-item">
+                    <div class="detail-content">
+                        <h3>Даты проведения</h3>
+                        <p>{{ event.date_start.strftime('%d.%m.%Y') }} - {{ event.date_end.strftime('%d.%m.%Y') }}</p>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-content">
+                        <h3>Место проведения</h3>
+                        <p>{{ event.place }}</p>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-content">
+                        <h3>Участники</h3>
+                        <p>{{ event.participants }}</p>
+                        <p class="participants-count">Количество участников: {{ event.participants_num }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

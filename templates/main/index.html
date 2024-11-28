@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Спортивные мероприятия</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <a href="https://minsport.gov.ru/" class="header__logo">
+      <img src="https://storage.minsport.gov.ru/cms-uploads/cms/minsport_main_be87ebd686.svg" alt="Логотип">
+    </a>
+    <h1 class="header__title">КАЛЕНДАРЬ СОБЫТИЙ</h1>
+    
+    <!-- Добавляем кнопку входа/профиля -->
+    <div class="header__auth">
+      {% if user %}
+        <a href="{{ url_for('auth.profile') }}" class="auth-button">Профиль</a>
+      {% else %}
+        <a href="https://t.me/my_091_bot" class="reg-button">Регистрация</a>
+        <a href="{{ url_for('auth.login') }}" class="auth-button">Войти</a>
+      {% endif %}
+    </div>
+
+    <div class="header__container" id="square-container">
+      <!-- Квадраты будут добавлены динамически -->
+    </div>
+  </header>
+
+  <div class="filter-section">
+    <div class="filter-container">
+      <button class="filter-button">
+        <span class="filter-icon">&#9776;</span>
+        Фильтр спортивных событий
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-form-container">
+    <form class="filter-form" id="filterForm" action="/events" method="GET">
+      <div class="filter-group">
+        <label for="sport-type">Вид спорта</label>
+        <select id="sport-type" name="sport" required>
+          <option value="">Выберите вид спорта</option>
+          {% for sport in sports %}
+            <option value="{{ sport }}">{{ sport }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="date-from">Дата начала</label>
+        <input type="date" id="date-from" name="date_start">
+      </div>
+      
+      <div class="filter-group">
+        <label for="date-to">Дата окончания</label>
+        <input type="date" id="date-to" name="date_end">
+      </div>
+      
+      <div class="filter-actions">
+        <button type="button" class="filter-reset" id="resetButton">Сбросить</button>
+        <button type="submit" class="filter-apply">Применить</button>
+      </div>
+    </form>
+  </div>
+
+  <section class="slider-section">
+    <div class="slider-container">
+      <div class="slider-mask">
+        <div class="slider-track"></div>
+      </div>
+      <button class="slider-button prev">&lt;</button>
+      <button class="slider-button next">&gt;</button>
+    </div>
+  </section>
+
+  <div class="main-content">
+    <section class="facilities-section">
+      <div class="facilities-container">
+          <h2 class="facilities-title">Спортивные объекты</h2>
+          
+          <div class="facilities-grid">
+              <div class="facility-card">
+                  <div class="facility-content">
+                      <h3 class="facility-name">Физическое здоровье</h3>
+                      <p class="facility-description">Спорт способствует улучшению физического здоровья и общего состояния организма. Регулярные физические упражнения помогают поддерживать здоровье сердечно-сосудистой системы, укрепляют мышцы и кости, улучшают гибкость и координацию.</p>
+                      <div class="facility-info">
+                          <a href="#" class="facility-link">Подробнее</a>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="facility-card">
+                  <div class="facility-content">
+                      <h3 class="facility-name">Социальное здоровье</h3>
+                      <p class="facility-description">Спорт способствует развитию социальных навыков и умению работать в команде. Участие в командных видах спорта помогает развивать коммуникативные навыки, умение сотрудничать и поддерживать других.</p>
+                      <div class="facility-info">
+                          <a href="#" class="facility-link">Подробнее</a>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="facility-card">
+                  <div class="facility-content">
+                      <h3 class="facility-name">Достижение целей</h3>
+                      <p class="facility-description">Спорт предоставляет возможность ставить и достигать цели, что способствует личностному росту и развитию дисциплины. Постановка целей в спорте помогает людям фокусироваться на конкретных задачах и работать над их достижением.</p>
+                      <div class="facility-info">
+                          <a href="#" class="facility-link">Подробнее</a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer__container">
+        <div class="footer__column">
+          <h4 class="footer__title">О нас</h4>
+          <ul class="footer__list">
+            <li><a href="#">О министерстве</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer__column">
+          <h4 class="footer__title">Документы</h4>
+          <ul class="footer__list">
+            <li><a href="#">Нормативные документы</a></li>
+            <li><a href="#">Законодательство</a></li>
+            <li><a href="#">Приказы</a></li>
+            <li><a href="#">Положения</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer__column">
+          <h4 class="footer__title">Спорт</h4>
+          <ul class="footer__list">
+            <li><a href="#">Календарь событий</a></li>
+            <li><a href="#">Спортивные федерации</a></li>
+            <li><a href="#">Спортивные объекты</a></li>
+            <li><a href="#">Спортивные школы</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer__column">
+          <h4 class="footer__title">Контакты</h4>
+          <ul class="footer__list">
+            <li><a href="tel:+74956440111">+7 (495) 720-53-80</a></li>
+            <li><a href="mailto:info@minsport.gov.ru">info@minsport.gov.ru</a></li>
+            <li>г. Москва, ул. Казакова, д.18</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer__bottom">
+        <p class="footer__copyright">© 2024 Министерство спорта Российской Федерации</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='sliderData.js') }}"></script>
+  <script src="{{ url_for('static', filename='squares.js') }}"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('filterForm');
+      const resetButton = document.getElementById('resetButton');
+      
+      // Обработка отправки формы
+      form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const sport = document.getElementById('sport-type').value;
+          const dateStart = document.getElementById('date-from').value;
+          const dateEnd = document.getElementById('date-to').value;
+          
+          // Проверка заполнения дат
+          if (dateStart && !dateEnd) {
+              alert('Пожалуйста, укажите дату окончания');
+              return;
+          }
+          if (!dateStart && dateEnd) {
+              alert('Пожалуйста, укажите дату начала');
+              return;
+          }
+          if (dateStart && dateEnd && new Date(dateStart) > new Date(dateEnd)) {
+              alert('Дата начала не может быть позже даты окончания');
+              return;
+          }
+          
+          // Формируем URL с параметрами
+          const params = new URLSearchParams();
+          if (sport) params.append('sport', sport);
+          if (dateStart) params.append('date_start', dateStart);
+          if (dateEnd) params.append('date_end', dateEnd);
+          
+          // Переходим на страницу с результатами
+          window.location.href = `/events?${params.toString()}`;
+      });
+      
+      // Обработка кнопки сброса
+      resetButton.addEventListener('click', function() {
+          document.getElementById('sport-type').value = '';
+          document.getElementById('date-from').value = '';
+          document.getElementById('date-to').value = '';
+      });
+  });
+  </script>
+  <script>
+    // Передаем необработанные данные событий
+    window.randomEvents = {{ random_events|tojson|safe }};
+  </script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
