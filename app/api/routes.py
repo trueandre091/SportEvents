@@ -1,13 +1,13 @@
 import os
 import sys
 import json
+from datetime import datetime
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT_DIR)
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from datetime import datetime
 from DB.event import Event
 from fn import event_to_dict
 
@@ -27,6 +27,16 @@ def get_events():
     sport = request.args.get('sport')
     date_start = request.args.get('date_start')
     date_end = request.args.get('date_end')
+    page = int(request.args.get('page', 0))
+    limit = int(request.args.get('limit', 30))
+    
+    # Преобразуем строки дат в объекты datetime
+    try:
+        date_start = datetime.strptime(date_start, '%Y-%m-%d') if date_start else None
+        date_end = datetime.strptime(date_end, '%Y-%m-%d') if date_end else None
+    except ValueError:
+        date_start = None
+        date_end = None
     
     print("Получены фильтры:", {
         "sport": sport,
@@ -55,8 +65,12 @@ def get_events():
             'place': event.place
         })
     
-    print("События перед отправкой:", events)
-    return jsonify(events)
+    return jsonify({
+        'events': events,
+        'page': page,
+        'limit': limit
+    })
+
 
 @app.route('/api/events/random')
 def get_random_events():
