@@ -11,23 +11,19 @@ import './App.css';
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     primary: {
       main: '#007bff',
     },
     background: {
-      default: '#1a1a1a',
-      paper: '#333333',
+      default: '#f5f5f5',
+      paper: '#ffffff',
     },
   },
 });
 
 function MainPage() {
-  return (
-    <>
-      <EventSlider />
-    </>
-  );
+  return <EventSlider />;
 }
 
 function App() {
@@ -39,7 +35,7 @@ function App() {
           <div className="App">
             <Header />
             <Routes>
-              <Route path="/" element={<MainPage />} />
+              <Route exact path="/" element={<MainPage />} />
               <Route path="/events" element={<EventList />} />
             </Routes>
             <Footer />
