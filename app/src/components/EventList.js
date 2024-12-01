@@ -49,16 +49,20 @@ function EventList() {
       // Проверяем, есть ли заполненные фильтры
       const hasFilters = filters.sport || filters.dateStart || filters.dateEnd;
 
+      // Форматируем даты в нужный формат YYYY-MM-DD
+      const formattedDateStart = filters.dateStart ? new Date(filters.dateStart).toISOString().split('T')[0] : '';
+      const formattedDateEnd = filters.dateEnd ? new Date(filters.dateEnd).toISOString().split('T')[0] : '';
+
       // Если фильтры не заполнены, делаем запрос без параметров
       const url = hasFilters 
         ? `/api/events?${new URLSearchParams({
             ...(filters.sport && { sport: filters.sport }),
-            ...(filters.dateStart && { date_start: filters.dateStart }),
-            ...(filters.dateEnd && { date_end: filters.dateEnd })
+            ...(filters.dateStart && { date_start: formattedDateStart }),
+            ...(filters.dateEnd && { date_end: formattedDateEnd })
           })}`
         : '/api/events';
 
-      console.log('Fetching URL:', url);
+      console.log('Fetching URL with dates:', url); // Для отладки
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -66,7 +70,7 @@ function EventList() {
       }
 
       const data = await response.json();
-      console.log('Received data:', data);
+      console.log('Received filtered data:', data); // Для отладки
 
       if (!data.events) {
         console.error('No events array in response:', data);
@@ -90,23 +94,22 @@ function EventList() {
 
   const handleFilterChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       [name]: value
-    }));
-  }, []); // Убираем зависимость от filters
+    };
+    setFilters(newFilters);
 
-  const handleApplyFilters = async (e) => {
-    e.preventDefault();
-    await fetchFilteredEvents(filters);
-    
-    // Обновляем URL только если есть фильтры
-    if (filters.sport || filters.dateStart || filters.dateEnd) {
-      setSearchParams(filters);
+    // Обновляем URL
+    if (newFilters.sport || newFilters.dateStart || newFilters.dateEnd) {
+      setSearchParams(newFilters);
     } else {
       setSearchParams({});
     }
-  };
+
+    // Сразу применяем фильтры
+    fetchFilteredEvents(newFilters);
+  }, [filters, setSearchParams, fetchFilteredEvents]);
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
@@ -124,10 +127,28 @@ function EventList() {
     if (!start || !end) return 'Дата не указана';
     const startDate = new Date(start);
     const endDate = new Date(end);
-    return `${startDate.getDate()}-${endDate.getDate()} ${startDate.toLocaleString('ru-RU', { month: 'long' })}`;
+    
+    // Проверяем, совпадают ли месяц и год
+    const sameMonth = startDate.getMonth() === endDate.getMonth();
+    const sameYear = startDate.getFullYear() === endDate.getFullYear();
+    
+    if (sameMonth && sameYear) {
+      // Если месяц и год совпадают, показываем их один раз
+      return `${startDate.getDate()}-${endDate.getDate()} ${startDate.toLocaleString('ru-RU', { month: 'long' })} ${startDate.getFullYear()}`;
+    } else if (sameYear) {
+      // Если совпадает только год, показываем его один раз
+      return `${startDate.getDate()} ${startDate.toLocaleString('ru-RU', { month: 'long' })} - ${endDate.getDate()} ${endDate.toLocaleString('ru-RU', { month: 'long' })} ${startDate.getFullYear()}`;
+    } else {
+      // Если не совпадает ничего, показываем полные даты
+      return `${startDate.getDate()} ${startDate.toLocaleString('ru-RU', { month: 'long' })} ${startDate.getFullYear()} - ${endDate.getDate()} ${endDate.toLocaleString('ru-RU', { month: 'long' })} ${endDate.getFullYear()}`;
+    }
   };
 
   const handleEventClick = (eventId) => {
+    console.log('Clicked event:', eventId);
+    console.log('Current expanded:', expandedEventId);
+    console.log('Event object:', events.find(e => e.event_id === eventId));
+    
     if (expandedEventId === eventId) {
       setExpandedEventId(null);
     } else {
@@ -141,12 +162,7 @@ function EventList() {
 
   return (
     <div className="events-container">
-      <form className="filters-form" onSubmit={handleApplyFilters}>
-        <div className="header-controls">
-          <button className="home-button" onClick={handleHomeClick}>
-            На главную
-          </button>
-        </div>
+      <form className="filters-form">
         <div className="filters-group">
           <select 
             name="sport" 
@@ -175,11 +191,10 @@ function EventList() {
             placeholder="Дата окончания"
           />
           
-          <button type="submit" className="apply-button">
-            Применить
-          </button>
         </div>
       </form>
+
+      <h2 className="list-title-main">Список событий</h2>
 
       {loading ? (
         <Loader />
@@ -189,12 +204,12 @@ function EventList() {
         <div className="list-events">
           {displayedEvents.map(event => (
             <div 
-              key={event.id} 
-              className={`list-row ${expandedEventId === event.id ? 'expanded' : ''}`}
+              key={event.event_id} 
+              className={`list-row ${expandedEventId === event.event_id ? 'expanded' : ''}`}
             >
               <div 
                 className="list-row-header" 
-                onClick={() => handleEventClick(event.id)}
+                onClick={() => handleEventClick(event.event_id)}
               >
                 <div className="list-date">
                   {formatDateRange(event.date_start, event.date_end)}
@@ -203,22 +218,24 @@ function EventList() {
                 <div className="list-sport">{event.sport}</div>
                 <div className="list-place">{event.place}</div>
               </div>
-              <div className="event-details">
-                <div className="event-details-content">
+              <div className="list-details">
+                <div className="list-details-content">
                   {event.discipline && (
-                    <div className="detail-item">
-                      <span className="detail-label">Дисциплина:</span>
-                      <span>{event.discipline}</span>
+                    <div className="detail-item discipline">
+                      <span className="detail-label">Дисциплина</span>
+                      <span className="detail-value">{event.discipline}</span>
                     </div>
                   )}
-                  {event.participants && (
-                    <div className="detail-item">
-                      <div className="participants-info">
-                        <span className="detail-label">Участники:</span>
-                        <span>{event.participants}</span>
+                  {(event.participants || event.participants_num) && (
+                    <div className="detail-item participants">
+                      <span className="detail-label">Участники</span>
+                      <div className="participants-container">
+                        {event.participants && (
+                          <span className="detail-value">{event.participants}</span>
+                        )}
                         {event.participants_num && (
                           <span className="participants-count">
-                            Количество участников: {event.participants_num}
+                            Количество: {event.participants_num}
                           </span>
                         )}
                       </div>

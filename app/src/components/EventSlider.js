@@ -64,7 +64,7 @@ function EventSlider() {
 
   return (
     <div className="slider-wrapper">
-      <h2 className="slider-title">События года</h2>
+      <h2 className="slider-title">Случайные события года</h2>
       <div className="slider-container" ref={sliderRef}>
         <div className="slider-track">
           {events.map((event, index) => (

@@ -144,4 +144,39 @@
 
 .filter-button:active {
   transform: translateY(0);
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.auth-button {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-button:hover {
+  background: white;
+  color: #1a1a1a;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+  .auth-buttons {
+    margin-bottom: 15px;
+  }
+  
+  .auth-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
 } 

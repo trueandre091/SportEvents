@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
 
 function Header() {
@@ -10,6 +10,7 @@ function Header() {
     blue: '#5046e1'
   };
   const navigate = useNavigate();
+  const location = useLocation();
   const [squares, setSquares] = useState([]);
 
   const createSquares = () => {
@@ -74,8 +75,20 @@ function Header() {
     };
   }
 
+  const handleButtonClick = () => {
+    if (location.pathname === '/events') {
+      navigate('/');
+    } else {
+      navigate('/events');
+    }
+  };
+
   return (
     <header className="header">
+      <div className="auth-buttons">
+        <button className="auth-button">Войти</button>
+        <button className="auth-button">Регистрация</button>
+      </div>
       <h1>КАЛЕНДАРЬ СОБЫТИЙ</h1>
       <div className="date-grid">
         {squares.map((square, index) => (
@@ -95,9 +108,9 @@ function Header() {
       <div className="filter-button-container">
         <button 
           className="filter-button"
-          onClick={() => navigate('/events')}
+          onClick={handleButtonClick}
         >
-          Фильтр спортивных событий
+          {location.pathname === '/events' ? 'На главную' : 'Фильтр спортивных событий'}
         </button>
       </div>
     </header>

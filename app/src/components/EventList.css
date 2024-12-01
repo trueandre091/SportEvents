@@ -2,6 +2,9 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  background: transparent;
+  padding: 0 20px 20px;
+  border-radius: 0 0 8px 8px;
 }
 
 .list-row {
@@ -15,23 +18,36 @@
 .list-row-header {
   padding: 15px 20px;
   display: grid;
-  grid-template-columns: 120px 1fr 150px 150px;
+  grid-template-columns: 120px 1fr 150px 200px;
   align-items: center;
-  gap: 20px;
+  gap: 30px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .list-row-header:hover {
-  background-color: #f8f9fa;
+  background-color: #e9e9e9;
 }
 
 .list-date {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
   font-weight: 500;
   color: #333 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-date::before {
+  content: '📅';
+  font-size: 14px;
 }
 
 .list-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
   font-weight: 500;
   color: #212529 !important;
   overflow: hidden;
@@ -40,11 +56,31 @@
 }
 
 .list-sport {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
   color: #666 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-sport::before {
+  content: '🏆';
+  font-size: 14px;
 }
 
 .list-place {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
   color: #666 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-place::before {
+  content: '📍';
+  font-size: 14px;
 }
 
 .list-details {
@@ -54,51 +90,90 @@
   transition: all 0.3s ease-out;
   opacity: 0;
   visibility: hidden;
+  background: white;
+  margin: 0 20px;
+  border-radius: 0 0 8px 8px;
 }
 
 .list-row.expanded .list-details {
-  max-height: none;
+  max-height: 500px;
   padding: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #e9e9e9;
   opacity: 1;
   visibility: visible;
 }
 
 .list-details-content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: 2fr 1fr;
   gap: 20px;
-  transform: translateY(-10px);
-  transition: transform 0.3s ease;
-}
-
-.list-row.expanded .list-details-content {
-  transform: translateY(0);
+  font-family: 'Montserrat', sans-serif;
 }
 
 .detail-item {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 8px;
   color: #666 !important;
   font-size: 14px;
   padding: 8px 0;
 }
 
-.detail-item svg {
-  width: 16px;
-  height: 16px;
-  color: #999;
-  flex-shrink: 0;
-  margin-top: 2px;
+.detail-item::before {
+  font-size: 14px;
+}
+
+.detail-item.discipline {
+  grid-column: 1;
+}
+
+.detail-item.participants {
+  grid-column: 2;
+}
+
+.detail-item.discipline::before {
+  content: '🎯';
+}
+
+.detail-item.participants::before {
+  content: '👥';
+}
+
+.detail-item.participants-count::before {
+  content: '📊';
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #333 !important;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-value {
+  color: #666;
+}
+
+.participants-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.participants-count {
+  font-size: 13px;
+  color: #666 !important;
+  margin-top: 4px;
 }
 
 .filters-form {
-  margin-bottom: 20px;
+  margin-bottom: 0;
   padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: transparent;
+  border-radius: 8px 8px 0 0;
+  box-shadow: none;
 }
 
 .filters-group {
@@ -275,6 +350,15 @@
   .participants-info {
     gap: 3px;
   }
+
+  .list-events {
+    padding: 0 12px 12px;
+  }
+
+  .detail-item.discipline,
+  .detail-item.participants {
+    grid-column: auto;
+  }
 }
 
 @media (max-width: 480px) {
@@ -366,6 +450,7 @@
 }
 
 .detail-label {
+  font-family: 'Montserrat', sans-serif;
   font-weight: 500;
   color: #333 !important;
   margin-right: 8px;
@@ -402,5 +487,42 @@
   .home-button {
     width: auto;
   }
+}
+
+.events-container {
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 1200px;
+}
+
+.list-title-main {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 32px;
+  font-weight: 100;
+  color: #1a1a1a;
+  text-align: left;
+  margin: 0 0 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0 20px;
+}
+
+@media (max-width: 768px) {
+  .list-title-main {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+}
+
+.list-row-header::after {
+  content: '▼';
+  font-size: 12px;
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.list-row.expanded .list-row-header::after {
+  transform: rotate(180deg);
 }
  

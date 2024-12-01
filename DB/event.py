@@ -124,13 +124,22 @@ class Event:
     def get_by_filters(self):
         try:
             with self.sessionmaker() as session:
-                query = select(Events).filter_by(**self.get_filters())
-                events: list[Events] = session.scalars(query).all()
+                query = select(Events)
+                
+                # Добавляем базовые фильтры (спорт и т.д.)
+                filters = self.get_filters()
+                if filters:
+                    query = query.filter_by(**filters)
+                
+                # Добавляем фильтры по датам
+                if self.date_start is not None:
+                    query = query.filter(Events.date_start >= self.date_start)
+                if self.date_end is not None:
+                    query = query.filter(Events.date_end <= self.date_end)
+                
+                events = session.scalars(query).all()
                 if events is None:
-                    raise Exception("Can't find any events by filters")
-
-                if self.date_start is not None and self.date_end is not None:
-                    events: list[Events] = self.filter_by_time(events)
+                    return []
 
                 return events
 

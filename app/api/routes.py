@@ -33,19 +33,30 @@ def get_events():
         event = Event()
 
         if selected_date:
-            # Если указана конкретная дата, используем новую функцию
             selected_date = datetime.strptime(selected_date, '%Y-%m-%d')
             events = event.get_events_by_date(selected_date)
             events = [event_to_dict(event) for event in events]
         else:
-            # Иначе используем существующую фильтрацию
             if date_start:
                 date_start = datetime.strptime(date_start, "%Y-%m-%d")
             if date_end:
                 date_end = datetime.strptime(date_end, "%Y-%m-%d")
             event = Event(sport=sport if sport else None, date_start=date_start, date_end=date_end)
-            events = [event_to_dict(event) for event in event.get_by_filters()]
-
+            events_objects = event.get_by_filters()
+            events = []
+            for event in events_objects:
+                events.append({
+                    'event_id': event.event_id,
+                    'id': event.event_id,  # для совместимости
+                    'title': event.title,
+                    'discipline': event.discipline,  # добавляем поле
+                    'participants': event.participants,  # добавляем поле
+                    'participants_num': event.participants_num,  # добавляем поле
+                    'sport': event.sport,
+                    'date_start': event.date_start.strftime('%Y-%m-%d') if event.date_start else None,
+                    'date_end': event.date_end.strftime('%Y-%m-%d') if event.date_end else None,
+                    'place': event.place
+                })
         
         return jsonify({'events': events})
     except Exception as e:
