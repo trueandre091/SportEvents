@@ -141,13 +141,12 @@ function EventList() {
 
   return (
     <div className="events-container">
-      <div className="header-controls">
-        <button className="home-button" onClick={handleHomeClick}>
-          На главную
-        </button>
-      </div>
-
       <form className="filters-form" onSubmit={handleApplyFilters}>
+        <div className="header-controls">
+          <button className="home-button" onClick={handleHomeClick}>
+            На главную
+          </button>
+        </div>
         <div className="filters-group">
           <select 
             name="sport" 
