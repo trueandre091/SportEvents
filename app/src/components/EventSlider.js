@@ -29,7 +29,17 @@ function EventSlider() {
     if (!start || !end) return 'Дата не указана';
     const startDate = new Date(start);
     const endDate = new Date(end);
-    return `${startDate.getDate()}-${endDate.getDate()} ${startDate.toLocaleString('ru-RU', { month: 'long' })}`;
+    
+    return (
+      <div className="event-date">
+        <span className="event-date-numbers">
+          {`${startDate.getDate()}-${endDate.getDate()}`}
+        </span>
+        <span className="event-date-month">
+          {startDate.toLocaleString('ru-RU', { month: 'long' })}
+        </span>
+      </div>
+    );
   };
 
   const handleEventClick = (event) => {
@@ -61,9 +71,7 @@ function EventSlider() {
               key={event.id} 
               className={`slider-item ${index === currentIndex ? 'active' : ''}`}
             >
-              <div className="event-date">
-                {formatDateRange(event.date_start, event.date_end)}
-              </div>
+              {formatDateRange(event.date_start, event.date_end)}
               <div className="event-title">{event.title}</div>
               <div className="event-details">
                 <div className="event-type">{event.sport}</div>
