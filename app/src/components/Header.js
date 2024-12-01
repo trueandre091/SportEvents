@@ -7,7 +7,7 @@ function Header() {
     darkGray: '#1a1a1a',
     white: '#ffffff',
     orange: '#f79423',
-    blue: '#307ef2'
+    blue: '#5046e1'
   };
   const navigate = useNavigate();
   const [squares, setSquares] = useState([]);

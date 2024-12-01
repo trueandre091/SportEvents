@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: 30px;
   background-color: #e9e9e9;
-  padding: 40px 0;
+  padding: 40px;
   position: relative;
 }
 
@@ -80,7 +80,7 @@
   top: 50%;
   left: 0;
   height: 2px;
-  background-color: #007bff;
+  background-color: #5046e1;
   border-radius: 1px;
   transform: translateY(-50%);
   pointer-events: none;
@@ -88,7 +88,7 @@
 
 .slider-thumb {
   height: 100%;
-  background: #007bff;
+  background: #5046e1;
   border-radius: 4px;
   position: absolute;
   left: 0;
@@ -125,13 +125,13 @@
 }
 
 .slider-item:nth-child(2) {
-  background-color: #007bff;
+  background-color: #5046e1;
 }
 
 .slider-item:hover {
   background-color: #333333;
   transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(80, 70, 225, 0.15);
 }
 
 .event-date {
@@ -266,12 +266,12 @@
 }
 
 .slider-dot.active {
-  background-color: #007bff;
+  background-color: #5046e1;
   transform: scale(1.2);
 }
 
 .slider-dot:hover {
-  background-color: #007bff;
+  background-color: #5046e1;
 }
 
 .slider-scrollbar {
@@ -285,10 +285,35 @@
 
 .slider-thumb:active {
   cursor: grabbing;
-  background: #0056b3;
+  background: #5046e1;
 }
 
 .slider-thumb.dragging {
   cursor: grabbing;
-  background: #0056b3;
+  background: #5046e1;
+}
+
+.slider-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 32px;
+  font-weight: 100;
+  color: #1a1a1a;
+  text-align: left;
+  margin: 0 0 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  max-width: 800px;
+}
+
+/* На мобильных устройствах */
+@media (max-width: 768px) {
+  .slider-wrapper {
+    padding: 20px;
+  }
+
+  .slider-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
 }

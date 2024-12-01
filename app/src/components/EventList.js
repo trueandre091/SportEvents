@@ -6,76 +6,26 @@ import './EventList.css';
 
 function EventList() {
   const navigate = useNavigate();
-  const { events, sports, setEvents, setSports } = useEvents();
+  const { events, setEvents, sports, setSports } = useEvents();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [displayedEvents, setDisplayedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [expandedEventId, setExpandedEventId] = useState(null);
   const [filters, setFilters] = useState({
     sport: searchParams.get('sport') || '',
     dateStart: searchParams.get('dateStart') || '',
     dateEnd: searchParams.get('dateEnd') || ''
   });
   const ITEMS_PER_PAGE = 30;
-  const [expandedEventId, setExpandedEventId] = useState(null);
 
-  // Загрузка событий при монтировании компонента
+  // Загрузка всех событий при первом рендере
   useEffect(() => {
-    fetchFilteredEvents(filters);
-  }, []); // Пустой массив зависимостей для загрзки только при монтировании
+    fetchFilteredEvents();
+  }, []); 
 
-  const fetchFilteredEvents = async (filters) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Проверяем, есть ли заполненные фильтры
-      const hasFilters = filters.sport || filters.dateStart || filters.dateEnd;
-
-      // Если фильтры пустые, загружаем все события
-      const url = hasFilters 
-        ? `/api/events?${new URLSearchParams({
-            sport: filters.sport || '',
-            date_start: filters.dateStart || '',
-            date_end: filters.dateEnd || ''
-          })}`
-        : '/api/events';
-
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-      const data = await response.json();
-      
-      // Получаем массив событий из ответа
-      const eventsArray = data.events || [];
-      setEvents(eventsArray);
-      
-      // Показываем первые 30 событий
-      setDisplayedEvents(eventsArray.slice(0, ITEMS_PER_PAGE));
-      setCurrentPage(0);
-    } catch (err) {
-      console.error('Error fetching events:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLoadMore = () => {
-    const nextPage = currentPage + 1;
-    const start = nextPage * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    
-    setDisplayedEvents(prev => [...prev, ...events.slice(start, end)]);
-    setCurrentPage(nextPage);
-  };
-
-  // Проверяем, есть ли еще события для загрузки
-  const hasMore = displayedEvents.length < events.length;
-
-  // Загрузка списка видов спорта при монтировании
+  // Загрузка списка видов спорта
   useEffect(() => {
     const fetchSports = async () => {
       try {
@@ -91,30 +41,84 @@ function EventList() {
     fetchSports();
   }, [setSports]);
 
+  const fetchFilteredEvents = async (filters = {}) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Проверяем, есть ли заполненные фильтры
+      const hasFilters = filters.sport || filters.dateStart || filters.dateEnd;
+
+      // Если фильтры не заполнены, делаем запрос без параметров
+      const url = hasFilters 
+        ? `/api/events?${new URLSearchParams({
+            ...(filters.sport && { sport: filters.sport }),
+            ...(filters.dateStart && { date_start: filters.dateStart }),
+            ...(filters.dateEnd && { date_end: filters.dateEnd })
+          })}`
+        : '/api/events';
+
+      console.log('Fetching URL:', url);
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch events');
+      }
+
+      const data = await response.json();
+      console.log('Received data:', data);
+
+      if (!data.events) {
+        console.error('No events array in response:', data);
+        setEvents([]);
+        setDisplayedEvents([]);
+        return;
+      }
+
+      setEvents(data.events);
+      setDisplayedEvents(data.events.slice(0, ITEMS_PER_PAGE));
+      setCurrentPage(0);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setError(err.message);
+      setEvents([]);
+      setDisplayedEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFilterChange = useCallback((e) => {
     const { name, value } = e.target;
     setFilters(prev => ({
       ...prev,
       [name]: value
     }));
-  }, []);
+  }, []); // Убираем зависимость от filters
 
   const handleApplyFilters = async (e) => {
     e.preventDefault();
-    // Обновляем URL только если есть заполненные фильтры
+    await fetchFilteredEvents(filters);
+    
+    // Обновляем URL только если есть фильтры
     if (filters.sport || filters.dateStart || filters.dateEnd) {
-      setSearchParams({
-        sport: filters.sport,
-        dateStart: filters.dateStart,
-        dateEnd: filters.dateEnd
-      });
+      setSearchParams(filters);
     } else {
-      // Если фильтры пустые, очищаем URL
       setSearchParams({});
     }
-    // Загружаем события
-    await fetchFilteredEvents(filters);
   };
+
+  const handleLoadMore = () => {
+    const nextPage = currentPage + 1;
+    const start = nextPage * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    
+    setDisplayedEvents(prev => [...prev, ...events.slice(start, end)]);
+    setCurrentPage(nextPage);
+  };
+
+  // Проверяем, есть ли еще события для загрузки
+  const hasMore = displayedEvents.length < events.length;
 
   const formatDateRange = (start, end) => {
     if (!start || !end) return 'Дата не указана';
@@ -124,11 +128,9 @@ function EventList() {
   };
 
   const handleEventClick = (eventId) => {
-    // Если кликнули на уже открытое событие - закрываем его
     if (expandedEventId === eventId) {
       setExpandedEventId(null);
     } else {
-      // Иначе открываем новое событие
       setExpandedEventId(eventId);
     }
   };

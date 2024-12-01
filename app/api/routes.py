@@ -24,53 +24,33 @@ def log_request_info():
 
 @app.route('/api/events')
 def get_events():
-    sport = request.args.get('sport')
-    date_start = request.args.get('date_start')
-    date_end = request.args.get('date_end')
-    page = int(request.args.get('page', 0))
-    limit = int(request.args.get('limit', 30))
-    
-    # Преобразуем строки дат в объекты datetime
     try:
-        date_start = datetime.strptime(date_start, '%Y-%m-%d') if date_start else None
-        date_end = datetime.strptime(date_end, '%Y-%m-%d') if date_end else None
-    except ValueError:
-        date_start = None
-        date_end = None
-    
-    print("Получены фильтры:", {
-        "sport": sport,
-        "date_start": date_start,
-        "date_end": date_end
-    })
-    
-    event = Event(
-        sport=sport if sport else None,
-        date_start=date_start,
-        date_end=date_end
-    )
-    
-    events_objects = event.get_by_filters()
-    events = []
-    for event in events_objects:
-        events.append({
-            'id': event.event_id,
-            'title': event.title,
-            'discipline': event.discipline,
-            'participants': event.participants,
-            'participants_num': event.participants_num,
-            'sport': event.sport,
-            'date_start': event.date_start.strftime('%Y-%m-%d') if event.date_start else None,
-            'date_end': event.date_end.strftime('%Y-%m-%d') if event.date_end else None,
-            'place': event.place
-        })
-    
-    return jsonify({
-        'events': events,
-        'page': page,
-        'limit': limit
-    })
+        sport = request.args.get("sport")
+        date_start = request.args.get("date_start")
+        date_end = request.args.get("date_end")
+        selected_date = request.args.get("date")
+        all = request.args.get("all")
+        event = Event()
 
+        if selected_date:
+            # Если указана конкретная дата, используем новую функцию
+            selected_date = datetime.strptime(selected_date, '%Y-%m-%d')
+            events = event.get_events_by_date(selected_date)
+            events = [event_to_dict(event) for event in events]
+        else:
+            # Иначе используем существующую фильтрацию
+            if date_start:
+                date_start = datetime.strptime(date_start, "%Y-%m-%d")
+            if date_end:
+                date_end = datetime.strptime(date_end, "%Y-%m-%d")
+            event = Event(sport=sport if sport else None, date_start=date_start, date_end=date_end)
+            events = [event_to_dict(event) for event in event.get_by_filters()]
+
+        
+        return jsonify({'events': events})
+    except Exception as e:
+        print(f"Error in get_events: {e}")
+        return jsonify({'events': [], 'error': str(e)})
 
 @app.route('/api/events/random')
 def get_random_events():
