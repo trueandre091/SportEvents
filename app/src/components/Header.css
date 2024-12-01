@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+.header {
+  background-color: #1a1a1a;
+  padding: 20px;
+  color: white;
+  position: relative;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.header h1 {
+  margin-bottom: 20px;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+}
+
+.date-grid {
+  display: grid;
+  grid-template-rows: repeat(2, 80px);
+  grid-auto-columns: 80px;
+  grid-auto-flow: column;
+  gap: 10px;
+  width: calc(98% - 20px);
+  margin: 0 1% 20px calc(1% + 10px);
+  padding: 10px 5px;
+  transition: opacity 0.2s ease;
+  justify-content: center;
+}
+
+.date-box {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.date-box:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.date-box:active {
+  transform: scale(0.95);
+}
+
+.double-square {
+  grid-column: span 2;
+  aspect-ratio: unset;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 10px;
+    min-height: 250px;
+  }
+
+  .header h1 {
+    margin-bottom: 10px;
+    font-size: 24px;
+  }
+
+  .date-grid {
+    grid-template-rows: repeat(2, 60px);
+    grid-auto-columns: 60px;
+    width: 100%;
+    margin: 0;
+    padding: 5px 0;
+    gap: 5px;
+  }
+  
+  .date-box {
+    font-size: 18px;
+    border-radius: 8px;
+  }
+
+  .filter-button-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 8px;
+    min-height: 220px;
+  }
+
+  .date-grid {
+    grid-template-rows: repeat(2, 50px);
+    grid-auto-columns: 50px;
+    gap: 4px;
+  }
+  
+  .date-box {
+    font-size: 16px;
+    border-radius: 6px;
+  }
+}
+
+.filter-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.filter-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.filter-button:active {
+  transform: translateY(0);
+} 

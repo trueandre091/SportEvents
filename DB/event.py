@@ -125,18 +125,19 @@ class Event:
         try:
             with self.sessionmaker() as session:
                 query = select(Events).filter_by(**self.get_filters())
-                events: list[Events] = session.scalars(query).all()
+                events = session.scalars(query).all()
+                
                 if events is None:
-                    raise Exception("Can't find any events by filters")
+                    return []
 
                 if self.date_start is not None and self.date_end is not None:
-                    events: list[Events] = self.filter_by_time(events)
+                    events = self.filter_by_time(events)
 
                 return events
 
         except Exception as e:
-            print(e)
-            raise e
+            print(f"Error in get_by_filters: {e}")
+            return []
 
     def get_by_id(self, event_id: int):
         try:

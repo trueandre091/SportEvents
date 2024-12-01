@@ -1,0 +1,392 @@
+.events-list {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.event-row {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.event-row-header {
+  padding: 15px 20px;
+  display: grid;
+  grid-template-columns: 120px 1fr 150px 150px;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.event-row-header:hover {
+  background-color: #f8f9fa;
+}
+
+.event-date {
+  font-weight: 500;
+  color: #007bff;
+}
+
+.event-title {
+  font-weight: 500;
+  color: #212529;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-sport {
+  color: #666;
+}
+
+.event-place {
+  color: #666;
+}
+
+.event-details {
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.event-row.expanded .event-details {
+  max-height: none;
+  padding: 20px;
+  border-top: 1px solid #eee;
+  opacity: 1;
+  visibility: visible;
+}
+
+.event-details-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  transform: translateY(-10px);
+  transition: transform 0.3s ease;
+}
+
+.event-row.expanded .event-details-content {
+  transform: translateY(0);
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+.detail-item svg {
+  width: 16px;
+  height: 16px;
+  color: #999;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.filters-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.filters-top {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.filters-bottom {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.filters-form select,
+.filters-form input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 200px;
+}
+
+.filters-buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.apply-button {
+  padding: 8px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.apply-button:hover {
+  background-color: #0056b3;
+}
+
+.home-button {
+  padding: 8px 20px;
+  background-color: #1a1a1a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.home-button:hover {
+  background-color: #333;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  padding: 20px;
+}
+
+.event-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.event-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f79423, #307ef2);
+}
+
+.event-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  padding: 20px 20px 10px;
+  line-height: 1.4;
+}
+
+.event-info {
+  padding: 0 20px 20px;
+}
+
+.event-sport {
+  font-size: 14px;
+  color: #007bff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.event-dates {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.event-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+}
+
+.event-date svg {
+  width: 16px;
+  height: 16px;
+  color: #999;
+}
+
+.event-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  font-size: 14px;
+}
+
+.event-location svg {
+  width: 16px;
+  height: 16px;
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-row-header {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 12px 15px;
+  }
+
+  .event-date {
+    color: #666;
+  }
+
+  .event-title {
+    font-weight: 500;
+  }
+
+  .filters-form {
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .filters-form select,
+  .filters-form input {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .filters-buttons {
+    width: 100%;
+    flex-direction: column;
+    margin-left: 0;
+    gap: 8px;
+  }
+
+  .filters-buttons button {
+    width: 100%;
+  }
+
+  .event-details-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .participants-info {
+    gap: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-row {
+    margin-bottom: 8px;
+  }
+
+  .event-row-header {
+    padding: 10px 12px;
+  }
+
+  .filters-form {
+    padding: 12px;
+  }
+
+  .detail-item svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.event-card-date {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.event-card-date svg {
+  width: 14px;
+  height: 14px;
+  color: #999;
+}
+
+.event-card-location {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.event-card-location svg {
+  width: 14px;
+  height: 14px;
+  color: #999;
+}
+
+.load-more {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.load-more button {
+  padding: 12px 24px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  color: #212529;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.load-more button:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.load-more button:active {
+  background-color: #dee2e6;
+}
+
+.participants-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.participants-count {
+  font-size: 12px;
+  color: #999;
+}
+ 
