@@ -2,7 +2,6 @@ import asyncio
 
 from bot.bot import dp, bot
 from bot import handlers
-from bot import periodic_fn
 
 async def main():
     # Создаем новый цикл событий
@@ -10,10 +9,8 @@ async def main():
     asyncio.set_event_loop(loop)
     
     try:
-        await asyncio.gather(
-            dp.start_polling(bot),
-            periodic_fn.parsing_and_notifications(test=False)
-        )
+        # Запускаем только поллинг бота, без парсинга
+        await dp.start_polling(bot)
     finally:
         loop.close()
 

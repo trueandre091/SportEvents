@@ -95,11 +95,29 @@ function Header() {
     navigate(`/events?selected_date=${formattedDate}`);
   };
 
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+
+  const handleRegisterClick = () => {
+    navigate('/register');
+  };
+
   return (
     <header className="header">
       <div className="auth-buttons">
-        <button className="auth-button">Войти</button>
-        <button className="auth-button">Регистрация</button>
+        <button 
+          className="auth-button" 
+          onClick={handleLoginClick}
+        >
+          Войти
+        </button>
+        <button 
+          className="auth-button" 
+          onClick={handleRegisterClick}
+        >
+          Регистрация
+        </button>
       </div>
       <h1>КАЛЕНДАРЬ СОБЫТИЙ</h1>
       <div className="date-grid">

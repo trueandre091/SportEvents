@@ -1,18 +1,24 @@
 services:
-  app:
+  web:
     build: .
-    container_name: app-container
+    container_name: sport-events-main
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
+      - CHROME_BIN=/usr/bin/chromium
+      - CHROMEDRIVER_PATH=/usr/bin/chromedriver
     ports:
       - "5000:5000"
     depends_on:
       - db
+    volumes:
+      - ./app:/app/app  # Для горячей перезагрузки React-приложения
+      - ./bot:/app/bot  # Для логов бота
+      - ./parsing:/app/parsing  # Для логов парсинга
 
   db:
     image: postgres:17.2
-    container_name: db-container
+    container_name: sport-events-db
     restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres

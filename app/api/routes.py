@@ -10,12 +10,15 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from DB.event import Event
 from fn import event_to_dict
+from auth import router as auth_router
 
 app = Flask(__name__)
 CORS(app)
 
 app.config['JSON_AS_ASCII'] = False
 app.config['JSONIFY_MIMETYPE'] = 'application/json;charset=utf-8'
+
+app.register_blueprint(auth_router, url_prefix='/api/auth')
 
 @app.before_request
 def log_request_info():
