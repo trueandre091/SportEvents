@@ -16,13 +16,28 @@ function EventList() {
   const [filters, setFilters] = useState({
     sport: searchParams.get('sport') || '',
     dateStart: searchParams.get('dateStart') || '',
-    dateEnd: searchParams.get('dateEnd') || ''
+    dateEnd: searchParams.get('dateEnd') || '',
+    selected_date: searchParams.get('selected_date') || ''
   });
   const ITEMS_PER_PAGE = 30;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
-  // Загрузка всех событий при первом рендере
+  // Добавляем новый useEffect для отслеживания изменений selected_date
   useEffect(() => {
-    fetchFilteredEvents();
+    const selected_date = searchParams.get('selected_date');
+    if (selected_date) {
+      fetchEventsByDate(selected_date);
+    }
+  }, [searchParams]); // Зависимость от searchParams позволит отслеживать все изменения в URL
+
+  // Изменяем первоначальный useEffect, убирая из него логику selected_date
+  useEffect(() => {
+    const selected_date = searchParams.get('selected_date');
+    if (!selected_date) {
+      // Загружаем все события только если нет selected_date
+      fetchFilteredEvents();
+    }
   }, []); 
 
   // Загрузка списка видов спорта
@@ -92,24 +107,57 @@ function EventList() {
     }
   };
 
+  const fetchEventsByDate = async (date) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/events?date=${date}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch events');
+      }
+
+      const data = await response.json();
+      console.log('Received events for date:', data);
+
+      if (!data.events) {
+        console.error('No events array in response:', data);
+        setEvents([]);
+        setDisplayedEvents([]);
+        return;
+      }
+
+      setEvents(data.events);
+      setDisplayedEvents(data.events.slice(0, ITEMS_PER_PAGE));
+      setCurrentPage(0);
+    } catch (err) {
+      console.error('Error fetching events by date:', err);
+      setError(err.message);
+      setEvents([]);
+      setDisplayedEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFilterChange = useCallback((e) => {
     const { name, value } = e.target;
     const newFilters = {
       ...filters,
-      [name]: value
+      [name]: value,
+      selected_date: '' // Сбрасываем selected_date при изменении фильтров
     };
     setFilters(newFilters);
 
-    // Обновляем URL
-    if (newFilters.sport || newFilters.dateStart || newFilters.dateEnd) {
-      setSearchParams(newFilters);
-    } else {
-      setSearchParams({});
-    }
+    // Удаляем selected_date из URL при изменении фильтров
+    const searchParams = new URLSearchParams();
+    if (newFilters.sport) searchParams.set('sport', newFilters.sport);
+    if (newFilters.dateStart) searchParams.set('dateStart', newFilters.dateStart);
+    if (newFilters.dateEnd) searchParams.set('dateEnd', newFilters.dateEnd);
+    setSearchParams(searchParams);
 
-    // Сразу применяем фильтры
     fetchFilteredEvents(newFilters);
-  }, [filters, setSearchParams, fetchFilteredEvents]);
+  }, [filters, setSearchParams]);
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
@@ -160,9 +208,55 @@ function EventList() {
     navigate('/');
   };
 
+  // Добавим функцию форматирования даты для заголовка
+  const formatDateForTitle = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  // Функция поиска
+  const filterEvents = useCallback((events, query) => {
+    if (!query) {
+      setFilteredEvents(events);
+      return;
+    }
+
+    const searchLower = query.toLowerCase();
+    const filtered = events.filter(event => 
+      event.title?.toLowerCase().includes(searchLower) ||
+      event.sport?.toLowerCase().includes(searchLower) ||
+      event.place?.toLowerCase().includes(searchLower) ||
+      event.discipline?.toLowerCase().includes(searchLower)
+    );
+    setFilteredEvents(filtered);
+  }, []);
+
+  // Обновляем useEffect для обработки поиска при изменении событий
+  useEffect(() => {
+    filterEvents(events, searchQuery);
+  }, [events, searchQuery, filterEvents]);
+
+  // Обработчик изменения поискового запроса
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <div className="events-container">
       <form className="filters-form">
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Поиск по названию, виду спорта, месту проведения или дисциплине..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+        </div>
         <div className="filters-group">
           <select 
             name="sport" 
@@ -194,7 +288,11 @@ function EventList() {
         </div>
       </form>
 
-      <h2 className="list-title-main">Список событий</h2>
+      <h2 className="list-title-main">
+        {searchParams.get('selected_date') 
+          ? `Список событий на ${formatDateForTitle(searchParams.get('selected_date'))}` 
+          : 'Список событий'}
+      </h2>
 
       {loading ? (
         <Loader />
@@ -202,7 +300,7 @@ function EventList() {
         <div className="error">Ошибка: {error}</div>
       ) : (
         <div className="list-events">
-          {displayedEvents.map(event => (
+          {filteredEvents.slice(0, (currentPage + 1) * ITEMS_PER_PAGE).map(event => (
             <div 
               key={event.event_id} 
               className={`list-row ${expandedEventId === event.event_id ? 'expanded' : ''}`}
@@ -222,20 +320,26 @@ function EventList() {
                 <div className="list-details-content">
                   {event.discipline && (
                     <div className="detail-item discipline">
-                      <span className="detail-label">Дисциплина</span>
+                      <span className="detail-label">
+                        <span className="icon">🎯</span>
+                        Дисциплина
+                      </span>
                       <span className="detail-value">{event.discipline}</span>
                     </div>
                   )}
                   {(event.participants || event.participants_num) && (
                     <div className="detail-item participants">
-                      <span className="detail-label">Участники</span>
+                      <span className="detail-label">
+                        <span className="icon">👥</span>
+                        Участники
+                      </span>
                       <div className="participants-container">
                         {event.participants && (
                           <span className="detail-value">{event.participants}</span>
                         )}
                         {event.participants_num && (
                           <span className="participants-count">
-                            Количество: {event.participants_num}
+                            <br />Количество: {event.participants_num}
                           </span>
                         )}
                       </div>
@@ -248,7 +352,7 @@ function EventList() {
         </div>
       )}
 
-      {hasMore && !loading && !error && (
+      {filteredEvents.length > (currentPage + 1) * ITEMS_PER_PAGE && !loading && !error && (
         <div className="load-more">
           <button onClick={handleLoadMore}>
             Загрузить больше событий

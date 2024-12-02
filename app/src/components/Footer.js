@@ -7,8 +7,8 @@ function Footer() {
       <div className="footer-content">
         <div className="footer-section">
           <h4>Контакты</h4>
-          <p>Email: info@sportevents.ru</p>
-          <p>Телефон: +7 (999) 123-45-67</p>
+          <p>Email: info@minsport.gov.ru</p>
+          <p>Телефон: +7 (495) 720-53-80</p>
         </div>
         <div className="footer-section">
           <h4>Социальные сети</h4>

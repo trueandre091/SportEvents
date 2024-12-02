@@ -12,6 +12,7 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [squares, setSquares] = useState([]);
+  const [dates, setDates] = useState([]);
 
   const createSquares = () => {
     const container = document.querySelector('.date-grid');
@@ -22,21 +23,16 @@ function Header() {
     const containerWidth = container.offsetWidth;
     
     const columns = Math.floor((containerWidth + gap) / (squareSize + gap));
-    
-    const today = new Date();
     const newSquares = [];
     
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < columns; col++) {
         const index = row * columns + col;
-        const date = new Date(today);
-        date.setDate(today.getDate() + index);
         
         const canBeDouble = col < columns - 1;
         const isDouble = canBeDouble && Math.random() < 0.3;
         
         newSquares.push({
-          date,
           isDouble,
           color: Object.values(colors)[Math.floor(Math.random() * Object.values(colors).length)]
         });
@@ -48,6 +44,21 @@ function Header() {
     }
     
     setSquares(newSquares);
+    addDatesToSquares(newSquares);
+  };
+
+  const addDatesToSquares = (squares) => {
+    const today = new Date();
+    const newDates = squares.map((_, index) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() + index);
+      return date;
+    });
+    setDates(newDates);
+  };
+
+  const formatDate = (date) => {
+    return date.getDate().toString().padStart(2, '0');
   };
 
   useEffect(() => {
@@ -58,10 +69,6 @@ function Header() {
     
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const formatDate = (date) => {
-    return date.getDate().toString().padStart(2, '0');
-  };
 
   function debounce(func, wait) {
     let timeout;
@@ -83,6 +90,11 @@ function Header() {
     }
   };
 
+  const handleSquareClick = (date) => {
+    const formattedDate = date.toISOString().split('T')[0]; // Форматируем дату в YYYY-MM-DD
+    navigate(`/events?selected_date=${formattedDate}`);
+  };
+
   return (
     <header className="header">
       <div className="auth-buttons">
@@ -98,10 +110,12 @@ function Header() {
             style={{
               backgroundColor: square.color,
               color: square.color === colors.darkGray || square.color === colors.blue ? 
-                     colors.white : colors.darkGray
+                     colors.white : colors.darkGray,
+              cursor: 'pointer' // Добавляем курсор-указатель
             }}
+            onClick={() => dates[index] && handleSquareClick(dates[index])}
           >
-            {formatDate(square.date)}
+            {dates[index] && formatDate(dates[index])}
           </div>
         ))}
       </div>

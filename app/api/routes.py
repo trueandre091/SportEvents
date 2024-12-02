@@ -30,12 +30,10 @@ def get_events():
         date_end = request.args.get("date_end")
         selected_date = request.args.get("date")
         all = request.args.get("all")
-        event = Event()
 
         if selected_date:
             selected_date = datetime.strptime(selected_date, '%Y-%m-%d')
-            events = event.get_events_by_date(selected_date)
-            events = [event_to_dict(event) for event in events]
+            events_objects = Event().get_events_by_date(selected_date)
         else:
             if date_start:
                 date_start = datetime.strptime(date_start, "%Y-%m-%d")
@@ -43,20 +41,20 @@ def get_events():
                 date_end = datetime.strptime(date_end, "%Y-%m-%d")
             event = Event(sport=sport if sport else None, date_start=date_start, date_end=date_end)
             events_objects = event.get_by_filters()
-            events = []
-            for event in events_objects:
-                events.append({
-                    'event_id': event.event_id,
-                    'id': event.event_id,  # для совместимости
-                    'title': event.title,
-                    'discipline': event.discipline,  # добавляем поле
-                    'participants': event.participants,  # добавляем поле
-                    'participants_num': event.participants_num,  # добавляем поле
-                    'sport': event.sport,
-                    'date_start': event.date_start.strftime('%Y-%m-%d') if event.date_start else None,
-                    'date_end': event.date_end.strftime('%Y-%m-%d') if event.date_end else None,
-                    'place': event.place
-                })
+        events = []
+        for event in events_objects:
+            events.append({
+                'event_id': event.event_id,
+                'id': event.event_id,
+                'title': event.title,
+                'discipline': event.discipline,
+                'participants': event.participants,
+                'participants_num': event.participants_num,
+                'sport': event.sport,
+                'date_start': event.date_start.strftime('%Y-%m-%d') if event.date_start else None,
+                'date_end': event.date_end.strftime('%Y-%m-%d') if event.date_end else None,
+                'place': event.place
+            })
         
         return jsonify({'events': events})
     except Exception as e:
