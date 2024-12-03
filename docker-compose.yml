@@ -3,16 +3,19 @@ services:
     build: .
     container_name: sport-events-main
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - PYTHONUNBUFFERED=1
       - CHROME_BIN=/usr/bin/chromium
       - CHROMEDRIVER_PATH=/usr/bin/chromedriver
+      - IS_PROD=1
     ports:
-      - "5000:5000"
+      - "5001:5001"
     depends_on:
       - db
     volumes:
-      - ./app:/app/app  # Для горячей перезагрузки React-приложения
+      # - ./app:/app/app  # Закомментировал, чтобы использовать собранную версию
       - ./bot:/app/bot  # Для логов бота
       - ./parsing:/app/parsing  # Для логов парсинга
 

@@ -18,19 +18,13 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-class SessionMaker(DataBaseConfig, metaclass=Singleton):
+class SessionMaker(metaclass=Singleton):
     """Basic class which make sessions"""
 
     def __init__(self, echo: bool = True):
         self.echo = echo
         self.engine = create_engine(
-            f"{self.DB_TYPE}+"
-            f"{self.DB_CONN}://"
-            f"{self.DB_USER}:"
-            f"{self.DB_PASS}@"
-            f"{self.DB_HOST}:"
-            f"{self.DB_PORT}/"
-            f"{self.DB_NAME}",
+            DataBaseConfig.get_connection_string(),
             echo=echo,
         )
         self.session_factory = sessionmaker(self.engine, expire_on_commit=False)

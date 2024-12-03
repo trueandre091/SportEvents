@@ -6,26 +6,21 @@ from datetime import datetime
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT_DIR)
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import request, jsonify
 from DB.event import Event
 from fn import event_to_dict
-from auth import router as auth_router
+from app.api.auth import router as auth_router
+from blueprints import api
 
-app = Flask(__name__)
-CORS(app)
+# Регистрируем auth_router как подмодуль api blueprint
+api.register_blueprint(auth_router, url_prefix='/auth')
 
-app.config['JSON_AS_ASCII'] = False
-app.config['JSONIFY_MIMETYPE'] = 'application/json;charset=utf-8'
-
-app.register_blueprint(auth_router, url_prefix='/api/auth')
-
-@app.before_request
+@api.before_request
 def log_request_info():
     print('Headers:', dict(request.headers))
     print('Body:', request.get_data())
 
-@app.route('/api/events')
+@api.route('/events')
 def get_events():
     try:
         sport = request.args.get("sport")
@@ -64,7 +59,7 @@ def get_events():
         print(f"Error in get_events: {e}")
         return jsonify({'events': [], 'error': str(e)})
 
-@app.route('/api/events/random')
+@api.route('/events/random')
 def get_random_events():
     try:
         sports = Event().get_sports()
@@ -75,7 +70,7 @@ def get_random_events():
         print(f"Error in get_random_events: {e}")
         return jsonify([])
 
-@app.route('/api/events/sports')
+@api.route('/events/sports')
 def get_sports():
     try:
         sports = Event().get_sports()
@@ -85,24 +80,6 @@ def get_sports():
         print(f"Error getting sports: {e}")
         return jsonify([])
 
-@app.route('/api/test')
+@api.route('/test')
 def test():
-    return jsonify({"message": "API работает!"})
-
-@app.route('/events/<path:subpath>')
-def handle_events_routes(subpath):
-    print(f"Handling events subpath: {subpath}")
-    
-    if subpath == 'sports':
-        return get_sports()
-    elif subpath == 'random':
-        return get_random_events()
-    else:
-        return {"error": "Not Found"}, 404
-
-@app.route('/events')
-def handle_events():
-    return get_events()
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5001) 
+    return jsonify({"message": "API работает!"}) 
