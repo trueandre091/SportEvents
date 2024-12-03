@@ -1,7 +1,0 @@
-site_url: https://minsport.gov.ru/activity/government-regulation/edinyj-kalendarnyj-plan/
-link_pattern: (http[s]?://[^\s"\']+\.pdf)
-link_tags:
-  - II
-  - EKP
-record_number_pattern: ([А-Я\s\(\)-]+)\nОсновной состав
-
