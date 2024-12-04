@@ -3,6 +3,8 @@
 /utils/__pycache__
 /common/__pycache__
 
+/parsing/files
+
 .idea
 # Byte-compiled / optimized / DLL files
 __pycache__/

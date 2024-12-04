@@ -1,3 +1,5 @@
+import logging
+
 import datetime
 import re
 from plistlib import dumps
@@ -5,30 +7,120 @@ from plistlib import dumps
 from utils import *
 from common import *
 
+logger = logging.getLogger(__name__)
+
+
+def extract_file_id(url: str) -> str:
+    """Извлекает уникальный идентификатор из URL файла."""
+    try:
+        # Пробуем найти хеш в конце URL
+        match = re.search(r'_([a-f0-9]+)\.pdf$', url)
+        if match:
+            return match.group(1)
+        
+        # Если не нашли хеш, используем всё имя файла после последнего слеша
+        match = re.search(r'/([^/]+)\.pdf$', url)
+        if match:
+            return match.group(1)
+            
+        logger.warning(f"Не удалось извлечь идентификатор из URL: {url}")
+        return None
+    except Exception as e:
+        logger.error(f"Ошибка при извлечении идентификатора из URL {url}: {e}")
+        return None
+
+
+def get_last_file_id() -> str:
+    """Получает идентификатор последнего загруженного файла."""
+    try:
+        with open(os.path.join(FILES_PATH, "last_file_id.txt"), "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return None
+
+
+def save_file_id(file_id: str):
+    """Сохраняет идентификатор файла."""
+    with open(os.path.join(FILES_PATH, "last_file_id.txt"), "w") as f:
+        f.write(file_id)
+
 
 async def save_files(files_url: list[str]) -> list[str] | None:
+    if not files_url:
+        logger.error("Список URL файлов пуст")
+        return None
+
+    # Проверяем первый URL (предполагаем, что он основной)
+    file_id = extract_file_id(files_url[0])
+    if not file_id:
+        logger.error("Не удалось извлечь идентификатор файла из URL")
+        return None
+
+    # Проверяем, изменился ли файл
+    last_file_id = get_last_file_id()
+    if last_file_id:
+        if last_file_id == file_id:
+            logger.info(f"Файл не изменился с последнего обновления (ID: {file_id})")
+            return None
+        else:
+            logger.info(f"Обнаружен новый файл (старый ID: {last_file_id}, новый ID: {file_id})")
+    else:
+        logger.info("Первая загрузка файла")
+
     files_path = []
     file_index = 1
+    
+    # Создаём директорию для файлов, если её нет
+    os.makedirs(FILES_PATH, exist_ok=True)
+    
     for file_url in files_url:
         try:
+            current_file_id = extract_file_id(file_url)
+            if not current_file_id:
+                logger.warning(f"Пропуск URL из-за невозможности извлечь ID: {file_url}")
+                continue
+
             with httpx.Client(follow_redirects=True, verify=False) as client:
                 response = client.get(file_url)
                 response.raise_for_status()
+
+                # Проверяем размер файла
+                content_length = int(response.headers.get('content-length', 0))
+                if content_length == 0:
+                    logger.warning(f"Пропуск пустого файла: {file_url}")
+                    continue
 
                 file_path = os.path.join(FILES_PATH, f"parse_data_{file_index}.pdf")
                 with open(file_path, "wb") as file:
                     for chunk in response.iter_bytes(chunk_size=8192):
                         file.write(chunk)
 
+                # Проверяем, что файл действительно сохранился
+                if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+                    logger.error(f"Файл не был сохранен корректно: {file_path}")
+                    continue
+
             files_path.append(file_path)
-            print(f"Файл успешно скачан и сохранен по пути: {FILES_PATH}")
+            logger.info(f"Файл успешно скачан и сохранен: {file_path} (ID: {current_file_id})")
         except httpx.RequestError as e:
-            print(f"Ошибка при выполнении запроса: {e}")
-            return None
+            logger.error(f"Ошибка при выполнении запроса: {e}")
+            continue
         except httpx.HTTPStatusError as e:
-            print(f"Ошибка HTTP статуса: {e.response.status_code} - {e.response.text}")
-            return None
-    return files_path
+            logger.error(f"Ошибка HTTP статуса: {e.response.status_code} - {e.response.text}")
+            continue
+        except Exception as e:
+            logger.error(f"Непредвиденная ошибка при сохранении файла: {e}")
+            continue
+        file_index += 1
+
+    # Сохраняем новый идентификатор файла только если успешно сохранили хотя бы один файл
+    if files_path:
+        save_file_id(file_id)
+        logger.info(f"Сохранен новый идентификатор файла: {file_id}")
+        return files_path
+    else:
+        logger.error("Не удалось сохранить ни один файл")
+        return None
 
 
 async def extract_pdf_to_table(files_path: str):
