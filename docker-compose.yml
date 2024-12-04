@@ -36,7 +36,7 @@ services:
     build: .
     container_name: celery-worker
     restart: unless-stopped
-    command: celery -A celery_app.celery worker --loglevel=info
+    command: python -m celery -A celery_app.celery worker --loglevel=info
     environment:
       - PYTHONUNBUFFERED=1
       - REDIS_URL=redis://redis:6379/0
@@ -48,7 +48,7 @@ services:
     build: .
     container_name: celery-beat
     restart: unless-stopped
-    command: celery -A celery_app.celery beat --loglevel=info
+    command: python -m celery -A celery_app.celery beat --loglevel=info
     environment:
       - PYTHONUNBUFFERED=1
       - REDIS_URL=redis://redis:6379/0
