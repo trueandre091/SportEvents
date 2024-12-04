@@ -15,7 +15,7 @@ def api_get_events():
         sport = request.form.get("sport")
         date_start = request.form.get("date_start")
         date_end = request.form.get("date_end")
-        selected_date = request.form.get("date")
+        selected_date = request.form.get("selected_date")
         if selected_date:
             selected_date = datetime.strptime(selected_date, '%Y-%m-%d')
             events_objects = Event().get_events_by_date(selected_date)
