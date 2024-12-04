@@ -53,6 +53,7 @@ async def main():
 
         files_dict = await parsing.fn.extract_pdf_to_table(files_path)
         result = []
+        Event().drop_table()
         for all_events in files_dict:
             for sport, events in all_events.items():
                 for event in events.copy():
