@@ -250,4 +250,30 @@
 
 .filter-button {
   animation: pulse 2s infinite;
+}
+
+.auth-buttons .logout-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.auth-buttons .logout-button:hover {
+  background-color: #d32f2f;
+  transform: translateY(-1px);
+}
+
+.auth-buttons .logout-button:active {
+  transform: translateY(0);
+}
+
+.auth-buttons .logout-button:disabled {
+  background-color: #ffcdd2;
+  cursor: not-allowed;
+  transform: none;
 } 

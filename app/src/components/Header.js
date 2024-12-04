@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { authService } from '../services/authService';
+import Logout from './auth/Logout';
 import './Header.css';
 
 function Header() {
@@ -13,6 +15,7 @@ function Header() {
   const location = useLocation();
   const [squares, setSquares] = useState([]);
   const [dates, setDates] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
 
   const createSquares = () => {
     const container = document.querySelector('.date-grid');
@@ -103,21 +106,31 @@ function Header() {
     navigate('/register');
   };
 
+  const handleLogoutSuccess = () => {
+    setIsAuthenticated(false);
+  };
+
   return (
     <header className="header">
       <div className="auth-buttons">
-        <button 
-          className="auth-button" 
-          onClick={handleLoginClick}
-        >
-          Войти
-        </button>
-        <button 
-          className="auth-button" 
-          onClick={handleRegisterClick}
-        >
-          Регистрация
-        </button>
+        {!isAuthenticated ? (
+          <>
+            <button 
+              className="auth-button" 
+              onClick={handleLoginClick}
+            >
+              Войти
+            </button>
+            <button 
+              className="auth-button" 
+              onClick={handleRegisterClick}
+            >
+              Регистрация
+            </button>
+          </>
+        ) : (
+          <Logout onLogout={handleLogoutSuccess} />
+        )}
       </div>
       <h1>КАЛЕНДАРЬ СОБЫТИЙ</h1>
       <div className="date-grid">

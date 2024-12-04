@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../../services/authService';
 import './Auth.css';
 
 function Login() {
@@ -7,29 +8,21 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        navigate('/');
-      } else {
-        setError(data.message || 'Неверный email или пароль');
-      }
+      setIsLoading(true);
+      setError('');
+      
+      await authService.login({ email, password });
+      navigate('/');
     } catch (err) {
-      setError('Произошла ошибка при входе');
+      setError(err.message || 'Неверный email или пароль');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,6 +48,7 @@ function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required 
+                disabled={isLoading}
               />
             </div>
 
@@ -67,11 +61,13 @@ function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required 
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   className={`password-control ${showPassword ? 'view' : ''}`}
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -82,7 +78,9 @@ function Login() {
               </div>
             )}
 
-            <button type="submit" className="auth-button">Войти</button>
+            <button type="submit" className="auth-button" disabled={isLoading}>
+              {isLoading ? 'Вход...' : 'Войти'}
+            </button>
           </form>
 
           <div className="auth-link">

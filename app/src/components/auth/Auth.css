@@ -254,4 +254,24 @@ html, body {
     font-size: 14px;
   }
 }
+
+.logout-button {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #cc0000;
+}
+
+.logout-button:disabled {
+    background-color: #ffaaaa;
+    cursor: not-allowed;
+}
  

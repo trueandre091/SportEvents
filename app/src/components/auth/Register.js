@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { authService } from '../../services/authService';
 import './Auth.css';
 
 function Register() {
@@ -13,6 +14,7 @@ function Register() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -24,30 +26,22 @@ function Register() {
     }
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          email,
-          password,
-          tg_id: tgId,
-          username,
-          remember_me: rememberMe
-        }),
+      setIsLoading(true);
+      setError('');
+      
+      await authService.register({
+        email,
+        password,
+        tg_id: tgId,
+        username,
+        remember_me: rememberMe
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        navigate('/');
-      } else {
-        setError(data.error || 'Ошибка при регистрации');
-      }
+      navigate('/');
     } catch (err) {
-      setError('Произошла ошибка при регистрации');
+      setError(err.message || 'Произошла ошибка при регистрации');
+    } finally {
+      setIsLoading(false);
     }
   };
 
