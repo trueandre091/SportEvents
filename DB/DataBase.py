@@ -21,7 +21,7 @@ class Singleton(type):
 class SessionMaker(DataBaseConfig, metaclass=Singleton):
     """Basic class which make sessions"""
 
-    def __init__(self, echo: bool = True):
+    def __init__(self, echo: bool = False):
         self.echo = echo
         self.engine = create_engine(
             f"{self.DB_TYPE}+"
