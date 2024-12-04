@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+.header {
+  background-color: #1a1a1a;
+  padding: 20px;
+  color: white;
+  position: relative;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.header h1 {
+  text-align: right;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 100;
+  font-size: 32px;
+  margin: 0;
+  margin-bottom: 40px;
+}
+
+.date-grid {
+  display: grid;
+  grid-template-rows: repeat(2, 80px);
+  grid-auto-columns: 80px;
+  grid-auto-flow: column;
+  gap: 10px;
+  width: calc(98% - 20px);
+  margin: 0 1% 20px calc(1% + 10px);
+  padding: 10px 5px;
+  transition: opacity 0.2s ease;
+  justify-content: center;
+}
+
+.date-box {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.date-box:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.date-box:active {
+  transform: scale(0.95);
+}
+
+.double-square {
+  grid-column: span 2;
+  aspect-ratio: unset;
+  height: 100%;
+}
+
+@media (orientation: portrait) {
+  .header {
+    padding: 10px 5px;
+    min-height: 250px;
+  }
+
+  .header h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .date-grid {
+    grid-template-rows: repeat(2, 55px);
+    grid-auto-columns: 55px;
+    width: 100%;
+    margin: 0;
+    padding: 5px 2px;
+    gap: 4px;
+  }
+  
+  .date-box {
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .filter-button-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .auth-buttons {
+    align-self: center;
+    margin-bottom: 15px;
+  }
+  
+  .auth-button {
+    font-size: 12px;
+  }
+
+  .filter-button {
+    padding: 14px 28px;
+    font-size: 15px;
+    border-width: 2px;
+    border-radius: 8px;
+  }
+}
+
+/* Для очень узких экранов в портретном режиме */
+@media (orientation: portrait) and (max-width: 380px) {
+  .header {
+    padding: 8px;
+    min-height: 220px;
+  }
+
+  .date-grid {
+    grid-template-rows: repeat(2, 50px);
+    grid-auto-columns: 50px;
+    gap: 4px;
+  }
+  
+  .date-box {
+    font-size: 16px;
+    border-radius: 6px;
+  }
+}
+
+.filter-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 35px;
+  margin-bottom: 35px;
+}
+
+.filter-button {
+  padding: 16px 34px;
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: pulse 2s infinite;
+}
+
+.filter-button:hover {
+  transform: translateY(-3px);
+  background-color: #5046e1;
+  border-color: #5046e1;
+  color: white;
+}
+
+.filter-button:active {
+  transform: translateY(-1px);
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 15px;
+  margin: 0 0 40px 0;
+  align-self: flex-end;
+}
+
+.auth-button {
+  all: unset !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+  text-transform: none !important;
+}
+
+.auth-button:hover {
+  color: white !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+@media (orientation: portrait) {
+  .auth-buttons {
+    width: 100%;
+    justify-content: center;
+    align-self: center;
+    margin: 10px 0 30px 0;
+    gap: 40px;
+  }
+  
+  .auth-button {
+    font-size: 12px !important;
+  }
+
+  .filter-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-width: 1px;
+    background: transparent;
+    animation: none;
+    transform: none !important;
+  }
+
+  .filter-button:hover {
+    background: transparent;
+    border-color: white;
+    transform: none !important;
+  }
+
+  .filter-button:active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .filter-button-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Добавляем анимацию пульсации */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.filter-button {
+  animation: pulse 2s infinite;
+} 
