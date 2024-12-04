@@ -12,14 +12,10 @@ logger = logging.getLogger(__name__)
 @api.post("/events")
 def api_get_events():
     try:
-        sport = request.args.get("sport")
-        date_start = request.args.get("date_start")
-        date_end = request.args.get("date_end")
-        selected_date = request.args.get("date")
-        print(sport)
-        print(date_start)
-        print(date_end)
-        print(selected_date)
+        sport = request.form.get("sport")
+        date_start = request.form.get("date_start")
+        date_end = request.form.get("date_end")
+        selected_date = request.form.get("date")
         if selected_date:
             selected_date = datetime.strptime(selected_date, '%Y-%m-%d')
             events_objects = Event().get_events_by_date(selected_date)
