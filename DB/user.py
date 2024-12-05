@@ -1,5 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import uuid
+import jwt
+import os
+from dotenv import load_dotenv
 
 from sqlalchemy import select, func
 from sqlalchemy.orm import sessionmaker
@@ -8,11 +11,13 @@ from DB.DataBase import SessionMaker
 
 from DB.models.user import Users
 
+load_dotenv()
 
 class User:
     def __init__(
         self,
         id: str | None = None,
+        token: str | None = None,
         email: str = None,
         password: str = None,
         tg_id: int = None,
@@ -23,6 +28,7 @@ class User:
         self.sessionmaker: sessionmaker = SessionMaker().session_factory
 
         self.id: str | None = id
+        self.token: str | None = token
         self.email: str = email
         self.password: str = password
 
@@ -50,7 +56,7 @@ class User:
                 self.id = user.id
                 self.email = user.email
                 self.password = user.password
-
+                self.token = user.token
                 self.tg_id = user.tg_id
                 self.username = user.username
 
@@ -160,11 +166,29 @@ class User:
 
     def get_self(self) -> dict:
         return {
+            "token": self.token,
             "email": self.email,
             "password": self.password,
             "tg_id": self.tg_id,
             "username": self.username,
             "notifications": self.notifications,
+        }
+    
+    def get_self_api(self):
+        return {
+            "id": str(self.id),
+            "email": self.email,
+            "username": self.username,
+            "tg_id": self.tg_id,
+        }
+    
+    def login(self) -> dict:
+        data = self.get_self_api()
+        data["expired_at"] = int((datetime.now(timezone.utc) + timedelta(days=7)).timestamp())
+        self.token = jwt.encode(data, key=os.environ.get("JWT_SECRET"), algorithm="HS256")
+        return {
+            "token": self.token,
+            "user": self.get_self_api()
         }
 
     def remove_notification(self, notification_id: str):
@@ -212,4 +236,35 @@ class User:
         except Exception as e:
             print(f"Error getting users with notifications: {e}")
             raise e
+
+    def create_token(self, user_id: uuid.UUID, expires_delta: timedelta = None) -> str:
+        """Создает JWT токен для пользователя"""
+        if expires_delta is None:
+            expires_delta = timedelta(hours=24)  # По умолчанию токен действителен 24 часа
+        
+        exp = datetime.utcnow() + expires_delta
+        
+        payload = {
+            'user_id': str(user_id),  # Преобразуем UUID в строку
+            'exp': int(exp.timestamp())
+        }
+        
+        token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
+        return token
+
+    def verify_token(self, token: str) -> dict | None:
+        """Проверяет JWT токен и возвращает payload если токен валиден"""
+        try:
+            # PyJWT автоматически проверит поле exp
+            payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=['HS256'])
+            # Преобразуем строку обратно в UUID
+            if 'user_id' in payload:
+                payload['user_id'] = uuid.UUID(payload['user_id'])
+            return payload
+        except jwt.ExpiredSignatureError:
+            logger.warning("Токен истек")
+            return None
+        except jwt.InvalidTokenError as e:
+            logger.error(f"Недействительный токен: {e}")
+            return None
 

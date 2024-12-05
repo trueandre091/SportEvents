@@ -2,7 +2,7 @@ from email.policy import default
 
 from DB.models.Base import Base, get_datetime_UTC
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.dialects.postgresql import UUID, BIGINT, JSONB
+from sqlalchemy.dialects.postgresql import UUID, BIGINT, JSONB, TEXT
 import uuid
 
 from datetime import datetime
@@ -20,6 +20,8 @@ class Users(Base):
         unique=True,
         nullable=False,
     )
+
+    token: Mapped[str] = mapped_column(TEXT, nullable=True)
 
     email: Mapped[str] = mapped_column(nullable=False, unique=True)
     password: Mapped[str] = mapped_column(nullable=False)
