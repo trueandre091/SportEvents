@@ -66,6 +66,8 @@ services:
       - PYTHONUNBUFFERED=1
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - FLOWER_USER=${FLOWER_USER}
+      - FLOWER_PASS=${FLOWER_PASS}
     depends_on:
       - redis
       - celery_worker
