@@ -14,9 +14,12 @@ function EventSlider() {
       try {
         setError(null);
         const response = await fetch('/api/events/random', {
+          method: 'POST',
           headers: {
             'Accept': 'application/json',
+            'Content-Type': 'application/json'
           },
+          body: JSON.stringify({}),
           signal: AbortSignal.timeout(5000)
         });
 

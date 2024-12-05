@@ -16,9 +16,12 @@ function EventStats() {
         setLoading(true);
         setError(null);
         const response = await fetch('/api/events/stats', {
+          method: 'POST',
           headers: {
             'Accept': 'application/json',
+            'Content-Type': 'application/json'
           },
+          body: JSON.stringify({}),
           signal: AbortSignal.timeout(5000)
         });
 

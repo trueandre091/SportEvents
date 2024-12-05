@@ -44,7 +44,13 @@ function EventList() {
   useEffect(() => {
     const fetchSports = async () => {
       try {
-        const response = await fetch('/api/events/sports');
+        const response = await fetch('/api/events/sports', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({})
+        });
         if (!response.ok) throw new Error('Failed to fetch sports');
         const data = await response.json();
         setSports(data);
@@ -61,31 +67,28 @@ function EventList() {
       setLoading(true);
       setError(null);
 
-      // Проверяем, есть ли заполненные фильтры
-      const hasFilters = filters.sport || filters.dateStart || filters.dateEnd;
-
       // Форматируем даты в нужный формат YYYY-MM-DD
       const formattedDateStart = filters.dateStart ? new Date(filters.dateStart).toISOString().split('T')[0] : '';
       const formattedDateEnd = filters.dateEnd ? new Date(filters.dateEnd).toISOString().split('T')[0] : '';
 
-      // Если фильтры не заполнены, делаем запрос без параметров
-      const url = hasFilters 
-        ? `/api/events?${new URLSearchParams({
-            ...(filters.sport && { sport: filters.sport }),
-            ...(filters.dateStart && { date_start: formattedDateStart }),
-            ...(filters.dateEnd && { date_end: formattedDateEnd })
-          })}`
-        : '/api/events';
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sport: filters.sport || '',
+          date_start: formattedDateStart,
+          date_end: formattedDateEnd
+        })
+      });
 
-      console.log('Fetching URL with dates:', url); // Для отладки
-
-      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch events');
       }
 
       const data = await response.json();
-      console.log('Received filtered data:', data); // Для отладки
+      console.log('Received filtered data:', data);
 
       if (!data.events) {
         console.error('No events array in response:', data);
@@ -112,7 +115,16 @@ function EventList() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/events?date=${date}`);
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          date: date
+        })
+      });
+
       if (!response.ok) {
         throw new Error('Failed to fetch events');
       }
