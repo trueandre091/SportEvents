@@ -237,34 +237,3 @@ class User:
             print(f"Error getting users with notifications: {e}")
             raise e
 
-    def create_token(self, user_id: uuid.UUID, expires_delta: timedelta = None) -> str:
-        """Создает JWT токен для пользователя"""
-        if expires_delta is None:
-            expires_delta = timedelta(hours=24)  # По умолчанию токен действителен 24 часа
-        
-        exp = datetime.utcnow() + expires_delta
-        
-        payload = {
-            'user_id': str(user_id),  # Преобразуем UUID в строку
-            'exp': int(exp.timestamp())
-        }
-        
-        token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
-        return token
-
-    def verify_token(self, token: str) -> dict | None:
-        """Проверяет JWT токен и возвращает payload если токен валиден"""
-        try:
-            # PyJWT автоматически проверит поле exp
-            payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=['HS256'])
-            # Преобразуем строку обратно в UUID
-            if 'user_id' in payload:
-                payload['user_id'] = uuid.UUID(payload['user_id'])
-            return payload
-        except jwt.ExpiredSignatureError:
-            logger.warning("Токен истек")
-            return None
-        except jwt.InvalidTokenError as e:
-            logger.error(f"Недействительный токен: {e}")
-            return None
-
