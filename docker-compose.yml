@@ -38,8 +38,8 @@ services:
     restart: unless-stopped
     command: python -m celery -A celery_app.celery worker --loglevel=info
     environment:
-      - PYTHONUNBUFFERED=1
-      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
       - redis
       - db
@@ -50,11 +50,26 @@ services:
     restart: unless-stopped
     command: python -m celery -A celery_app.celery beat --loglevel=info
     environment:
-      - PYTHONUNBUFFERED=1
-      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
       - redis
       - db
+
+  flower:
+    build: .
+    container_name: flower
+    command: celery --app=celery_app.celery flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+      - celery_worker
+      - celery_beat
 
 volumes:
   postgres-data:
