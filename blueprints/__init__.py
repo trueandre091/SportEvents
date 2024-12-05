@@ -1,5 +1,4 @@
-from blueprints.auth.auth import auth
-from blueprints.main.index import index
-from blueprints.api.api import api
+from blueprints.api.v1.auth.auth import auth
+from blueprints.api.v1.events.events import events
 
-blueprints = [[auth, "/auth"], [index, "/"], [api, "/api"]]
+blueprints = [[auth, "/api/auth"], [events, "/api/events"]]

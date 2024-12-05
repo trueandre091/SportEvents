@@ -283,7 +283,6 @@ class Event:
                 'date_end': date_end,
                 'place': event.place
             }
-            print("Преобразованное событие:", result)
             return result
         except Exception as e:
             print(f"Ошибка при преобразовании события: {e}")
