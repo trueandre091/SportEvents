@@ -11,6 +11,8 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - sportevents-network
 
   db:
     image: postgres:17.2
@@ -24,6 +26,8 @@ services:
       - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    networks:
+      - sportevents-network
 
   redis:
     image: redis:7
@@ -31,6 +35,8 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    networks:
+      - sportevents-network
 
   celery_worker:
     build: .
@@ -43,6 +49,8 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - sportevents-network
 
   celery_beat:
     build: .
@@ -55,6 +63,8 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - sportevents-network
 
   flower:
     build: .
@@ -72,7 +82,12 @@ services:
       - redis
       - celery_worker
       - celery_beat
+    networks:
+      - sportevents-network
 
 volumes:
   postgres-data:
 
+networks:
+  sportevents-network:
+    external: true
