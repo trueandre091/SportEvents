@@ -94,3 +94,5 @@ test_events = [
 # Добавление записей в базу данных
 for event in test_events:
     event.add()
+
+print("Тестовые записи добавлены в базу данных")

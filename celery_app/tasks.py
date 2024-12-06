@@ -4,7 +4,7 @@ import logging
 import os
 from dotenv import load_dotenv
 import asyncio
-from parsing.run import main as parsing_main
+from parsing.sportevents_parser import main as parsing_main
 from DB.event import Event
 from DB.user import User
 from bot.notifications import send_event_notification, send_email_notification

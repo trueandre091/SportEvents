@@ -121,6 +121,8 @@ class ArchiveParser:
             )
             event_obj.add()
 
-if __name__ == "__main__":
+
+async def main():
     parser = ArchiveParser()
-    parser.save_to_db() 
+    parser.save_to_db()
+    

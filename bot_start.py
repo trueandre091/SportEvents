@@ -1,11 +1,16 @@
 import asyncio
-from parsing import run as parsing
+from parsing import archive_parser, sportevents_parser, results_parser
+import test_fsp_events
 from bot.bot import dp, bot
 from bot import handlers
 
 async def main():
+    await sportevents_parser.main()
+    await archive_parser.main()
+    await results_parser.main()
+
     print("start polling")
-    await asyncio.gather(dp.start_polling(bot), parsing.main())
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":

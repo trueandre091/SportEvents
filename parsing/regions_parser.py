@@ -139,7 +139,7 @@ def parse_contact_td(contact_td):
         return None
 
 
-if __name__ == "__main__":
+async def main():
     all_contacts = 0
     added_counter = 0
     for contact in parse_regions():
