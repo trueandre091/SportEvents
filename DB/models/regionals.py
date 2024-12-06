@@ -17,8 +17,8 @@ class Regions(Enum):
     CRIMEA = "Республика Крым"
     MARI_EL = "Республика Марий Эл"
     MORDOVIA = "Республика Мордовия"
-    SAKHA_YAKUTIA = "Республика Саха (Якутия)"
-    NORTH_OSSETIA_ALANIA = "Республика Северная Осетия — Алания"
+    SAKHA_YAKUTIA = "Республика Саха-Якутия"
+    NORTH_OSSETIA_ALANIA = "Республика Северная Осетия - Алания"
     TATARSTAN = "Республика Татарстан"
     TUVA = "Республика Тыва"
     UDMURTIA = "Удмуртская Республика"
@@ -52,7 +52,7 @@ class Regions(Enum):
     IRKUTSK_REGION = "Иркутская область"
     KALININGRAD_REGION = "Калининградская область"
     KALUGA_REGION = "Калужская область"
-    KEMEROVO_REGION = "Кемеровская область"
+    KEMEROVO_REGION = "Кемеровская область - Кузбасс"
     KIROV_REGION = "Кировская область"
     KOSTROMA_REGION = "Костромская область"
     KURGAN_REGION = "Курганская область"
@@ -89,18 +89,18 @@ class Regions(Enum):
     HERSONSK = "Херсонская область"
 
     # 3 Города федерального значения
-    MOSCOW = "Москва"
-    SAINT_PETERSBURG = "Санкт-Петербург"
-    SEVASTOPOL = "Севастополь"
+    MOSCOW = "г. Москва"
+    SAINT_PETERSBURG = "г. Санкт Петербург"
+    SEVASTOPOL = "город Севастополь"
 
     # 1 Автономная область
-    JEWISH_AUTONOMOUS_REGION = "Еврейская автономная область"
+    JEWISH_AUTONOMOUS_REGION = "Еврейский АО"
 
     # 4 Автономных округа
     NENETS_AUTONOMOUS_OKRUG = "Ненецкий автономный округ"
-    KHANTY_MANSI_AUTONOMOUS_OKRUG = "Ханты-Мансийский автономный округ — Югра"
-    CHUKOTKA_AUTONOMOUS_OKRUG = "Чукотский автономный округ"
-    YAMAL_NENETS_AUTONOMOUS_OKRUG = "Ямало-Ненецкий автономный округ"
+    KHANTY_MANSI_AUTONOMOUS_OKRUG = "Ханты-Мансийский автономный округ – Югра"
+    CHUKOTKA_AUTONOMOUS_OKRUG = "Чукотский АО"
+    YAMAL_NENETS_AUTONOMOUS_OKRUG = "Ямало-Ненецкий АО"
 
 if __name__ == "__main__":
     print(len(list(Regions)))

@@ -110,6 +110,10 @@ async def send_email_notification(
         # Добавляем HTML-версию
         msg.attach(MIMEText(html_content, 'html'))
 
+        # Добавляем заголовки для уменьшения вероятности попадания в спам
+        msg['List-Unsubscribe'] = f'<{os.getenv("MAIN_URL")}/unsubscribe?email={to_email}>'
+        msg.add_header('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click')
+        
         # Отправляем письмо
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()

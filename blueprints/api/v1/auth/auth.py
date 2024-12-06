@@ -9,12 +9,12 @@ from blueprints.api.v1.responses import get_200, get_400, get_500, get_404
 auth = Blueprint("auth", __name__)
 logger = logging.getLogger(__name__)
 
+
 @auth.post("/login")
 def login():
     try:
         email = request.form.get("email")
         password = request.form.get("password")
-
 
         if not email or not password:
             return get_400("Email and password are required")
@@ -32,7 +32,8 @@ def login():
     except Exception as e:
         logger.error(f"Error in login: {e}")
         return get_500("Login failed")
-    
+
+
 @auth.post("/register")
 def register():
     try:
@@ -40,8 +41,6 @@ def register():
         password = request.form.get("password")
         username = request.form.get("username")
         tg_id = request.form.get("tg_id")
-
-        print(email, password, username, tg_id, sep="\n")
 
         if not email or not password or not username or not tg_id:
             return get_400("Email, password, username and tg_id are required")
@@ -53,8 +52,6 @@ def register():
         
         user.add().get()
         data = user.login()
-
-        print(data)
 
         return get_200(data)
     except Exception as e:

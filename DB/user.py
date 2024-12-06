@@ -2,7 +2,11 @@ from datetime import datetime, timedelta, timezone
 import uuid
 import jwt
 import os
+import random
+import string
 from dotenv import load_dotenv
+
+from werkzeug.security import generate_password_hash
 
 from sqlalchemy import select, func
 from sqlalchemy.orm import sessionmaker
@@ -28,7 +32,7 @@ class User:
         region: Regions | None = None,
         role: UserRoles | None = None,
         notifications: list[dict | None] = None,
-        auto_add: bool = True,
+        auto_add: bool = False,
     ):
         self.sessionmaker: sessionmaker = SessionMaker().session_factory
 
@@ -95,6 +99,35 @@ class User:
         except Exception as e:
             print(e)
             raise e
+
+    def add_fsp_admin(self):
+        try:
+            region_key = None
+            for reg in Regions:
+                if reg.value == self.region:
+                    region_key = reg.name
+                    break
+
+            role = UserRoles.REGIONAL_ADMIN
+            if Regions[region_key] == Regions.MOSCOW:
+                role = UserRoles.CENTRAL_ADMIN
+
+            with self.sessionmaker() as session:
+                fsp_admin = Users(
+                    email=self.email, 
+                    region=Regions[region_key], 
+                    name=self.name, 
+                    password=self.gen_password(),
+                    role=role,
+                )
+                print(fsp_admin.password)
+                session.add(fsp_admin)
+                session.commit()
+
+                return self
+        except Exception as e:
+            print(f"Error adding FSP admin: {e}")
+            return None
 
     def update(self):
         try:
@@ -197,7 +230,14 @@ class User:
             "username": self.username,
             "tg_id": self.tg_id,
         }
-    
+
+    def gen_password(self) -> str:
+        chars = string.ascii_letters + string.digits  # a-z + A-Z + 0-9
+        password = ''.join(random.choice(chars) for _ in range(10))
+        
+        self.password = generate_password_hash(password)
+        return self.password
+
     def login(self) -> dict:
         data = self.get_self_api()
         data["expired_at"] = int((datetime.now(timezone.utc) + timedelta(days=7)).timestamp())
@@ -253,3 +293,7 @@ class User:
             print(f"Error getting users with notifications: {e}")
             raise e
 
+
+if __name__ == "__main__":
+    user_manager: User = User(auto_add=False)
+    print(user_manager.gen_password())

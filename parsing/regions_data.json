@@ -1,0 +1,536 @@
+[
+  {
+    "region": "г. Москва",
+    "leader": "Анашкин Евгений Юрьевич",
+    "contact": "fspmsk@mail.ru",
+    "federal_district": "Руководство"
+  },
+  {
+    "region": "Белгородская область",
+    "leader": "",
+    "contact": "belgorod@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Брянская область",
+    "leader": "Казаков Олег Дмитриевич",
+    "contact": "bryansk@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Владимирская область",
+    "leader": "Лисова Анастасия Андреевна",
+    "contact": "vladimir@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Воронежская область",
+    "leader": "Ульянов Владимир",
+    "contact": "voronezh@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Ивановская область",
+    "leader": "Уралов Сергей Дмитриевич",
+    "contact": "lvanovo@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Калужская область",
+    "leader": "Колесников Алексей",
+    "contact": "kaluga@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Костромская область",
+    "leader": "Диденко Дмитрий Николаевич",
+    "contact": "kostroma@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Курская область",
+    "leader": "Журавлев Владимир Борисович",
+    "contact": "kursk@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Липецкая область",
+    "leader": "Даниил Сапронов",
+    "contact": "lipetsk@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Московская область",
+    "leader": "Анашкин Евгений Юрьевич",
+    "contact": "moscow-obl@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Орловская область",
+    "leader": "Семкин Александр Николаевич",
+    "contact": "oryol@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Рязанская область",
+    "leader": "Халамцева Евгения Милмировна",
+    "contact": "ryazan@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Смоленская область",
+    "leader": "Образцов Сергей Александрович",
+    "contact": "smolensk@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Тамбовская область",
+    "leader": "",
+    "contact": "tambov@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Тверская область",
+    "leader": "Пожидаев Петр Вячеславович",
+    "contact": "tver@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Тульская область",
+    "leader": "Сычугов Алексей Алексеевич",
+    "contact": "tula@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Ярославская область",
+    "leader": "Чалый Дмитрий Юрьевич",
+    "contact": "yaroslavl@fsp-russia.com",
+    "federal_district": "Центральный федеральный округ"
+  },
+  {
+    "region": "Республика Адыгея",
+    "leader": "Алиев Марат Вячеславович",
+    "contact": "adygea@fsp-russia.com",
+    "federal_district": "Южный федеральный округ"
+  },
+  {
+    "region": "Республика Калмыкия",
+    "leader": "Муниев Аркадий Михайлович",
+    "contact": "kalmykia@fsp-russia.com",
+    "federal_district": "Южный федеральный округ"
+  },
+  {
+    "region": "Краснодарский край",
+    "leader": "Алферов Сергей Сергеевич",
+    "contact": "krasnodar@fsp-russia.com",
+    "federal_district": "Южный федеральный округ"
+  },
+  {
+    "region": "Астраханская область",
+    "leader": "Асадуллина Юлия Альбертовна",
+    "contact": "astrakhan@fsp-russia.com",
+    "federal_district": "Южный федеральный округ"
+  },
+  {
+    "region": "Волгоградская область",
+    "leader": "Попова Елена Владимировна",
+    "contact": "volgograd@fsp-russia.com",
+    "federal_district": "Южный федеральный округ"
+  },
+  {
+    "region": "Ростовская область",
+    "leader": "Савва Станислав Анатольевич",
+    "contact": "rostov@fsp-russia.com",
+    "federal_district": "Южный федеральный округ"
+  },
+  {
+    "region": "город Севастополь",
+    "leader": "Царенко Михаил Геннадьевич",
+    "contact": "sevastopol@fsp-russia.com",
+    "federal_district": "Южный федеральный округ"
+  },
+  {
+    "region": "Республика Крым",
+    "leader": "Зырянов Сергей Геннадиевич",
+    "contact": "crimea@fsp-russia.com",
+    "federal_district": "Южный федеральный округ"
+  },
+  {
+    "region": "Республика Карелия",
+    "leader": "Каширин Александр Алексеевич",
+    "contact": "karelia@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Республика Коми",
+    "leader": "Некрасов Александр Николаевич",
+    "contact": "komi@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Архангельская область",
+    "leader": "Алексей Алескандрович Лисьев",
+    "contact": "arkhangelsk@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Калининградская область",
+    "leader": "Дубинин Иван Витальевич",
+    "contact": "info@fsp-kaliningrad.ru",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Ленинградская область",
+    "leader": "Корф Виктор Сергеевич",
+    "contact": "leningrad@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Мурманская область",
+    "leader": "Шляпников Денис Игоревич",
+    "contact": "murmansk@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Новгородская область",
+    "leader": "Богданов Михаил Михайлович",
+    "contact": "novgorod@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Псковская область",
+    "leader": "Степаненков Марк Валерьевич",
+    "contact": "pskov@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Ненецкий автономный округ",
+    "leader": "Демчик Ирина Игоревна",
+    "contact": "nenets@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Вологодская область",
+    "leader": "Мельников Олег Николаевич",
+    "contact": "vologda@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "г. Санкт Петербург",
+    "leader": "Кувиков Денис",
+    "contact": "saint-petersburg@fsp-russia.com",
+    "federal_district": "Северо-западный федеральный округ"
+  },
+  {
+    "region": "Республика Саха-Якутия",
+    "leader": "Николаев Николай Борисович",
+    "contact": "sakha@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Камчатский край",
+    "leader": "Дресвянский Владимир Сергеевич",
+    "contact": "kamchatka@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Приморский край",
+    "leader": "Снитко Владимир Алексеевич",
+    "contact": "primorsky@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Хабаровский край",
+    "leader": "Бородинов Николай Александрович",
+    "contact": "khabarovsk@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Амурская область",
+    "leader": "Попов Руслан Игоревич",
+    "contact": "amur@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Магаданская область",
+    "leader": "Бережной Антон Константинович",
+    "contact": "magadan@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Республика Бурятия",
+    "leader": "Пьянников Владимир Сергеевич",
+    "contact": "buryatia@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Забайкальский край",
+    "leader": "Метельский Тарас Леонидович",
+    "contact": "zabaykalsky@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Сахалинская область",
+    "leader": "Соболев Евгений Игоревич",
+    "contact": "sakhalin@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Еврейский АО",
+    "leader": "Пешков Григорий Сергеевич",
+    "contact": "jewish@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Чукотский АО",
+    "leader": "Косов Георгий Александрович",
+    "contact": "chukotka@fsp-russia.com",
+    "federal_district": "Дальневосточный федеральный округ"
+  },
+  {
+    "region": "Республика Алтай",
+    "leader": "Шило Светлана Анатольевна",
+    "contact": "altai@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Республика Тыва",
+    "leader": "Оюн Субудай Викторович",
+    "contact": "tuva@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Республика Хакасия",
+    "leader": "Шпигальский Денис Олегович",
+    "contact": "khakassia@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Алтайский край",
+    "leader": "Егораев Алексей Анатольевич",
+    "contact": "altai-k@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Красноярский край",
+    "leader": "Капулин Денис Владимирович",
+    "contact": "krasnoyarsk@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Иркутская область",
+    "leader": "Ищенко Роман",
+    "contact": "irkutsk@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Кемеровская область - Кузбасс",
+    "leader": "Попов Александр Сергеевич",
+    "contact": "kuzbass@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Новосибирская область",
+    "leader": "Данилов Максим Олегович",
+    "contact": "novosiblrsk@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Омская область",
+    "leader": "Иванищев Юрий Ильич",
+    "contact": "omsk@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Томская область",
+    "leader": "Буинцев Дмитрий Николаевич",
+    "contact": "tomsk@fsp-russia.com",
+    "federal_district": "Сибирский федеральный округ"
+  },
+  {
+    "region": "Курганская область",
+    "leader": "Белоусов Михаил Александрович",
+    "contact": "kurgan@fsp-russia.com",
+    "federal_district": "Уральский федеральный округ"
+  },
+  {
+    "region": "Свердловская область",
+    "leader": "Обабков Илья Николаевич",
+    "contact": "sverdlovsk@fsp-russia.com",
+    "federal_district": "Уральский федеральный округ"
+  },
+  {
+    "region": "Тюменская область",
+    "leader": "Сенкевич Людмила Борисовна",
+    "contact": "tyumen@fsp-russia.com",
+    "federal_district": "Уральский федеральный округ"
+  },
+  {
+    "region": "Челябинская область",
+    "leader": "Нечет Сергей Геннадьевич",
+    "contact": "chelyablnsk@fsp-russia.com",
+    "federal_district": "Уральский федеральный округ"
+  },
+  {
+    "region": "Ханты-Мансийский автономный округ – Югра",
+    "leader": "Давлетшин Родион Айратович",
+    "contact": "hmao@fsp-russia.com",
+    "federal_district": "Уральский федеральный округ"
+  },
+  {
+    "region": "Ямало-Ненецкий АО",
+    "leader": "Гашимова Лариса Павловна",
+    "contact": "yamalo-nenets@fsp-russia.com",
+    "federal_district": "Уральский федеральный округ"
+  },
+  {
+    "region": "Республика Башкортостан",
+    "leader": "Юлия Валиахметова",
+    "contact": "bashkortostan@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Республика Марий Эл",
+    "leader": "Куликова Екатерина Ивановна",
+    "contact": "mari-ei@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Республика Мордовия",
+    "leader": "Бекшаев Дмитрий Александрович",
+    "contact": "mordovia@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Республика Татарстан",
+    "leader": "Серочудинов Евгений Сергеевич",
+    "contact": "fsprt@inbox.ru",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Удмуртская Республика",
+    "leader": "Пигалев Сергей Александрович",
+    "contact": "udmurtia@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Чувашская Республика",
+    "leader": "Набиев Александр Эльдарович",
+    "contact": "fspchuv@mail.ru",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Кировская область",
+    "leader": "Кокарев Дмитрий Михайлович",
+    "contact": "kirov@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Нижегородская область",
+    "leader": "Небольсин Михаил Юрьевич",
+    "contact": "nizhny-novgorod@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Оренбургская область",
+    "leader": "Вечеренко Дмитрий Сергеевич",
+    "contact": "orenburg@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Пензенская область",
+    "leader": "Строителева Алина Андреевна",
+    "contact": "penza@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Пермский край",
+    "leader": "Ягофаров Оскар Фаитович",
+    "contact": "perm@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Самарская область",
+    "leader": "Бабенко Михаил Владимирович",
+    "contact": "samara@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Саратовская область",
+    "leader": "Федорова Антонина Гавриловна",
+    "contact": "saratov@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Ульяновская область",
+    "leader": "Павлов Вадим Вячеславович",
+    "contact": "ulyanovsk@fsp-russia.com",
+    "federal_district": "Приволжский федеральный округ"
+  },
+  {
+    "region": "Республика Дагестан",
+    "leader": "Абдулаев Магомед Магомедгаджиевич",
+    "contact": "Fsprd@mail.ru",
+    "federal_district": "Северо-Кавказский федеральный округ"
+  },
+  {
+    "region": "Республика Ингушетия",
+    "leader": "Найденко Роман Анатольевич",
+    "contact": "lngushetia@fsp-russia.com",
+    "federal_district": "Северо-Кавказский федеральный округ"
+  },
+  {
+    "region": "Кабардино-Балкарская Республика",
+    "leader": "Тюбеев Мурат Абдуллахович",
+    "contact": "kabardino-balkaria@fsp-russia.com",
+    "federal_district": "Северо-Кавказский федеральный округ"
+  },
+  {
+    "region": "Карачаево-Черкесская Республика",
+    "leader": "Андропов Константин Сергеевич",
+    "contact": "karachay-cherkessia@fsp-russia.com",
+    "federal_district": "Северо-Кавказский федеральный округ"
+  },
+  {
+    "region": "Республика Северная Осетия - Алания",
+    "leader": "Нартиков Александр Георгиевич",
+    "contact": "ossetia-alania@fsp-russia.com",
+    "federal_district": "Северо-Кавказский федеральный округ"
+  },
+  {
+    "region": "Ставропольский край",
+    "leader": "Пижевский Дмитрий Евгеньевич",
+    "contact": "stavropol@fsp-russia.com",
+    "federal_district": "Северо-Кавказский федеральный округ"
+  },
+  {
+    "region": "Чеченская Республика",
+    "leader": "Саидов Зубайр Ахмедович",
+    "contact": "chechnya@fsp-russia.com",
+    "federal_district": "Северо-Кавказский федеральный округ"
+  },
+  {
+    "region": "Донецкая Народная Республика",
+    "leader": "Станков Игорь Валентинович",
+    "contact": "fsp-dnr@mail.ru",
+    "federal_district": "Новые регионы"
+  },
+  {
+    "region": "Луганская Народная Республика",
+    "leader": "Мальцева-Светличная Ольга Валерьевна",
+    "contact": "fsp_lnr@mail.ru сайт: www.fsp-lnr.ru",
+    "federal_district": "Новые регионы"
+  },
+  {
+    "region": "Запорожская область",
+    "leader": "Букреев Дмитрий",
+    "contact": "directum@fsp-zo.ru",
+    "federal_district": "Новые регионы"
+  },
+  {
+    "region": "Херсонская область",
+    "leader": "",
+    "contact": "kherson@fsp-russia.com",
+    "federal_district": "Новые регионы"
+  }
+]
