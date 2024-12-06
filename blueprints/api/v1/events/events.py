@@ -11,7 +11,7 @@ events = Blueprint("events", __name__)
 logger = logging.getLogger(__name__)
 
 
-@events.post("/")
+@events.post("")
 def api_get_events():
     try:
         sport = request.form.get("sport")
