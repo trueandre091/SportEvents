@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
+import MainLanding from './components/MainLanding';
 import Header from './components/Header';
 import EventSlider from './components/EventSlider';
 import EventStats from './components/EventStats';
@@ -9,6 +10,7 @@ import EventList from './components/EventList';
 import Footer from './components/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import Profile from './components/Profile';
 import { EventProvider } from './context/EventContext';
 import './App.css';
 
@@ -25,7 +27,7 @@ const theme = createTheme({
   },
 });
 
-function MainPage() {
+function SportEventsPage() {
   return (
     <>
       <Header />
@@ -43,8 +45,11 @@ function App() {
       <Router>
         <EventProvider>
           <Routes>
-            <Route path="/" element={<MainPage />} />
-            <Route path="/events" element={
+            <Route path="/" element={<MainLanding />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/sportevents" element={<SportEventsPage />} />
+            <Route path="/sportevents/events" element={
               <>
                 <Header />
                 <EventList />
@@ -52,8 +57,7 @@ function App() {
                 <Footer />
               </>
             } />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/sportevents/profile" element={<Profile />} />
           </Routes>
         </EventProvider>
       </Router>

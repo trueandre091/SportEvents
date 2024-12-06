@@ -29,16 +29,21 @@ function Register() {
       setIsLoading(true);
       setError('');
       
-      await authService.register({
-        email,
-        password,
+      const formData = {
+        email: email.trim(),
+        password: password,
         tg_id: tgId,
-        username,
+        username: username || '',
         remember_me: rememberMe
-      });
+      };
 
+      console.log('Отправка данных регистрации...');
+      
+      await authService.register(formData);
+      console.log('Регистрация успешна');
       navigate('/');
     } catch (err) {
+      console.error('Ошибка при регистрации:', err);
       setError(err.message || 'Произошла ошибка при регистрации');
     } finally {
       setIsLoading(false);
@@ -138,7 +143,7 @@ function Register() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <span className="checkbox-text">Запомнить меня</span>
+                <span className="checkbox-text">Запо��нить меня</span>
               </label>
             </div>
 
@@ -148,11 +153,17 @@ function Register() {
               </div>
             )}
 
-            <button type="submit" className="auth-button">Зарегистрироваться</button>
+            <button 
+                type="submit" 
+                className="auth-button" 
+                disabled={isLoading}
+            >
+                {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+            </button>
           </form>
 
           <div className="auth-link">
-            Уже есть аккаунт? <Link to="/login">Войти</Link>
+            Уже еть аккаунт? <Link to="/sportevents/login">Войти</Link>
           </div>
         </div>
       </main>

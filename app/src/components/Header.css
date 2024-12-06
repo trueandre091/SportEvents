@@ -68,6 +68,40 @@
   height: 100%;
 }
 
+.filter-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 35px;
+  margin-bottom: 35px;
+}
+
+.filter-button {
+  padding: 16px 34px;
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.filter-button:hover {
+  transform: translateY(-3px);
+  background-color: #5046e1;
+  border-color: #5046e1;
+  color: white;
+}
+
+.filter-button:active {
+  transform: translateY(-1px);
+}
+
 @media (orientation: portrait) {
   .header {
     padding: 10px 5px;
@@ -95,25 +129,26 @@
     border-radius: 6px;
   }
 
-  .filter-button-container {
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-
-  .auth-buttons {
-    align-self: center;
-    margin-bottom: 15px;
-  }
-  
-  .auth-button {
-    font-size: 12px;
-  }
-
   .filter-button {
-    padding: 14px 28px;
-    font-size: 15px;
-    border-width: 2px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-width: 1px;
+    background: transparent;
+  }
+
+  .filter-button:hover {
+    background: transparent;
+    border-color: white;
+    transform: none;
+  }
+
+  .filter-button:active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .filter-button-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
 }
 
@@ -136,144 +171,40 @@
   }
 }
 
-.filter-button-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 35px;
-  margin-bottom: 35px;
+.header-top {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
 }
 
-.filter-button {
-  padding: 16px 34px;
-  background-color: transparent;
-  color: white;
-  border: 2px solid white;
-  border-radius: 10px;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 18px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  animation: pulse 2s infinite;
+.back-to-main {
+    all: unset;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.filter-button:hover {
-  transform: translateY(-3px);
-  background-color: #5046e1;
-  border-color: #5046e1;
-  color: white;
-}
-
-.filter-button:active {
-  transform: translateY(-1px);
-}
-
-.auth-buttons {
-  display: flex;
-  gap: 15px;
-  margin: 0 0 40px 0;
-  align-self: flex-end;
-}
-
-.auth-button {
-  all: unset !important;
-  background: none !important;
-  box-shadow: none !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 14px !important;
-  cursor: pointer !important;
-  padding: 0 !important;
-  min-width: 0 !important;
-  text-transform: none !important;
-}
-
-.auth-button:hover {
-  color: white !important;
-  background: none !important;
-  box-shadow: none !important;
+.back-to-main:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-5px);
 }
 
 @media (orientation: portrait) {
-  .auth-buttons {
-    width: 100%;
-    justify-content: center;
-    align-self: center;
-    margin: 10px 0 30px 0;
-    gap: 40px;
-  }
-  
-  .auth-button {
-    font-size: 12px !important;
-  }
+    .header-top {
+        margin-bottom: 15px;
+    }
 
-  .filter-button {
-    padding: 10px 20px;
-    font-size: 14px;
-    border-width: 1px;
-    background: transparent;
-    animation: none;
-    transform: none !important;
-  }
-
-  .filter-button:hover {
-    background: transparent;
-    border-color: white;
-    transform: none !important;
-  }
-
-  .filter-button:active {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .filter-button-container {
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
+    .back-to-main {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
 }
-
-/* Добавляем анимацию пульсации */
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-  }
-}
-
-.filter-button {
-  animation: pulse 2s infinite;
-}
-
-.auth-buttons .logout-button {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.auth-buttons .logout-button:hover {
-  background-color: #d32f2f;
-  transform: translateY(-1px);
-}
-
-.auth-buttons .logout-button:active {
-  transform: translateY(0);
-}
-
-.auth-buttons .logout-button:disabled {
-  background-color: #ffcdd2;
-  cursor: not-allowed;
-  transform: none;
-} 

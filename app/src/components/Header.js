@@ -1,23 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { authService } from '../services/authService';
-import Logout from './auth/Logout';
 import './Header.css';
 
 function Header() {
-  const colors = {
+  const colors = useMemo(() => ({
     darkGray: '#1a1a1a',
     white: '#ffffff',
     orange: '#f79423',
     blue: '#5046e1'
-  };
+  }), []);
+
   const navigate = useNavigate();
   const location = useLocation();
   const [squares, setSquares] = useState([]);
   const [dates, setDates] = useState([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
 
-  const createSquares = () => {
+  const addDatesToSquares = useCallback((squares) => {
+    const today = new Date();
+    const newDates = squares.map((_, index) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() + index);
+      return date;
+    });
+    setDates(newDates);
+  }, []);
+
+  const createSquares = useCallback(() => {
     const container = document.querySelector('.date-grid');
     if (!container) return;
     
@@ -28,16 +36,23 @@ function Header() {
     const columns = Math.floor((containerWidth + gap) / (squareSize + gap));
     const newSquares = [];
     
+    // Используем seed для ��енерации случайных чисел
+    const seed = Date.now();
+    const random = (index) => {
+      const x = Math.sin(seed + index) * 10000;
+      return x - Math.floor(x);
+    };
+    
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < columns; col++) {
         const index = row * columns + col;
         
         const canBeDouble = col < columns - 1;
-        const isDouble = canBeDouble && Math.random() < 0.3;
+        const isDouble = canBeDouble && random(index) < 0.3;
         
         newSquares.push({
           isDouble,
-          color: Object.values(colors)[Math.floor(Math.random() * Object.values(colors).length)]
+          color: Object.values(colors)[Math.floor(random(index + 1) * Object.values(colors).length)]
         });
         
         if (isDouble) {
@@ -48,30 +63,26 @@ function Header() {
     
     setSquares(newSquares);
     addDatesToSquares(newSquares);
-  };
+  }, [colors, addDatesToSquares]);
 
-  const addDatesToSquares = (squares) => {
-    const today = new Date();
-    const newDates = squares.map((_, index) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() + index);
-      return date;
-    });
-    setDates(newDates);
-  };
-
-  const formatDate = (date) => {
+  const formatDate = useCallback((date) => {
     return date.getDate().toString().padStart(2, '0');
-  };
+  }, []);
 
+  // Инициализация при монтировании
   useEffect(() => {
     createSquares();
-    
-    const handleResize = debounce(createSquares, 400);
+  }, []); // Запускаем только при монтировании
+
+  // Обработка изменения размера окна
+  useEffect(() => {
+    const handleResize = debounce(() => {
+      createSquares();
+    }, 400);
+
     window.addEventListener('resize', handleResize);
-    
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [createSquares]);
 
   function debounce(func, wait) {
     let timeout;
@@ -85,64 +96,40 @@ function Header() {
     };
   }
 
-  const handleButtonClick = () => {
-    if (location.pathname === '/events') {
-      navigate('/');
+  const handleButtonClick = useCallback(() => {
+    if (location.pathname === '/sportevents/events') {
+      navigate('/sportevents');
     } else {
-      navigate('/events');
+      navigate('/sportevents/events');
     }
-  };
+  }, [location.pathname, navigate]);
 
-  const handleSquareClick = (date) => {
-    const formattedDate = date.toISOString().split('T')[0]; // Форматируем дату в YYYY-MM-DD
-    navigate(`/events?selected_date=${formattedDate}`);
-  };
-
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
-
-  const handleRegisterClick = () => {
-    navigate('/register');
-  };
-
-  const handleLogoutSuccess = () => {
-    setIsAuthenticated(false);
-  };
+  const handleSquareClick = useCallback((date) => {
+    const formattedDate = date.toISOString().split('T')[0];
+    navigate(`/sportevents/events?selected_date=${formattedDate}`);
+  }, [navigate]);
 
   return (
     <header className="header">
-      <div className="auth-buttons">
-        {!isAuthenticated ? (
-          <>
-            <button 
-              className="auth-button" 
-              onClick={handleLoginClick}
-            >
-              Войти
-            </button>
-            <button 
-              className="auth-button" 
-              onClick={handleRegisterClick}
-            >
-              Регистрация
-            </button>
-          </>
-        ) : (
-          <Logout onLogout={handleLogoutSuccess} />
-        )}
+      <div className="header-top">
+        <button 
+          className="back-to-main"
+          onClick={() => navigate('/')}
+        >
+          ← Вернуться на сайт ФСП
+        </button>
       </div>
       <h1>КАЛЕНДАРЬ СОБЫТИЙ</h1>
       <div className="date-grid">
         {squares.map((square, index) => (
           <div
-            key={index}
+            key={`${index}-${square.color}`}
             className={`date-box ${square.isDouble ? 'double-square' : ''}`}
             style={{
               backgroundColor: square.color,
               color: square.color === colors.darkGray || square.color === colors.blue ? 
                      colors.white : colors.darkGray,
-              cursor: 'pointer' // Добавляем курсор-указатель
+              cursor: 'pointer'
             }}
             onClick={() => dates[index] && handleSquareClick(dates[index])}
           >
@@ -155,7 +142,7 @@ function Header() {
           className="filter-button"
           onClick={handleButtonClick}
         >
-          {location.pathname === '/events' ? 'На главную' : 'Фильтр спортивных событий'}
+          {location.pathname === '/sportevents/events' ? 'На главную' : 'Фильтр спортивных событий'}
         </button>
       </div>
     </header>

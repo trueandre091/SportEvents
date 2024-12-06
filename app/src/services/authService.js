@@ -31,38 +31,62 @@ export const authService = {
         return !!this.getToken();
     },
 
-    async register(userData) {
-        const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
+    async register(formData) {
+        const form = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+            form.append(key, value);
+            console.log(`Добавлено поле ${key}:`, value);
         });
 
-        const data = await response.json();
+        console.log('URL запроса:', '/api/auth/register');
+        
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                body: form
+            });
 
-        if (!response.ok) {
-            throw new Error(data.error || 'Ошибка при регистрации');
-        }
+            console.log('Статус ответа:', response.status);
+            console.log('Заголовки ответа:', Object.fromEntries(response.headers));
 
-        if (data.token) {
-            this.setToken(data.token);
-            if (data.user) {
-                this.setUser(data.user);
+            const responseText = await response.text();
+            console.log('Текст ответа:', responseText);
+
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Ошибка парсинга JSON:', e);
+                throw new Error('Некорректный формат ответа от сервера');
             }
-        }
 
-        return data;
+            if (!response.ok) {
+                throw new Error(data.error || 'Ошибка при регистрации');
+            }
+
+            if (data.token) {
+                this.setToken(data.token);
+                if (data.user) {
+                    this.setUser(data.user);
+                }
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Ошибка при выполнении запроса:', error);
+            throw error;
+        }
     },
 
     async login(credentials) {
+        const form = new FormData();
+        Object.entries(credentials).forEach(([key, value]) => {
+            form.append(key, value);
+        });
+
         const response = await fetch('/api/auth/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(credentials),
+            body: form
         });
 
         const data = await response.json();
@@ -87,7 +111,7 @@ export const authService = {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${this.getToken()}`
-                },
+                }
             });
 
             if (!response.ok) {
@@ -103,10 +127,39 @@ export const authService = {
     getAuthHeaders() {
         const token = this.getToken();
         return token ? { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        } : {
-            'Content-Type': 'application/json'
-        };
+            'Authorization': `Bearer ${token}`
+        } : {};
+    },
+
+    async getProfile() {
+        try {
+            const response = await fetch('/api/user/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...this.getAuthHeaders()
+                }
+            });
+
+            const responseText = await response.text();
+            console.log('Ответ от сервера:', responseText);
+
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Ошибка парсинга JSON:', e);
+                throw new Error('Некорректный формат ответа от сервера');
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Ошибка при получении профиля');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Ошибка при получении профиля:', error);
+            throw error;
+        }
     }
 }; 

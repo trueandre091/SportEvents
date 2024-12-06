@@ -1,0 +1,22 @@
+.fsp-logo {
+  display: flex;
+  align-items: center;
+}
+
+.fsp-logo img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .fsp-logo img {
+    height: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fsp-logo img {
+    height: 30px;
+  }
+} 

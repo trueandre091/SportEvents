@@ -84,7 +84,7 @@ function Login() {
           </form>
 
           <div className="auth-link">
-            Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
+            Нет аккаунта? <Link to="/sportevents/register">Зарегистрироваться</Link>
           </div>
         </div>
       </main>

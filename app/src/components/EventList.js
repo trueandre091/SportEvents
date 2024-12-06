@@ -71,34 +71,27 @@ function EventList() {
       const formattedDateStart = filters.dateStart ? new Date(filters.dateStart).toISOString().split('T')[0] : '';
       const formattedDateEnd = filters.dateEnd ? new Date(filters.dateEnd).toISOString().split('T')[0] : '';
 
+      // Создаем FormData для отправки
+      const formData = new FormData();
+      if (filters.sport) formData.append('sport', filters.sport);
+      if (formattedDateStart) formData.append('date_start', formattedDateStart);
+      if (formattedDateEnd) formData.append('date_end', formattedDateEnd);
+
       const response = await fetch('/api/events', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          sport: filters.sport || '',
-          date_start: formattedDateStart,
-          date_end: formattedDateEnd
-        })
+        body: formData
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch events');
+        throw new Error(`Failed to fetch events: ${response.status}`);
       }
 
       const data = await response.json();
       console.log('Received filtered data:', data);
 
-      if (!data.events) {
-        console.error('No events array in response:', data);
-        setEvents([]);
-        setDisplayedEvents([]);
-        return;
-      }
 
-      setEvents(data.events);
-      setDisplayedEvents(data.events.slice(0, ITEMS_PER_PAGE));
+      setEvents(data);
+      setDisplayedEvents(data.slice(0, ITEMS_PER_PAGE));
       setCurrentPage(0);
     } catch (err) {
       console.error('Error fetching events:', err);
@@ -132,15 +125,8 @@ function EventList() {
       const data = await response.json();
       console.log('Received events for date:', data);
 
-      if (!data.events) {
-        console.error('No events array in response:', data);
-        setEvents([]);
-        setDisplayedEvents([]);
-        return;
-      }
-
-      setEvents(data.events);
-      setDisplayedEvents(data.events.slice(0, ITEMS_PER_PAGE));
+      setEvents(data);
+      setDisplayedEvents(data.slice(0, ITEMS_PER_PAGE));
       setCurrentPage(0);
     } catch (err) {
       console.error('Error fetching events by date:', err);
@@ -157,7 +143,7 @@ function EventList() {
     const newFilters = {
       ...filters,
       [name]: value,
-      selected_date: '' // Сбрасываем selected_date при изменении фильтров
+      selected_date: '' // Сбрасываем selected_date пр�� изменении фильтров
     };
     setFilters(newFilters);
 
@@ -309,7 +295,7 @@ function EventList() {
       {loading ? (
         <Loader />
       ) : error ? (
-        <div className="error">Ошибка: {error}</div>
+        <div className="error">Ошика: {error}</div>
       ) : (
         <div className="list-events">
           {filteredEvents.slice(0, (currentPage + 1) * ITEMS_PER_PAGE).map(event => (

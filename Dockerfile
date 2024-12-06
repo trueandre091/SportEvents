@@ -2,13 +2,16 @@
 FROM node:18-alpine as build
 
 WORKDIR /app
+
+# Сначала копируем только package.json и package-lock.json из корректной директории
 COPY app/package*.json ./
 
 # Устанавливаем зависимости
 RUN npm ci
 
-# Копируем исходный код
-COPY app/ ./
+# Копируем остальные файлы приложения из директории app/
+COPY app/src ./src
+COPY app/public ./public
 
 # Собираем приложение
 RUN npm run build
