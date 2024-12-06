@@ -9,6 +9,7 @@ from alembic import context
 from DB.models.Base import Base
 from DB.models.user import Users
 from DB.models.event import Events
+from DB.models.FSPevent import FSPEvents
 from dotenv import load_dotenv
 
 load_dotenv()

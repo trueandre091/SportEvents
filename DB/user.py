@@ -10,6 +10,8 @@ from sqlalchemy.orm import sessionmaker
 from DB.DataBase import SessionMaker
 
 from DB.models.user import Users
+from DB.models.user_roles import UserRoles
+from DB.models.regionals import Regions
 
 load_dotenv()
 
@@ -18,10 +20,13 @@ class User:
         self,
         id: str | None = None,
         token: str | None = None,
+        name: str | None = None,
         email: str = None,
         password: str = None,
         tg_id: int = None,
         username: str = None,
+        region: Regions | None = None,
+        role: UserRoles | None = None,
         notifications: list[dict | None] = None,
         auto_add: bool = True,
     ):
@@ -29,6 +34,8 @@ class User:
 
         self.id: str | None = id
         self.token: str | None = token
+
+        self.name: str | None = name
         self.email: str = email
         self.password: str = password
 
@@ -36,6 +43,9 @@ class User:
         self.username: str = username
 
         self.notifications: list = notifications if notifications is not None else []
+
+        self.region: Regions | None = region
+        self.role: UserRoles | None = role
 
         self.auto_add: bool = auto_add
 
@@ -55,10 +65,13 @@ class User:
 
                 self.id = user.id
                 self.email = user.email
+                self.name = user.name
                 self.password = user.password
                 self.token = user.token
                 self.tg_id = user.tg_id
                 self.username = user.username
+                self.region = user.region
+                self.role = user.role
 
                 self.notifications = user.notifications
 
@@ -167,11 +180,14 @@ class User:
     def get_self(self) -> dict:
         return {
             "token": self.token,
+            "name": self.name,
             "email": self.email,
             "password": self.password,
             "tg_id": self.tg_id,
             "username": self.username,
             "notifications": self.notifications,
+            "region": self.region,
+            "role": self.role,
         }
     
     def get_self_api(self):
