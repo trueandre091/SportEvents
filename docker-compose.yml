@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     container_name: sportevents-frontend
@@ -8,8 +6,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:80"
-    environment:
-      - NODE_ENV=production
     networks:
       - sportevents-network
 
