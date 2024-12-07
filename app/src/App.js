@@ -3,16 +3,38 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import MainLanding from './components/MainLanding';
-import Header from './components/Header';
-import EventSlider from './components/EventSlider';
-import EventStats from './components/EventStats';
-import EventList from './components/EventList';
-import Footer from './components/Footer';
+import SportHeader from './components/sportevents/Header';
+import EventSlider from './components/sportevents/EventSlider';
+import EventStats from './components/sportevents/EventStats';
+import EventList from './components/sportevents/EventList';
+import Footer from './components/sportevents/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Profile from './components/Profile';
+import Events from './components/Events';
+import Regions from './components/Regions';
+import Contacts from './components/Contacts';
+import Antidoping from './components/Antidoping';
 import { EventProvider } from './context/EventContext';
 import './App.css';
+
+const SportEventsPage = () => (
+  <>
+    <SportHeader />
+    <EventSlider />
+    <EventStats />
+    <Footer />
+  </>
+);
+
+const SportEventsListPage = () => (
+  <>
+    <SportHeader />
+    <EventList />
+    <EventStats />
+    <Footer />
+  </>
+);
 
 const theme = createTheme({
   palette: {
@@ -27,17 +49,6 @@ const theme = createTheme({
   },
 });
 
-function SportEventsPage() {
-  return (
-    <>
-      <Header />
-      <EventSlider />
-      <EventStats />
-      <Footer />
-    </>
-  );
-}
-
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -48,16 +59,13 @@ function App() {
             <Route path="/" element={<MainLanding />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/regions" element={<Regions />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/antidoping" element={<Antidoping />} />
             <Route path="/sportevents" element={<SportEventsPage />} />
-            <Route path="/sportevents/events" element={
-              <>
-                <Header />
-                <EventList />
-                <EventStats />
-                <Footer />
-              </>
-            } />
-            <Route path="/sportevents/profile" element={<Profile />} />
+            <Route path="/sportevents/events" element={<SportEventsListPage />} />
           </Routes>
         </EventProvider>
       </Router>
