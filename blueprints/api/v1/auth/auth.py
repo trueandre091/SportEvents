@@ -42,8 +42,8 @@ def register():
         username = request.form.get("username")
         tg_id = request.form.get("tg_id")
 
-        if not email or not password or not username or not tg_id:
-            return get_400("Email, password, username and tg_id are required")
+        if not email or not password:
+            return get_400("Email and password are required")
         
         user: User | None = User(email=email, password=generate_password_hash(password), username=username, tg_id=tg_id, auto_add=False)
 
