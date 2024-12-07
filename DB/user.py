@@ -4,6 +4,7 @@ import jwt
 import os
 import random
 import string
+from enum import Enum
 from dotenv import load_dotenv
 
 from werkzeug.security import generate_password_hash
@@ -56,6 +57,8 @@ class User:
         self.created_at: datetime | None = None
         self.updated_at: datetime | None = None
 
+        self.convert_region_to_key()
+
         if self.auto_add and self.get() is None:
             self.add()
 
@@ -92,30 +95,34 @@ class User:
             with self.sessionmaker() as session:
                 user: Users = Users(**self.get_self())
                 session.add(user)
+                session.flush()
+                self.id = str(user.id)
                 session.commit()
-
                 return self
 
         except Exception as e:
             print(e)
             raise e
+        
+    def convert_region_to_key(self):
+        if isinstance(self.region, Enum):
+            return
+        
+        for reg in Regions:
+            if reg.value == self.region:
+                self.region = reg
+                return
 
     def add_fsp_admin(self):
         try:
-            region_key = None
-            for reg in Regions:
-                if reg.value == self.region:
-                    region_key = reg.name
-                    break
-
             role = UserRoles.REGIONAL_ADMIN
-            if Regions[region_key] == Regions.MOSCOW:
+            if Regions[self.region] == Regions.MOSCOW:
                 role = UserRoles.CENTRAL_ADMIN
 
             with self.sessionmaker() as session:
                 fsp_admin = Users(
                     email=self.email, 
-                    region=Regions[region_key], 
+                    region=Regions[self.region], 
                     name=self.name, 
                     password=self.gen_password(),
                     role=role,
@@ -129,18 +136,18 @@ class User:
             print(f"Error adding FSP admin: {e}")
             return None
 
-    def update(self):
+    def update(self) -> bool:
         try:
             with self.sessionmaker() as session:
                 session.query(self.model).filter_by(**self.get_filter_by()).update(self.get_self())
                 session.commit()
 
-            return self
+            return True
         except Exception as e:
             print(e)
-            raise e
+            return False
 
-    def delete(self):
+    def delete(self) -> bool:
         try:
             with self.sessionmaker() as session:
                 query = select(Users).filter_by(**self.get_filter_by())
@@ -152,9 +159,9 @@ class User:
                 session.commit()
         except Exception as e:
             print(e)
-            raise e
+            return False
         
-    def add_notification(self, sport: str, search: str):
+    def add_notification(self, sport: str, search: str) -> list[dict]:
         try:
             with self.sessionmaker() as session:
                 user = session.query(Users).filter_by(**self.get_filter_by()).first()
@@ -219,7 +226,7 @@ class User:
             "tg_id": self.tg_id,
             "username": self.username,
             "notifications": self.notifications,
-            "region": self.region,
+            "region": self.region.name if self.region else None,
             "role": self.role,
         }
     

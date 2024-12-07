@@ -22,6 +22,7 @@ class FSPevent_archive(Base):
     sport: Mapped[str] = mapped_column(nullable=True, default="СПОРТИВНОЕ ПРОГРАММИРОВАНИЕ")
     title: Mapped[str] = mapped_column(nullable=True)
     description: Mapped[TEXT] = mapped_column(TEXT, nullable=True)
+    admin_description: Mapped[TEXT] = mapped_column(TEXT, nullable=True)
     participants: Mapped[str] = mapped_column(nullable=True)
     participants_num: Mapped[str] = mapped_column(nullable=True)
     discipline: Mapped[str] = mapped_column(nullable=True)

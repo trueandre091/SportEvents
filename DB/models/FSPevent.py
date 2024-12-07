@@ -8,6 +8,7 @@ from DB.models.Base import Base, get_datetime_UTC
 from DB.models.regionals import Regions
 from DB.models.FSPevent_status import FSPEventStatus
 
+
 class FSPEvents(Base):
     __tablename__ = "fsp_events"
 
@@ -16,6 +17,7 @@ class FSPEvents(Base):
     sport: Mapped[str] = mapped_column(nullable=False)
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[TEXT] = mapped_column(TEXT, nullable=False)
+    admin_description: Mapped[TEXT] = mapped_column(TEXT, nullable=True)
     participants: Mapped[str] = mapped_column(nullable=False)
     participants_num: Mapped[str] = mapped_column(nullable=False)
     discipline: Mapped[str] = mapped_column(nullable=False)
