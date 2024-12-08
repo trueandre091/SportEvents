@@ -1,0 +1,41 @@
+.simple-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: 2rem;
+    position: relative;
+}
+
+.simple-page-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.simple-page-title {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.back-to-main-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(67, 64, 245, 0.8);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.back-to-main-button:hover {
+    background: rgba(67, 64, 245, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 64, 245, 0.2);
+} 

@@ -16,5 +16,5 @@ body, html {
 
 /* Оставляем темный фон только для шапки */
 .header {
-  background-color: #1a1a1a;
+  background-color: #ffffff;
 }

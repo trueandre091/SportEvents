@@ -1,0 +1,60 @@
+.admin-statistics-panel {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-statistics-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(67, 64, 245, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+}
+
+.admin-statistics-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.admin-statistics-header h1 {
+    font-size: 2.5rem;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.admin-statistics-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    color: white;
+    position: relative;
+}
+
+.admin-statistics-content h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.admin-statistics-loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 1.2rem;
+    text-align: center;
+} 

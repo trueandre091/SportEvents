@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+.header {
+  background-color: #1a1a1a;
+  padding: 20px;
+  color: white;
+  position: relative;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.header h1 {
+  text-align: right;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 100;
+  font-size: 32px;
+  margin: 0;
+  margin-bottom: 40px;
+}
+
+.date-grid {
+  display: grid;
+  grid-template-rows: repeat(2, 80px);
+  grid-auto-columns: 80px;
+  grid-auto-flow: column;
+  gap: 10px;
+  width: calc(98% - 20px);
+  margin: 0 1% 20px calc(1% + 10px);
+  padding: 10px 5px;
+  transition: opacity 0.2s ease;
+  justify-content: center;
+}
+
+.date-box {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.date-box:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.date-box:active {
+  transform: scale(0.95);
+}
+
+.double-square {
+  grid-column: span 2;
+  aspect-ratio: unset;
+  height: 100%;
+}
+
+.filter-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 35px;
+  margin-bottom: 35px;
+}
+
+.filter-button {
+  padding: 16px 34px;
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.filter-button:hover {
+  transform: translateY(-3px);
+  background-color: #5046e1;
+  border-color: #5046e1;
+  color: white;
+}
+
+.filter-button:active {
+  transform: translateY(-1px);
+}
+
+@media (orientation: portrait) {
+  .header {
+    padding: 10px 5px;
+    min-height: 250px;
+  }
+
+  .header h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .date-grid {
+    grid-template-rows: repeat(2, 55px);
+    grid-auto-columns: 55px;
+    width: 100%;
+    margin: 0;
+    padding: 5px 2px;
+    gap: 4px;
+  }
+  
+  .date-box {
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .filter-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-width: 1px;
+    background: transparent;
+  }
+
+  .filter-button:hover {
+    background: transparent;
+    border-color: white;
+    transform: none;
+  }
+
+  .filter-button:active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .filter-button-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Для очень узких экранов в портретном режиме */
+@media (orientation: portrait) and (max-width: 380px) {
+  .header {
+    padding: 8px;
+    min-height: 220px;
+  }
+
+  .date-grid {
+    grid-template-rows: repeat(2, 50px);
+    grid-auto-columns: 50px;
+    gap: 4px;
+  }
+  
+  .date-box {
+    font-size: 16px;
+    border-radius: 6px;
+  }
+}
+
+.header-top {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.back-to-main {
+    all: unset;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.back-to-main:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-5px);
+}
+
+@media (orientation: portrait) {
+    .header-top {
+        margin-bottom: 15px;
+    }
+
+    .back-to-main {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}

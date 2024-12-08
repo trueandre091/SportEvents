@@ -67,8 +67,9 @@
 }
 
 .logo-text {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 500;
+    font-family: 'Inter', sans-serif;
     color: black;
     transition: transform 0.3s ease;
 }
@@ -85,6 +86,7 @@
 
 .nav-link {
     font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
     color: #4B5563;
     transition: all 0.3s ease;
     text-transform: lowercase;
@@ -137,6 +139,7 @@
 .text-section h1 {
     font-size: 3.75rem;
     font-weight: 700;
+    font-family: 'Inter', sans-serif;
     line-height: 1.1;
     letter-spacing: -0.025em;
     color: white;
@@ -145,6 +148,7 @@
 
 .description {
     font-size: 1.125rem;
+    font-family: 'Inter', sans-serif;
     color: #9CA3AF;
     line-height: 1.6;
 }
@@ -165,10 +169,13 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    height: auto;
+    margin-bottom: 2rem;
 }
 
 .login-container.error {
     animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    border: 1px solid red;
 }
 
 @keyframes shake {
@@ -216,9 +223,16 @@
 .error-message {
     color: #EF4444;
     font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
     margin-top: 0.5rem;
     text-align: center;
     animation: fadeIn 0.3s ease;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: -1.5rem;
+    max-width: 90%;
+    overflow: hidden;
 }
 
 @keyframes fadeIn {
@@ -260,6 +274,7 @@
 .login-form h2 {
     font-size: 2.5rem;
     font-weight: 400;
+    font-family: 'Inter', sans-serif;
     color: black;
     margin-bottom: 2rem;
 }
@@ -268,6 +283,8 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    position: relative;
+    padding-bottom: 1rem;
 }
 
 .form-input {
@@ -277,6 +294,7 @@
     background: #4340F5;
     border: none;
     color: white;
+    font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
     transition: all 0.3s ease;
 }
@@ -298,6 +316,7 @@
 
 .forgot-password a {
     font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
     color: #666;
     text-decoration: none;
     transition: all 0.3s ease;
@@ -322,182 +341,111 @@
     }
 }
 
-.events-section {
+.main-events-section {
     padding: 4rem 1rem;
-}
-
-.events-container {
+    margin: 2rem auto;
     max-width: 1200px;
-    margin: 0 auto;
-    opacity: 0;
-    animation: fadeInUp 1s ease forwards;
-    animation-delay: 0.5s;
 }
 
-.events-title {
-    font-size: 2.5rem;
-    font-weight: 600;
+.main-events-title {
+    font-size: 2rem;
+    font-weight: bold;
+    font-family: 'Inter', sans-serif;
     color: white;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     text-align: center;
-    opacity: 0;
-    animation: fadeInDown 0.8s ease forwards;
 }
 
-.events-grid {
+.main-events-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
-    padding: 1rem;
 }
 
-.event-card {
-    background: white;
-    border-radius: 1.5rem;
+.main-event-card {
+    background: rgb(67, 56, 202);
+    border-radius: 1rem;
     padding: 1.5rem;
-    transition: all 0.3s ease;
-    opacity: 0;
-    animation: fadeInUp 0.8s ease forwards;
-}
-
-.events-loading, .no-events {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 2rem;
     color: white;
-    font-size: 1.2rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 1rem;
-    animation: pulse 2s infinite ease-in-out;
+    transition: transform 0.2s;
 }
 
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+.main-event-card:hover {
+    transform: translateY(-4px);
 }
 
-.event-card:nth-child(1) { animation-delay: 0.2s; }
-.event-card:nth-child(2) { animation-delay: 0.4s; }
-.event-card:nth-child(3) { animation-delay: 0.6s; }
-
-.event-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.event-header {
+.main-event-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
-.event-type {
+.main-event-type {
     font-size: 0.875rem;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    color: rgba(255, 255, 255, 0.8);
 }
 
-.event-card:hover .event-type {
-    color: #4340F5;
-}
-
-.event-status {
-    font-size: 0.875rem;
+.main-event-status {
     padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-}
-
-.status-open {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10B981;
-}
-
-.status-soon {
-    background: rgba(245, 158, 11, 0.1);
-    color: #F59E0B;
-}
-
-.event-title {
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: #1F2937;
-    margin-bottom: 1.5rem;
-    line-height: 1.4;
-    transition: all 0.3s ease;
-}
-
-.event-card:hover .event-title {
-    color: #4340F5;
-}
-
-.event-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.event-detail {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    transition: all 0.3s ease;
-}
-
-.event-card:hover .event-detail {
-    transform: translateX(5px);
-}
-
-.detail-label {
-    color: #666;
-    font-size: 0.875rem;
-}
-
-.detail-value {
-    color: #1F2937;
-    font-size: 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-family: 'Inter', sans-serif;
     font-weight: 500;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.main-status-open {
+    background: #10B981;
+    color: white;
 }
 
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.main-status-soon {
+    background: #F59E0B;
+    color: white;
 }
 
-@media (max-width: 768px) {
-    .events-grid {
-        grid-template-columns: 1fr;
-    }
+.main-event-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 1rem;
+    color: white;
+}
 
-    .events-title {
-        font-size: 2rem;
-    }
+.main-event-info {
+    display: grid;
+    gap: 0.5rem;
+}
 
-    .event-card {
-        animation-delay: 0.2s !important;
-    }
+.main-event-detail {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.main-detail-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.main-detail-value {
+    color: white;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.main-events-loading {
+    text-align: center;
+    color: white;
+    padding: 2rem;
+}
+
+.main-no-events {
+    text-align: center;
+    color: white;
+    padding: 2rem;
+    grid-column: 1 / -1;
 }
 
 .terminal-footer {
@@ -543,7 +491,7 @@
 .terminal-title {
     color: #9DA5B4;
     font-size: 0.875rem;
-    font-family: monospace;
+    font-family: 'Inter', sans-serif;
 }
 
 .terminal-content {
@@ -557,6 +505,7 @@
 .terminal-line {
     color: #9DA5B4;
     font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
     margin-bottom: 0.5rem;
     opacity: 0;
     animation: fadeIn 0.3s ease forwards;
@@ -582,7 +531,7 @@
     background: transparent;
     border: none;
     color: #9DA5B4;
-    font-family: monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 0.875rem;
     outline: none;
     padding: 0;
@@ -632,7 +581,7 @@
     background: #4D4D4D;
 }
 
-/* Общие сти��и для всех страниц */
+/* Общие стили для всех страниц */
 .page-title {
     font-size: 2.5rem;
     font-weight: 600;
@@ -871,7 +820,7 @@
     transform: translateY(-2px);
 }
 
-/* Стили для страни��ы антидопинга */
+/* Стили для страницы антидопинга */
 .antidoping-content {
     max-width: 1200px;
     margin: 0 auto;
@@ -1104,4 +1053,294 @@ a {
 
 a:hover {
     color: #007bff;
+}
+
+.switch-form-button {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+.switch-form-button:hover {
+    color: #000;
+    transform: translateY(0);
+}
+
+.register-button {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border-radius: 1.5rem;
+    background: #4340F5;
+    border: none;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.register-button:hover {
+    background: #3835f0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 64, 245, 0.2);
+}
+
+.register-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #1a1a1a 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.modal-title {
+    font-size: 2rem;
+    color: white;
+    font-weight: 500;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.modal-close:hover {
+    opacity: 1;
+}
+
+.representatives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.representative-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 100px;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.representative-row:last-child {
+    border-bottom: none;
+}
+
+.representative-header {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid #4340F5;
+}
+
+.representative-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+}
+
+.action-button:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.action-button.edit {
+    color: #4340F5;
+}
+
+.action-button.delete {
+    color: #dc2626;
+}
+
+.add-representative {
+    background: #4340F5;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.add-representative:hover {
+    background: #3835f0;
+    transform: translateY(-2px);
+}
+
+.welcome-section {
+    display: flex;
+    justify-content: center;
+    animation: fadeIn 0.8s ease-out 0.4s backwards;
+}
+
+.welcome-container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 2rem;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.welcome-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #1F2937;
+}
+
+.welcome-container p {
+    color: #6B7280;
+    margin-bottom: 1.5rem;
+}
+
+.user-section {
+    position: absolute;
+    top: 1rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.welcome-text {
+    color: white;
+    font-size: 1rem;
+}
+
+.logout-button {
+    background: rgba(245, 64, 64, 0.8);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.logout-button:hover {
+    background: rgba(245, 64, 64, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 64, 64, 0.2);
+}
+
+.admin-panel-button {
+    background: rgba(67, 64, 245, 0.8);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto 1rem auto;
+}
+
+.admin-panel-button:hover {
+    background: rgba(67, 64, 245, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 64, 245, 0.2);
+}
+
+.main-event-subscribe-button {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: rgba(67, 64, 245, 0.8);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.main-event-subscribe-button:hover:not(:disabled) {
+    background: rgba(67, 64, 245, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 64, 245, 0.2);
+}
+
+.main-event-subscribe-button:disabled {
+    background: rgba(156, 163, 175, 0.5);
+    cursor: not-allowed;
+}
+
+.main-event-subscribe-button:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Стили для случая, когда пользователь уже подписан */
+.main-event-subscribe-button[data-subscribed="true"] {
+    background: rgba(34, 197, 94, 0.8);
+}
+
+.main-event-subscribe-button[data-subscribed="true"]:hover {
+    background: rgba(34, 197, 94, 1);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
 } 

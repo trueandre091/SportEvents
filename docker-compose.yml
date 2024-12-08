@@ -1,6 +1,6 @@
 services:
   frontend:
-    container_name: sportevents-frontend
+    container_name: frontend
     build:
       context: .
       dockerfile: Dockerfile

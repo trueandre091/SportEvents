@@ -1,13 +1,19 @@
-const TOKEN_KEY = 'auth_token';
+import { TOKEN_TYPES } from '../constants/tokenTypes';
+
+const TOKEN_KEY = 'jwt_token';
 const USER_KEY = 'user_data';
+const API_URL = '/api';
 
 export const authService = {
     setToken(token) {
+        console.log('Сохраняем токен:', token);
         localStorage.setItem(TOKEN_KEY, token);
     },
 
     getToken() {
-        return localStorage.getItem(TOKEN_KEY);
+        const token = localStorage.getItem(TOKEN_KEY);
+        console.log('Получен токен:', token);
+        return token;
     },
 
     removeToken() {
@@ -28,40 +34,111 @@ export const authService = {
     },
 
     isAuthenticated() {
-        return !!this.getToken();
+        const token = this.getToken();
+        console.log('Проверка авторизации, токен:', token);
+        return !!token;
     },
 
     async register(formData) {
         const form = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            form.append(key, value);
-            console.log(`Добавлено поле ${key}:`, value);
-        });
+        form.append('email', formData.email);
+        form.append('password', formData.password);
+        if (formData.tg_id) {
+            form.append('tg_id', formData.tg_id);
+        }
 
-        console.log('URL запроса:', '/api/auth/register');
-        
         try {
-            const response = await fetch('/api/auth/register', {
+            console.log('Отправка запроса на регистрацию:', `${API_URL}/auth/register`);
+            
+            const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
-                body: form
+                body: form,
+                headers: {
+                    'Accept': 'application/json'
+                }
             });
 
             console.log('Статус ответа:', response.status);
-            console.log('Заголовки ответа:', Object.fromEntries(response.headers));
 
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Ошибка при регистрации');
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error('Ошибка при регистрации:', error);
+            throw error;
+        }
+    },
+
+    async verifyEmail(email, verifyToken) {
+        try {
+            const form = new FormData();
+            form.append('email', email);
+            form.append('verify_token', parseInt(verifyToken));
+            form.append('token_type', 'verify_email');
+
+            console.log('Отправка запроса верификации:', {
+                email,
+                verify_token: parseInt(verifyToken),
+                token_type: 'verify_email'
+            });
+
+            const response = await fetch(`${API_URL}/auth/verify_token`, {
+                method: 'POST',
+                body: form,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            console.log('Статус ответа:', response.status);
+            
             const responseText = await response.text();
             console.log('Текст ответа:', responseText);
 
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            } catch (e) {
-                console.error('Ошибка парсинга JSON:', e);
-                throw new Error('Некорректный формат ответа от сервера');
+            if (!response.ok) {
+                try {
+                    const error = JSON.parse(responseText);
+                    throw new Error(error.message || 'Неверный код подтверждения');
+                } catch (e) {
+                    throw new Error('Ошибка сервера при верификации');
+                }
             }
 
+            const data = JSON.parse(responseText);
+            this.setToken(data.token);
+            this.setUser(data.user);
+            return data;
+        } catch (error) {
+            console.error('Ошибка при верификации:', error);
+            throw error;
+        }
+    },
+
+    async login(credentials) {
+        const form = new FormData();
+        Object.entries(credentials).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                form.append(key, value);
+            }
+        });
+
+        try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                body: form,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+            console.log('Ответ от сервера при входе:', data);
+
             if (!response.ok) {
-                throw new Error(data.error || 'Ошибка при регистрации');
+                throw new Error(data.error || data.message || 'Ошибка при входе');
             }
 
             if (data.token) {
@@ -73,50 +150,24 @@ export const authService = {
 
             return data;
         } catch (error) {
-            console.error('Ошибка при выполнении запроса:', error);
+            console.error('Ошибка при входе:', error);
             throw error;
         }
     },
 
-    async login(credentials) {
-        const form = new FormData();
-        Object.entries(credentials).forEach(([key, value]) => {
-            form.append(key, value);
-        });
-
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            body: form
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Ошибка при входе');
-        }
-
-        if (data.token) {
-            this.setToken(data.token);
-            if (data.user) {
-                this.setUser(data.user);
-            }
-        }
-
-        return data;
-    },
-
     async logout() {
         try {
-            const response = await fetch('/api/auth/logout', {
+            const response = await fetch(`${API_URL}/auth/logout`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${this.getToken()}`
+                    'Authorization': this.getToken(),
+                    'Accept': 'application/json'
                 }
             });
 
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || 'Ошибка при выходе из системы');
+                throw new Error(data.error || data.message || 'Ошибка при выходе из системы');
             }
         } finally {
             this.removeToken();
@@ -126,40 +177,110 @@ export const authService = {
 
     getAuthHeaders() {
         const token = this.getToken();
-        return token ? { 
-            'Authorization': `Bearer ${token}`
-        } : {};
+        console.log('Заголовки авторизации, токен:', token);
+        return {
+            'Authorization': token,
+            'Accept': 'application/json'
+        };
     },
 
     async getProfile() {
         try {
-            const response = await fetch('/api/user/profile', {
+            console.log('Getting profile, token:', this.getToken());
+            const response = await fetch(`${API_URL}/user/profile`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    ...this.getAuthHeaders()
+                    'Authorization': this.getToken(),
+                    'Accept': 'application/json'
                 }
             });
 
-            const responseText = await response.text();
-            console.log('Ответ от сервера:', responseText);
-
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            } catch (e) {
-                console.error('Ошибка парсинга JSON:', e);
-                throw new Error('Некорректный формат ответа от сервера');
-            }
+            console.log('Profile response status:', response.status);
+            const data = await response.json();
+            console.log('Profile data:', data);
 
             if (!response.ok) {
-                throw new Error(data.error || 'Ошибка при получении профиля');
+                throw new Error(data.message || 'Failed to get profile');
             }
 
             return data;
         } catch (error) {
-            console.error('Ошибка при получении профиля:', error);
+            console.error('Error in getProfile:', error);
+            throw error;
+        }
+    },
+
+    async verifyToken(email, token, tokenType, password = null) {
+        const form = new FormData();
+        form.append('email', email);
+        form.append('verify_token', token);
+        form.append('token_type', tokenType);
+        if (password) {
+            form.append('password', password);
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/auth/verify_token`, {
+                method: 'POST',
+                body: form,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || data.message || 'Ошибка при верификации токена');
+            }
+
+            if (data.token) {
+                this.setToken(data.token);
+                if (data.user) {
+                    this.setUser(data.user);
+                }
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Ошибка при верификации:', error);
+            throw error;
+        }
+    },
+
+    async updateProfile(userData) {
+        try {
+            const formData = new FormData();
+            
+            // Добавляем все поля в FormData
+            formData.append('id', userData.id);
+            formData.append('name', userData.name);
+            formData.append('username', userData.username);
+            formData.append('email', userData.email);
+            formData.append('tg_id', userData.tg_id);
+            formData.append('notifications', JSON.stringify(userData.notifications || []));
+
+            console.log('Update data:', userData);
+
+            const response = await fetch('/api/user/update', {
+                method: 'POST',
+                headers: {
+                    'Authorization': this.getToken()
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Ошибка при обновлении профиля');
+            }
+
+            const updatedUser = await response.json();
+            this.setUser(updatedUser);
+            return updatedUser;
+        } catch (error) {
+            console.error('Ошибка при обновлении профиля:', error);
             throw error;
         }
     }
-}; 
+};
