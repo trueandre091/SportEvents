@@ -1,0 +1,47 @@
+/* Анимация для показа элемента */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Анимация для скрытия элемента */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* Класс для показа формы */
+.form-enter {
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+/* Класс для скрытия формы */
+.form-exit {
+  animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+/* Добавьте в файл CSS */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  75% { transform: translateX(-10px); }
+  100% { transform: translateX(0); }
+}
+
+.errorShake {
+  animation: shake 0.5s ease-in-out;
+  border: 2px solid red;
+}
