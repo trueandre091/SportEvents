@@ -17,19 +17,24 @@ const LoginRegistration = () => {
     email,
     password,
     confirmPassword,
-    verificationCode,
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,
-    handleVerificationCodeChange,
     handleSubmit,
     toggleForm,
     error,
-    shakeError
+    shakeError,
+    isCodeRequested,
+    verificationCode,
+    handleVerificationCodeChange,
+    handleVerificationCodeSubmit,
+    isRegistered,
+    isLoading
   } = useLoginRegistration();
 
   return (
     <Box
+      className={isLoading ? 'loading' : ''}
       sx={{
         ...animationAppear,
         flex: 0.4,
@@ -48,12 +53,15 @@ const LoginRegistration = () => {
     >
       <Button
         sx={{
-          marginBottom: '20px', color: 'black', fontFamily: 'Montserrat', fontSize: '16px',
+          marginBottom: '20px',
+          color: 'black',
+          fontFamily: 'Montserrat',
+          fontSize: '16px',
           alignSelf: 'flex-end',
           '&:hover': {
-            transform: 'scale(1.1)', // Increase size on hover
-            transition: 'transform 0.2s ease-in-out', // Smooth transition
-            backgroundColor: 'transparent', // Keep background transparent if desired
+            transform: 'scale(1.1)',
+            transition: 'transform 0.2s ease-in-out',
+            backgroundColor: 'transparent',
           },
         }}
         variant="text"
@@ -69,7 +77,7 @@ const LoginRegistration = () => {
           sx={{
             fontFamily: 'Montserrat',
             fontSize: '40px',
-            marginTop: isRegistering ? "40px" : "160px",
+            marginTop: isRegistering ? "-20px" : "160px",
             transition: "all 0.5s ease-in-out",
             animation: isRegistering ? "form-enter 0.5s ease-in-out" : "form-exit 0.5s ease-in-out"
           }}>
@@ -104,7 +112,7 @@ const LoginRegistration = () => {
             borderRadius: '30px',
             backgroundImage: 'linear-gradient(to right, #6346e8, #3b298a)',
             '& .MuiFilledInput-root': {
-              backgroundImage: 'linear-gradient(to right, #6346e8, #3b298a)',  // Синий фон для поля
+              backgroundImage: 'linear-gradient(to right, #6346e8, #3b298a)',
               borderRadius: '30px',
               '& fieldset': {
                 border: 'none',
@@ -116,25 +124,25 @@ const LoginRegistration = () => {
                 transform: 'translateX(10px)',
               },
               '&.Mui-focused': {
-                border: 'none', // Убираем границу при фокусе
-                boxShadow: 'none', // Убираем тень фокуса
+                border: 'none',
+                boxShadow: 'none',
               },
             },
             '& .MuiInputLabel-root': {
               color: 'white',
               fontFamily: 'Montserrat',
-              transform: 'translateX(30px) translateY(10px)', // Shift the label to the left
+              transform: 'translateX(30px) translateY(10px)',
               fontSize: '16px',
             },
           },
           marginTop: '30px',
         }}
         noValidate
-        autoComplete="false"
+        autoComplete="on"
       >
 
         <TextField
-          id="filled-basic"
+          id="email"
           label="Email"
           variant="filled"
           value={email}
@@ -142,50 +150,91 @@ const LoginRegistration = () => {
             disableUnderline: true,
           }}
           onChange={handleEmailChange}
-          className={shakeError ? 'errorShake' : ''}
+          className={shakeError ? 'shake-error' : ''}
         />
         <TextField
-          id="filled-basic"
+          id="password"
           label="Пароль"
           variant="filled"
+          type="password"
           value={password}
           InputProps={{
             disableUnderline: true,
           }}
           onChange={handlePasswordChange}
-          className={shakeError ? 'errorShake' : ''}
+          className={shakeError ? 'shake-error' : ''}
         />
         {isRegistering && (
           <TextField
             label="Подтвердить пароль"
             variant="filled"
+            type="password"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
             InputProps={{
               disableUnderline: true,
             }}
-            className={shakeError ? 'errorShake' : ''}
+            className={shakeError ? 'shake-error' : ''}
           />
         )}
-      </Box>
-      {isRegistering && (
-        <Button
-          sx={{
-            marginBottom: '20px', color: 'black', fontFamily: 'Montserrat', fontSize: '16px',
-            '&:hover': {
-              transform: 'scale(1.1)', // Increase size on hover
-              transition: 'transform 0.2s ease-in-out', // Smooth transition
-              backgroundColor: 'transparent', // Keep background transparent if desired
-            },
-          }}
-          variant="text"
-          onClick={handleSubmit}
-          disableRipple={true}
-        >
-          Получить код
-        </Button>
-      )}
 
+        {isRegistering && !isCodeRequested && (
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            className={shakeError ? 'shake-error' : ''}
+            sx={{
+              backgroundColor: '#fff',
+              color: 'white',
+              fontFamily: 'Montserrat',
+              borderRadius: '30px',
+              padding: '15px',
+              '&:hover': {
+                backgroundColor: '#f0f0f0',
+              },
+            }}
+          >
+            Получить код
+          </Button>
+        )}
+
+        {isCodeRequested && (
+          <>
+            <TextField
+              label="Код подтверждения"
+              variant="filled"
+              value={verificationCode}
+              onChange={handleVerificationCodeChange}
+              className={shakeError ? 'shake-error' : ''}
+              sx={{
+                '& .MuiInputBase-root': {
+                  '&::before': {
+                    borderBottom: 'none',
+                  },
+                  '&::after': {
+                    borderBottom: 'none',
+                  },
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              onClick={handleVerificationCodeSubmit}
+              sx={{
+                backgroundColor: '#fff',
+                color: '#6346e8',
+                borderRadius: '30px',
+                padding: '15px',
+                '&:hover': {
+                  backgroundColor: '#f0f0f0',
+                },
+              }}
+            >
+              Отправить
+            </Button>
+          </>
+        )}
+      </Box>
     </Box>
   );
 };

@@ -32,16 +32,49 @@
   animation: fadeOut 0.5s ease-in-out forwards;
 }
 
-/* Добавьте в файл CSS */
 @keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  50% { transform: translateX(10px); }
-  75% { transform: translateX(-10px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
-.errorShake {
+.shake-error {
   animation: shake 0.5s ease-in-out;
-  border: 2px solid red;
+  animation-iteration-count: 1; /* Анимация выполнится один раз */
+  background-color: #ffcccc; /* Цвет фона для ошибки */
+  border: 1px solid #ff0000; /* Красная рамка */
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db; /* Цвет спиннера */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
