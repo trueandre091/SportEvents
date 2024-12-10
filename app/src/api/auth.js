@@ -1,6 +1,6 @@
 import { getTokenFromStorage, setTokenWithExpiry, removeToken } from '../utils/tokenUtils';
 
-const API_URL = 'http://app-container:5000';
+const API_URL = '/api';
 
 export const login = async (email, password) => {
   return {
@@ -20,18 +20,51 @@ export const login = async (email, password) => {
     const formData = new FormData();
     formData.append('email', email);
     formData.append('password', password);
-    console.log(formData);
 
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: formData,
+      headers: {
+        'Accept': 'application/json'
+      }
     });
-    const data = await response.json();
-    return data;
+
+    console.log('Получен ответ:', {
+      status: response.status,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+
+    // Получаем текст ответа
+    const text = await response.text();
+    console.log('Текст ответа:', text);
+
+    // Если ответ пустой, возвращаем объект с ошибкой
+    if (!text) {
+      return { error: 'Empty response from server' };
+    }
+
+    // Пробуем распарсить JSON
+    try {
+      const data = JSON.parse(text);
+      console.log('Успешный ответ:', data);
+      
+      // Проверяем наличие ошибки в ответе
+      if (!response.ok) {
+        return { 
+          error: data.message || `HTTP error! status: ${response.status}`,
+          status: response.status 
+        };
+      }
+
+      return data;
+    } catch (e) {
+      console.error('Ошибка парсинга JSON:', e);
+      return { error: 'Invalid JSON response from server' };
+    }
+
   } catch (error) {
     console.error('Ошибка при авторизации:', error);
-    return error;
+    return { error: error.message || 'Network error' };
   }
 };
 
@@ -43,12 +76,16 @@ export const register = async (email, password) => {
     formData.append('password', password);
     console.log(formData);
 
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+    const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Accept': 'application/json'
+      },
       body: formData,
     });
     const data = await response.json();
+    console.log('Response status:', response.status);
+    console.log(data);
     return data;
   } catch (error) {
     console.error('Ошибка при регистрации:', error);
@@ -59,16 +96,17 @@ export const register = async (email, password) => {
 export const logout = async () => {
   try {
     const token = getTokenFromStorage();
-    const response = await fetch(`${API_URL}/api/auth/logout`, {
+    const response = await fetch(`${API_URL}/auth/logout`, {
       method: 'POST',
       headers: {
         'Authorization': token,
         'Accept': 'application/json'
       }
     });
-
+    console.log('Response status:', response.status);
     if (!response.ok) {
       const data = await response.json();
+      console.log(data);
       return data.error || data.message || 'Ошибка при выходе из системы';
     }
   } finally {
@@ -100,7 +138,7 @@ export const verifyToken = async (email, token, tokenType, password = null) => {
   console.log(formData);
 
   try {
-    const response = await fetch(`${API_URL}/api/auth/verify_token`, {
+    const response = await fetch(`${API_URL}/auth/verify_token`, {
       method: 'POST',
       body: formData,
       headers: {
@@ -109,6 +147,8 @@ export const verifyToken = async (email, token, tokenType, password = null) => {
     });
 
     const data = await response.json();
+    console.log('Response status:', response.status);
+    console.log(data);
 
     if (!response.ok) {
       throw new Error(data.error || data.message || 'Ошибка при верификации токена');
@@ -132,7 +172,7 @@ export const getProfile = async () => {
   try {
     const token = getTokenFromStorage();
     console.log('Getting profile, token:', token);
-    const response = await fetch(`${API_URL}/api/auth/profile`, {
+    const response = await fetch(`${API_URL}/auth/profile`, {
       method: 'POST',
       headers: {
         'Authorization': token,
@@ -141,7 +181,13 @@ export const getProfile = async () => {
     });
 
     const data = await response.json();
+    console.log('Response status:', response.status);
     console.log(data);
+
+    if (response.status === 401 || [401].includes(response.status)) {
+      removeToken();
+      return data;
+    }
 
     if (!response.ok) {
       return data.message || 'Failed to get profile';

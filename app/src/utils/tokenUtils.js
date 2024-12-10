@@ -1,8 +1,6 @@
-export const setTokenWithExpiry = (token, expiryDays = 7) => {
-  const now = new Date();
+export const setTokenWithExpiry = (token) => {
   const item = {
-    value: token,
-    expiry: now.getTime() + (expiryDays * 24 * 60 * 60 * 1000),
+    value: token
   }
   localStorage.setItem('userToken', JSON.stringify(item));
 }
@@ -12,12 +10,7 @@ export const getTokenFromStorage = () => {
   if (!itemStr) return null;
 
   const item = JSON.parse(itemStr);
-  const now = new Date();
 
-  if (now.getTime() > item.expiry) {
-    localStorage.removeItem('userToken');
-    return null;
-  }
   return item.value;
 }
 

@@ -53,32 +53,27 @@ const LoginRegistration = () => {
       }}
     >
       {!token && (
-        <Box sx={{ 
-          display: 'flex',          // ✅ Добавляем flex контейнер
-          flexDirection: 'column',  // ✅ Устанавливаем вертикальное направление
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: '100%'            // ✅ Задаем ширину
-        }}>
-          <Button
-            sx={{
-              marginBottom: '20px',
-              color: 'black',
-              fontFamily: 'Montserrat',
-              fontSize: '16px',
-              alignSelf: 'flex-end',
-              '&:hover': {
-                transform: 'scale(1.1)',
-                transition: 'transform 0.2s ease-in-out',
-                backgroundColor: 'transparent',
-              },
-            }}
-            variant="text"
-            onClick={toggleForm}
-            disableRipple={true}
-          >
-            {isRegistering ? 'Войти' : 'Зарегистрироваться'}
-          </Button>
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+            <Button
+              sx={{
+                marginBottom: '20px',
+                color: 'black',
+                fontFamily: 'Montserrat',
+                fontSize: '16px',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  transition: 'transform 0.2s ease-in-out',
+                  backgroundColor: 'transparent',
+                },
+              }}
+              variant="text"
+              onClick={toggleForm}
+              disableRipple={true}
+            >
+              {isRegistering ? 'Войти' : 'Зарегистрироваться'}
+            </Button>
+          </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <Typography
@@ -244,19 +239,26 @@ const LoginRegistration = () => {
 
 
       {token && (
-        <Box>
-          <Typography 
-          variant="h6" 
-          sx={{ 
-            fontFamily: 'Montserrat', 
-            fontSize: '40px', 
-            marginTop: '-20px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%'
-          }}>
-          👋
+        <Box 
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%'
+        }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              fontFamily: 'Montserrat',
+              fontSize: '40px',
+              marginTop: '-20px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%'
+            }}>
+            👋
           </Typography>
         </Box>
       )}

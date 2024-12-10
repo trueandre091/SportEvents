@@ -1,0 +1,18 @@
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - REACT_APP_API_URL=http://localhost
+    ports:
+      - "3000:80"
+    networks:
+      - sportevents-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  sportevents-network:
+    external: true

@@ -1,3 +1,13 @@
+/**
+ * Компонент Header - шапка сайта с навигацией и меню пользователя
+ * 
+ * Функциональность:
+ * - Адаптивное меню (мобильное/десктопное)
+ * - Навигация по основным разделам
+ * - Меню пользователя с профилем и выходом
+ * - Обработка авторизации
+ */
+
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -12,7 +22,9 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
 import { getTokenFromStorage, removeToken } from '../utils/tokenUtils';
+import { useAuth } from '../context/AuthContext';
 
+// Конфигурация пунктов меню
 const pages = [
   { title: 'Все мероприятия', path: '/events' },
   { title: 'О нас', path: '/about' },
@@ -21,10 +33,13 @@ const pages = [
 const settings = ["Профиль", "Выйти"];
 
 function Header() {
+  // Состояния для управления меню
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
+  // Обработчики открытия/закрытия меню
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -32,18 +47,22 @@ function Header() {
     setAnchorElUser(event.currentTarget);
   };
 
+  // Обработчик клика по логотипу
   const handleLogoClick = () => {
     navigate('/');
   };
 
+  // Закрытие навигационного меню
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
 
+  // Закрытие меню пользователя
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
 
+  // Обработка действий в меню пользователя
   const handleButtonClick = (setting) => {
     if (setting === "Профиль") {
       const token = getTokenFromStorage();
@@ -51,11 +70,13 @@ function Header() {
         navigate('/profile');
       } else {
         removeToken();
+        logout();
         navigate('/');
       }
     }
     if (setting === "Выйти") {
       removeToken();
+      logout();
       navigate('/');
     }
   };
@@ -74,6 +95,7 @@ function Header() {
       <Container maxWidth="xl">
 
         <Toolbar disableGutters>
+          {/* Логотип для десктопа */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}>
             <IconButton
               onClick={handleLogoClick}
@@ -91,6 +113,7 @@ function Header() {
             </IconButton>
           </Box>
 
+          {/* Мобильное меню */}
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
@@ -118,6 +141,7 @@ function Header() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
+              {/* Пункты мобильного меню */}
               {pages.map((page) => (
                 <MenuItem key={page.title} onClick={() => {
                   handleCloseNavMenu();
@@ -128,16 +152,19 @@ function Header() {
               ))}
             </Menu>
           </Box>
-          {/* Для мобильных экранов */}
+
+          {/* Логотип для мобильных устройств */}
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
             <IconButton>
               <img
                 src="/images/logo.svg"
                 alt="Logo"
-                style={{ width: 300, height: 'auto' }} // Установите размер для мобильных устройств
+                style={{ width: 300, height: 'auto' }}
               />
             </IconButton>
           </Box>
+
+          {/* Заголовок для мобильных устройств */}
           <Typography
             variant="h5"
             noWrap
@@ -155,6 +182,8 @@ function Header() {
             }}
           >
           </Typography>
+
+          {/* Десктопное меню */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
@@ -169,6 +198,8 @@ function Header() {
               </Button>
             ))}
           </Box>
+
+          {/* Меню пользователя */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -196,10 +227,11 @@ function Header() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Button onClick={handleButtonClick}>
-                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                  </Button>
+                <MenuItem key={setting} onClick={() => {
+                  handleCloseUserMenu();
+                  handleButtonClick(setting);
+                }}>
+                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -209,4 +241,5 @@ function Header() {
     </AppBar>
   );
 }
+
 export default Header;

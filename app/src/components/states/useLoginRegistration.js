@@ -1,7 +1,35 @@
+/**
+ * Хук для управления состоянием формы входа/регистрации
+ * 
+ * Состояния:
+ * @state {boolean} isRegistering - Режим регистрации/входа
+ * @state {string} email - Email пользователя
+ * @state {string} password - Пароль
+ * @state {string} confirmPassword - Подтверждение пароля (для регистрации)
+ * @state {string} verificationCode - Код подтверждения (для регистрации)
+ * @state {boolean} isCodeRequested - Флаг запроса кода подтверждения
+ * @state {string} error - Текст ошибки
+ * @state {boolean} shakeError - Флаг анимации ошибки
+ * @state {boolean} isLoading - Флаг загрузки
+ * @state {object} userData - Данные пользователя
+ * @state {string} token - JWT токен
+ * 
+ * Методы:
+ * - handleEmailChange - Обработка изменения email
+ * - handlePasswordChange - Обработка изменения пароля
+ * - handleConfirmPasswordChange - Обработка изменения подтверждения пароля
+ * - handleVerificationCodeChange - Обработка изменения кода подтверждения
+ * - handleSubmit - Обработка отправки формы
+ * - handleVerificationCodeSubmit - Обработка отправки кода подтверждения
+ * - toggleForm - Переключение между формами входа и регистрации
+ * - handleLogout - Выход из системы
+ */
+
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login, register, verifyToken } from '../../api/auth';
 import { setTokenWithExpiry, getTokenFromStorage, removeToken } from '../../utils/tokenUtils';
+import { useAuth } from '../../context/AuthContext';
 
 
 const useLoginRegistration = () => {  
@@ -31,9 +59,14 @@ const useLoginRegistration = () => {
     setTokenWithExpiry(newToken); // Сохраняем в localStorage на 7 дней
     setToken(newToken); // Обновляем состояние
   }, []);
-  
 
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
+
+  const handleLoginSuccess = () => {
+    authLogin();
+  };
+  
   // Очистка таймера при размонтировании
   React.useEffect(() => {
     return () => {
@@ -61,32 +94,43 @@ const useLoginRegistration = () => {
 
       // Сохраняем ссылку на новый таймер
       submitTimeoutRef.current = setTimeout(async () => {
-        console.log('Отправка данных для входа:', { email: newEmail, password: newPassword });
         // Вызов API для отправки данных
         try {
+          console.log('Отправка данных:', { email: newEmail, password: newPassword });
+          
           const response = await login(newEmail, newPassword);
-          if (response.token) {
-            saveToken(response.token);
-            setUserData(response.user);
-            console.log({'Токен и данные пользователя установлены': response});
-            navigate('/events');
-          } else {
-            setError('Ошибка при входе');
+          console.log('Получен ответ:', response);
+
+          if (response.error) {
+            setError(response.error);
             setShakeError(true);
-            setTimeout(() => setShakeError(false), 500);
+            return;
           }
+
+          if (!response.token) {
+            setError('Отсутствует токен в ответе');
+            setShakeError(true);
+            return;
+          }
+
+          // Успешный вход
+          console.log('Успешный вход, сохраняем токен и обновляем контекст');
+          saveToken(response.token);
+          authLogin(response.token, response.user); // Обновляем контекст
+          navigate('/events');
+
         } catch (error) {
-          console.error('Ошибка при входе:', error);
-          setError(error.message || 'Ошибка при входе');
+          console.error('Ошибка в процессе входа:', error);
+          setError('Произошла ошибка при входе');
           setShakeError(true);
-          setTimeout(() => setShakeError(false), 500);
         } finally {
           setIsLoading(false);
+          setTimeout(() => setShakeError(false), 500);
+          submitTimeoutRef.current = null;
         }
-        submitTimeoutRef.current = null;
       }, 2000);
     }
-  }, [isRegistering, email, password, confirmPassword, navigate, saveToken]);
+  }, [isRegistering, email, password, confirmPassword, navigate, saveToken, authLogin]);
 
   // Хендлеры для обновления полей формы и проверки
   const handleEmailChange = async(e) => {
@@ -116,8 +160,22 @@ const useLoginRegistration = () => {
     setIsRegistering((prev) => !prev);
   };
 
+  // Функция для проверки ответа на 401 ошибку
+  const handleUnauthorized = React.useCallback((error) => {
+    if (error.status === 401 || error.response?.status === 401) {
+      console.log('Unauthorized error detected, removing token');
+      removeToken();
+      setToken(null);
+      setUserData(null);
+      navigate('/');
+      return true;
+    }
+    return false;
+  }, [navigate]);
+
+  // Обновляем обработчики с проверкой на 401
   const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
+    e.preventDefault();
     setShakeError(false);
     setIsLoading(true);
 
@@ -150,10 +208,11 @@ const useLoginRegistration = () => {
 
       try {
         const response = await register(email, password);
-        if (response.response === 200) {
+        if (response.ok) {
           setIsCodeRequested(true);
           console.log('Код отправлен на почту');
         } else {
+          if (handleUnauthorized(response)) return;
           setError('Ошибка при регистрации');
           setShakeError(true);
           setTimeout(() => setShakeError(false), 500);
@@ -173,16 +232,19 @@ const useLoginRegistration = () => {
     try {
       const response = await verifyToken(email, verificationCode, 'registration');
       if (response.token) {
+        handleLoginSuccess();
         saveToken(response.token);
         setUserData(response.user);
         console.log('Токен и данные пользователя установлены', response);
         navigate('/events');
       } else {
+        if (handleUnauthorized(response)) return;
         setError('Ошибка при верификации');
         setShakeError(true);
         setTimeout(() => setShakeError(false), 500);
       }
     } catch (error) {
+      if (handleUnauthorized(error)) return;
       setError('Ошибка при верификации');
       setShakeError(true);
       setTimeout(() => setShakeError(false), 500);

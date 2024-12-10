@@ -5,6 +5,7 @@ import About from './pages/About';
 import Contacts from './pages/Contacts';
 import { CssBaseline, Box} from '@mui/material';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 
 const router = createBrowserRouter([
   {
@@ -28,7 +29,7 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <CssBaseline />
       <Box sx={{
         position: 'relative',
@@ -51,7 +52,7 @@ function App() {
         />
         <RouterProvider router={router} />
       </Box>
-    </>
+    </AuthProvider>
   );
 }
 
