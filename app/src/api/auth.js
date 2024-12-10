@@ -1,6 +1,21 @@
+import { getTokenFromStorage, setTokenWithExpiry, removeToken } from '../utils/tokenUtils';
+
 const API_URL = 'http://app-container:5000';
 
 export const login = async (email, password) => {
+  return {
+    "token": "1111",
+    "user": {
+      "id": "1111",
+      "name": "1111",
+      "username": "1111",
+      "email": "1111",
+      "tg_id": "1111",
+      "role": "1111",
+      "region": "1111",
+      "notifications": []
+    }
+  };
   try {
     const formData = new FormData();
     formData.append('email', email);
@@ -21,6 +36,7 @@ export const login = async (email, password) => {
 };
 
 export const register = async (email, password) => {
+  return { response: 200 };
   try {
     const formData = new FormData();
     formData.append('email', email);
@@ -42,10 +58,11 @@ export const register = async (email, password) => {
 
 export const logout = async () => {
   try {
+    const token = getTokenFromStorage();
     const response = await fetch(`${API_URL}/api/auth/logout`, {
       method: 'POST',
       headers: {
-        'Authorization': this.getToken(),
+        'Authorization': token,
         'Accept': 'application/json'
       }
     });
@@ -55,12 +72,24 @@ export const logout = async () => {
       return data.error || data.message || 'Ошибка при выходе из системы';
     }
   } finally {
-    this.removeToken();
-    this.removeUser();
+    removeToken();
   }
 };
 
 export const verifyToken = async (email, token, tokenType, password = null) => {
+  return {
+    "token": "1111",
+    "user": {
+      "id": "1111",
+      "name": "1111",
+      "username": "1111",
+      "email": "1111",
+      "tg_id": "1111",
+      "role": "1111",
+      "region": "1111",
+      "notifications": []
+    }
+  };
   const formData = new FormData();
   formData.append('email', email);
   formData.append('verify_token', token);
@@ -101,11 +130,12 @@ export const verifyToken = async (email, token, tokenType, password = null) => {
 
 export const getProfile = async () => {
   try {
-    console.log('Getting profile, token:', this.getToken());
+    const token = getTokenFromStorage();
+    console.log('Getting profile, token:', token);
     const response = await fetch(`${API_URL}/api/auth/profile`, {
       method: 'POST',
       headers: {
-        'Authorization': this.getToken(),
+        'Authorization': token,
         'Accept': 'application/json'
       }
     });

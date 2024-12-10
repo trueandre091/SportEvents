@@ -11,6 +11,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
+import { getTokenFromStorage, removeToken } from '../utils/tokenUtils';
 
 const pages = [
   { title: 'Все мероприятия', path: '/events' },
@@ -43,8 +44,24 @@ function Header() {
     setAnchorElUser(null);
   };
 
+  const handleButtonClick = (setting) => {
+    if (setting === "Профиль") {
+      const token = getTokenFromStorage();
+      if (token) {
+        navigate('/profile');
+      } else {
+        removeToken();
+        navigate('/');
+      }
+    }
+    if (setting === "Выйти") {
+      removeToken();
+      navigate('/');
+    }
+  };
+
   return (
-    <AppBar position="static" 
+    <AppBar position="static"
       sx={{
         borderRadius: "20px",
         backgroundColor: "white",
@@ -57,22 +74,22 @@ function Header() {
       <Container maxWidth="xl">
 
         <Toolbar disableGutters>
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}>
             <IconButton
-                onClick={handleLogoClick}
-                sx={{ 
-                    height: "auto",
-                    borderRadius: '5px',
-                    padding: 0, 
-                }}
+              onClick={handleLogoClick}
+              sx={{
+                height: "auto",
+                borderRadius: '5px',
+                padding: 0,
+              }}
             >
-                <img
-                    src="/images/logo.svg"
-                    alt="Logo"
-                    style={{ width: 300, height: 'auto' }}
-                />
+              <img
+                src="/images/logo.svg"
+                alt="Logo"
+                style={{ width: 300, height: 'auto' }}
+              />
             </IconButton>
-        </Box>
+          </Box>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
@@ -113,13 +130,13 @@ function Header() {
           </Box>
           {/* Для мобильных экранов */}
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-              <IconButton>
-                  <img
-                    src="/images/logo.svg"
-                    alt="Logo"
-                    style={{ width: 300, height: 'auto' }} // Установите размер для мобильных устройств
-                  />
-              </IconButton>
+            <IconButton>
+              <img
+                src="/images/logo.svg"
+                alt="Logo"
+                style={{ width: 300, height: 'auto' }} // Установите размер для мобильных устройств
+              />
+            </IconButton>
           </Box>
           <Typography
             variant="h5"
@@ -156,9 +173,9 @@ function Header() {
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <img
-                    src="/images/avatar.png"
-                    alt="Logo"
-                    style={{ width: 50, height: 'auto' }}
+                  src="/images/avatar.png"
+                  alt="Logo"
+                  style={{ width: 50, height: 'auto' }}
                 />
               </IconButton>
             </Tooltip>
@@ -180,7 +197,9 @@ function Header() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  <Button onClick={handleButtonClick}>
+                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  </Button>
                 </MenuItem>
               ))}
             </Menu>

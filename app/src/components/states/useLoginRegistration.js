@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login, register } from '../../api/auth';
+import { login, register, verifyToken } from '../../api/auth';
+import { setTokenWithExpiry, getTokenFromStorage, removeToken } from '../../utils/tokenUtils';
+
 
 const useLoginRegistration = () => {  
   const [isRegistering, setIsRegistering] = React.useState(false);
@@ -13,8 +15,22 @@ const useLoginRegistration = () => {
   const [shakeError, setShakeError] = React.useState(false);
   const [isCodeRequested, setIsCodeRequested] = React.useState(false);
   const [verificationCode, setVerificationCode] = React.useState('');
-  const [isRegistered, setIsRegistered] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [userData, setUserData] = React.useState(null);
+  const [token, setToken] = React.useState(getTokenFromStorage());
+
+  React.useEffect(() => {
+    const storedToken = getTokenFromStorage();
+    if (storedToken) {
+      setToken(storedToken);
+      // Здесь можно добавить запрос на получение данных пользователя
+    }
+  }, []);
+
+  const saveToken = React.useCallback((newToken) => {
+    setTokenWithExpiry(newToken); // Сохраняем в localStorage на 7 дней
+    setToken(newToken); // Обновляем состояние
+  }, []);
   
 
   const navigate = useNavigate();
@@ -26,6 +42,7 @@ const useLoginRegistration = () => {
       }
     };
   }, []);
+
 
   const validateForm = React.useCallback( async (newEmail = email, newPassword = password, newConfirmPassword = confirmPassword) => {
     // Сбрасываем предыдущий таймер, если он был
@@ -48,27 +65,28 @@ const useLoginRegistration = () => {
         // Вызов API для отправки данных
         try {
           const response = await login(newEmail, newPassword);
-          console.log('Ответ от сервера:', response);
-
-          if (response.error || !response.ok) {
-            setIsLoading(false);
-            setError(response.error || 'Ошибка при входе');
+          if (response.token) {
+            saveToken(response.token);
+            setUserData(response.user);
+            console.log({'Токен и данные пользователя установлены': response});
+            navigate('/events');
+          } else {
+            setError('Ошибка при входе');
             setShakeError(true);
             setTimeout(() => setShakeError(false), 500);
           }
-          setIsLoading(false);
-          navigate('/events');
         } catch (error) {
-          setIsLoading(false);
           console.error('Ошибка при входе:', error);
           setError(error.message || 'Ошибка при входе');
           setShakeError(true);
           setTimeout(() => setShakeError(false), 500);
+        } finally {
+          setIsLoading(false);
         }
         submitTimeoutRef.current = null;
       }, 2000);
     }
-  }, [isRegistering, email, password, confirmPassword, navigate]);
+  }, [isRegistering, email, password, confirmPassword, navigate, saveToken]);
 
   // Хендлеры для обновления полей формы и проверки
   const handleEmailChange = async(e) => {
@@ -87,11 +105,6 @@ const useLoginRegistration = () => {
     const newConfirmPassword = e.target.value;
     setConfirmPassword(newConfirmPassword);
     await validateForm(email, password, newConfirmPassword);
-  };
-
-  const handleRequestCode = () => {
-    // Здесь будет логика отправки кода на email
-    setIsCodeRequested(true);
   };
 
   const handleVerificationCodeChange = async(e) => {
@@ -137,49 +150,73 @@ const useLoginRegistration = () => {
 
       try {
         const response = await register(email, password);
-        if (response.error || !response.ok) {
-          setIsLoading(false);
-          setError(response.error || 'Ошибка при регистрации');
+        if (response.response === 200) {
+          setIsCodeRequested(true);
+          console.log('Код отправлен на почту');
+        } else {
+          setError('Ошибка при регистрации');
           setShakeError(true);
           setTimeout(() => setShakeError(false), 500);
-        } else {
-          setIsLoading(false);
-          setIsRegistered(true);
-          setIsCodeRequested(true);
         }
       } catch (error) {
-        setIsLoading(false);
-        console.error('Ошибка при регистрации:', error);
-        setError(error.message || 'Ошибка при регистрации');
+        setError('Ошибка при регистрации');
         setShakeError(true);
         setTimeout(() => setShakeError(false), 500);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
   const handleVerificationCodeSubmit = async () => {
-    // Здесь будет логика отправки кода подтверждения
-    console.log('Отправка кода подтверждения:', verificationCode);
+    setIsLoading(true);
+    try {
+      const response = await verifyToken(email, verificationCode, 'registration');
+      if (response.token) {
+        saveToken(response.token);
+        setUserData(response.user);
+        console.log('Токен и данные пользователя установлены', response);
+        navigate('/events');
+      } else {
+        setError('Ошибка при верификации');
+        setShakeError(true);
+        setTimeout(() => setShakeError(false), 500);
+      }
+    } catch (error) {
+      setError('Ошибка при верификации');
+      setShakeError(true);
+      setTimeout(() => setShakeError(false), 500);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleLogout = React.useCallback(() => {
+    removeToken();
+    setToken(null);
+    setUserData(null);
+    navigate('/login');
+  }, [navigate]);
 
   return {
     isRegistering,
     email,
     password,
     confirmPassword,
+    verificationCode,
+    isCodeRequested,
+    error,
+    shakeError,
+    isLoading,
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,
-    handleSubmit,
-    toggleForm,
-    error,
-    shakeError,
-    isCodeRequested,
-    verificationCode,
     handleVerificationCodeChange,
+    handleSubmit,
     handleVerificationCodeSubmit,
-    isRegistered,
-    isLoading
+    toggleForm,
+    userData,
+    token
   };
 };
 
