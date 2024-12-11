@@ -300,7 +300,7 @@ const Events = () => {
                   <CalendarIcon sx={{ fontSize: "50px", marginRight: "20px" }} />
                   <Typography
                     sx={{
-                      fontSize: { md: "14px", sm: "10px" },
+                      fontSize: { md: "30px", sm: "10px" },
                       color: "#fff",
                       fontFamily: "Montserrat",
                       transform: "translateX(-10px)",

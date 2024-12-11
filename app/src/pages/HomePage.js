@@ -9,17 +9,24 @@ const HomePage = () => {
       sx={{
         position: 'relative',
         minHeight: '100vh', // Минимальная высота экрана
+        overflowY: 'hidden',  // Разрешаем вертикальную прокрутку
       }}
     >
       <Box
         sx={{
-          position: 'absolute',
+          position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: { md: '0', sm: '-100%' },
           backgroundImage: 'linear-gradient(150deg, #ffffff 0%, #533ac2 20%, #1a1a1a 45%, #1a1a1a 50%, #a33e6d 80%, #d481a8 100%)',
           zIndex: -1,
+          minWidth: '100vw', // Добавляем минимальную ширину
+          minHeight: '100vh', // Добавляем минимальную высоту
+          backgroundAttachment: 'fixed', // Фиксируем фон
+          backgroundPosition: 'center', // Центрируем фон
+          backgroundRepeat: 'no-repeat', // Запрещаем повторение
+          backgroundSize: 'cover', // Растягиваем на весь экран
         }}
       />
       <Header /> {/* Шапка сайта */}

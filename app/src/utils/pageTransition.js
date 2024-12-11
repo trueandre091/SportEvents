@@ -15,18 +15,6 @@ const pageVariants = {
   },
 };
 
-const backgroundVariants = {
-  initial: {
-    background: 'linear-gradient(45deg, rgba(83, 58, 194, 1), rgba(163, 62, 109, 1))',
-  },
-  in: {
-    background: 'linear-gradient(45deg, rgba(43, 193, 85, 1), rgba(255, 137, 80, 1))',
-  },
-  out: {
-    background: 'linear-gradient(45deg, rgba(163, 62, 109, 1), rgba(83, 58, 194, 1))',
-  },
-};
-
 const transition = {
   duration: 0.2,
   ease: [0.43, 0.13, 0.23, 0.96],
@@ -52,7 +40,7 @@ export const PageTransition = ({ children }) => {
         initial="initial"
         animate="in"
         exit="out"
-        variants={backgroundVariants}
+        variants={pageVariants}
         transition={transition}
         style={{
           position: 'fixed',

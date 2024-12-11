@@ -63,6 +63,7 @@ function App() {
           minHeight: '100vh',
           backgroundSize: 'cover',
           fontFamily: 'Montserrat',
+          minWidth: '100vw',
         }}>
           <Box
             sx={{
