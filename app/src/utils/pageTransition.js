@@ -50,6 +50,8 @@ export const PageTransition = ({ children }) => {
           bottom: 0,
           width: '100vw',    // 100% ширины окна
           height: '100vh',
+          overflowY: 'auto',  // Разрешаем вертикальную прокрутку
+          overflowX: 'hidden',
           zIndex: -1,
         }}
       />

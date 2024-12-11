@@ -232,7 +232,6 @@ const Events = () => {
           <Button
             variant="contained"
             sx={{
-              marginTop: "10px",
               background: "transparent",
               color: "#fff",
               textTransform: "none",
@@ -242,6 +241,7 @@ const Events = () => {
               boxShadow: "none",
               ":hover": { background: "#ffffff", color: "#000" },
               cursor: "pointer",
+              transform: "translateY(-5px)",
             }}
           >
             фильтры
@@ -304,6 +304,10 @@ const Events = () => {
                       color: "#fff",
                       fontFamily: "Montserrat",
                       transform: "translateX(-10px)",
+                      whiteSpace: "nowrap",         // Запрещаем перенос строки
+                      overflow: "hidden",           // Скрываем выходящий за пределы текст
+                      textOverflow: "ellipsis",     // Добавляем многоточие в конце
+                      maxWidth: "100%",             // Ограничиваем максимальную ширину
                     }}
                   >
                     {event.date}
@@ -344,7 +348,7 @@ const Events = () => {
                   }}
                 >
                   <Typography sx={{ fontSize: { md: "16px", sm: "10px" }, fontFamily: "Montserrat" }}>
-                    Это общественная спортивная организация, которая развивает и популяризирует спортивное программирование в России, проводит соревнования национального уровня. Мы также занимаемся формированием национальных сборных, обучением и аттестацией спортивных судей, аккредитацией площадок, подготовкой методических материалов, образовательными проектами, развитием клубов и секций.
+                    {event.description}
                   </Typography>
                 </Box>
               )}

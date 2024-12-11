@@ -32,6 +32,7 @@ const LoginRegistration = () => {
     token,
     isForgotPassword,
     handleForgotPassword,
+    handleConfirmPasswordChange,
   } = useLoginRegistration();
 
   return (
@@ -181,6 +182,7 @@ const LoginRegistration = () => {
                 variant="filled"
                 type="password"
                 value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
                 InputProps={{
                   disableUnderline: true,
                 }}

@@ -144,6 +144,10 @@ const useLoginRegistration = () => {
     await validateForm(email, newPassword);
   };
 
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+  };
+
   const handleVerificationCodeChange = async(e) => {
     setVerificationCode(e.target.value);
   };
@@ -271,6 +275,7 @@ const useLoginRegistration = () => {
     token,
     isForgotPassword,
     handleForgotPassword,
+    handleConfirmPasswordChange,
   };
 };
 

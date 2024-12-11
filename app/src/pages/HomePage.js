@@ -29,7 +29,7 @@ const HomePage = () => {
           backgroundSize: 'cover', // Растягиваем на весь экран
         }}
       />
-      <Header /> {/* Шапка сайта */}
+      <Header />
 
       <Box
         sx={{
@@ -99,7 +99,6 @@ const HomePage = () => {
               </Typography>
             </Box>
           </Box>
-
         </Box>
 
         {/* Элемент 2 */}
@@ -107,6 +106,6 @@ const HomePage = () => {
       </Box>
     </Box>
   );
-}
+};
 
 export default HomePage;
