@@ -1,27 +1,46 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { IconButton, Drawer, List, ListItem, ListItemText, Box, Typography, Button, TextField, InputAdornment } from '@mui/material';
+import { IconButton, Drawer, List, ListItem, ListItemText, Box, Typography, Button, TextField, InputAdornment, MenuItem, FormControlLabel, Switch } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchIcon from '@mui/icons-material/Search';
+import { getEvents } from '../api/events';
 
-const events = [
-  {
-    title: "Международные соревнования по искусственному интеллекту, дизайн-мышлению и проектированию",
-    date: "6 декабря",
+const filterFieldStyles = {
+  bgcolor: 'rgba(255, 255, 255, 0.1)', 
+  borderRadius: '10px',
+  '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.3)' },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)', borderRadius: '10px', },
+    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+    '&.Mui-focused fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' }
   },
-  {
-    title: "Чемпионат и Первенство России по спортивному программированию (продуктовое)",
-    date: "6 декабря",
-  },
-];
+  '& input': { color: 'rgba(255, 255, 255, 0.3)' },
+  '& .MuiSelect-icon': { color: 'rgba(255, 255, 255, 0.3)' },
+  '& .MuiSelect-select': { color: 'rgba(255, 255, 255, 0.3)', fontFamily: 'Montserrat' },
+  '& .MuiMenuItem-root': { 
+    fontFamily: 'Montserrat',
+    color: 'rgba(255, 255, 255, 1)' 
+  }
+};
 
 const Events = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEventIndex, setSelectedEventIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [filters, setFilters] = useState({
+    archive: false,
+    date_start: '',
+    date_end: '',
+    discipline: '',
+    status: '',
+    region: ''
+  });
+  const [showFilters, setShowFilters] = useState(false);
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -34,6 +53,35 @@ const Events = () => {
     setSelectedEventIndex(selectedEventIndex === index ? null : index);
   };
 
+  // Функция сортировки по дате
+  const sortEventsByDate = (events) => {
+    return [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+  };
+
+  // Загрузка событий с фильтрами
+  useEffect(() => {
+    // Создаем копии объекта filters без свойства archive
+    const { archive: _, ...filterWithoutArchive } = filters;
+    
+    Promise.all([
+      getEvents(false, filterWithoutArchive),
+      getEvents(true, filterWithoutArchive)
+    ]).then(([data1, data2]) => {
+      const allEvents = [...data1.events, ...data2.events];
+      setEvents(sortEventsByDate(allEvents));
+    }).catch(error => {
+      console.error('Ошибка при загрузке событий:', error);
+    });
+  }, [filters]); // Перезагружаем при изменении фильтров
+
+  // Обраб��тчик изменения фильтров
+  const handleFilterChange = (filterName, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterName]: value
+    }));
+  };
+
   return (
     <Box sx={{
       position: 'relative',
@@ -44,7 +92,7 @@ const Events = () => {
     }}>
       <Box
         sx={{
-          position: 'absolute',
+          position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
@@ -231,6 +279,7 @@ const Events = () => {
           />
           <Button
             variant="contained"
+            onClick={() => setShowFilters(!showFilters)}
             sx={{
               background: "transparent",
               color: "#fff",
@@ -241,13 +290,144 @@ const Events = () => {
               boxShadow: "none",
               ":hover": { background: "#ffffff", color: "#000" },
               cursor: "pointer",
-              transform: "translateY(-5px)",
+              transform: "translateY(-5px) translateX(15px)",
             }}
+            disableRipple={true}
           >
             фильтры
             <FilterListIcon sx={{ fontSize: "30px", marginLeft: "10px" }} />
           </Button>
         </Box>
+
+        {showFilters && (
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { md: "row", sm: "column" },
+            justifyContent: 'space-between',
+            gap: 2,
+            mb: 4,
+            padding: "20px",
+            background: "rgba(255, 255, 255, 0.1)",
+            borderRadius: "12px",
+            marginLeft: { md: "50px", sm: "0px" },
+            marginRight: { md: "50px", sm: "0px" },
+          }}>
+            <TextField
+              type="date"
+              label="Дата начала"
+              value={filters.date_start}
+              onChange={(e) => handleFilterChange('date_start', e.target.value)}
+              InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
+              sx={filterFieldStyles}
+            />
+            <TextField
+              type="date"
+              label="Дата окончания"
+              value={filters.date_end}
+              onChange={(e) => handleFilterChange('date_end', e.target.value)}
+              InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
+              sx={filterFieldStyles}
+            />
+            <TextField
+              select
+              label="Дисциплина"
+              value={filters.discipline}
+              onChange={(e) => handleFilterChange('discipline', e.target.value)}
+              InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
+              sx={{ ...filterFieldStyles, width: '25%' }}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      bgcolor: '#313131',
+                      '& .MuiMenuItem-root': {
+                        fontFamily: 'Montserrat',
+                        color: 'rgba(255, 255, 255, 0.3)',
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 0.2)'
+                        }
+                      }
+                    }
+                  }
+                }
+              }}
+            >
+              <MenuItem value="">Все</MenuItem>
+              <MenuItem value="Спортивное программирование">Спортивное программирование</MenuItem>
+            </TextField>
+            <TextField
+              select
+              label="Статус"
+              InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
+              value={filters.status}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+              sx={{ ...filterFieldStyles, width: '25%' }}
+            >
+              <MenuItem value="">Все</MenuItem>
+              <MenuItem value="APPROVED">Одобрено</MenuItem>
+            </TextField>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={filters.archive}
+                  onChange={(e) => handleFilterChange('archive', e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase': {
+                      color: 'grey.500',
+                      '&.Mui-checked': {
+                        color: '#e11946',
+                        '& + .MuiSwitch-track': {
+                          backgroundColor: '#e11946',
+                          opacity: 0.5,
+                        },
+                      },
+                    },
+                    '& .MuiSwitch-track': {
+                      backgroundColor: 'grey.500',
+                      opacity: 0.3,
+                    },
+                  }}
+                />
+              }
+              label="Архивные"
+              sx={{
+                '& .MuiFormControlLabel-label': {
+                  color: 'white',
+                  fontFamily: 'Montserrat',
+                  fontSize: '16px'
+                }
+              }}
+            />
+            <TextField
+              select
+              label="Регион"
+              value={filters.region}
+              onChange={(e) => handleFilterChange('region', e.target.value)}
+              InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
+              sx={{ ...filterFieldStyles, width: '25%' }}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      bgcolor: '#313131',
+                      '& .MuiMenuItem-root': {
+                        fontFamily: 'Montserrat',
+                        color: 'rgba(255, 255, 255, 0.3)',
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 0.2)'
+                        }
+                      }
+                    }
+                  }
+                }
+              }}
+            >
+              <MenuItem value="">Все</MenuItem>
+              <MenuItem value="Москва">Москва</MenuItem>
+              <MenuItem value="Санкт-Петербург">Санкт-Петербург</MenuItem>
+            </TextField>
+          </Box>
+        )}
 
         {events
           .filter(event =>
@@ -271,69 +451,88 @@ const Events = () => {
               }}
               onClick={() => toggleDetails(index)}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: selectedEventIndex === index ? "20px" : "0px",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: { md: "20px", sm: "10px" },
-                    color: "#fff",
-                    fontFamily: "Montserrat",
-                    width: "65%",
-                  }}
-                >
-                  {event.title}
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <CalendarIcon sx={{ fontSize: "50px", marginRight: "20px" }} />
+              <Box sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: selectedEventIndex === index ? "20px" : "0px",
+              }}>
+                <Box sx={{ width: "65%" }}>
                   <Typography
                     sx={{
-                      fontSize: { md: "30px", sm: "10px" },
+                      fontSize: { md: "20px", sm: "10px" },
                       color: "#fff",
                       fontFamily: "Montserrat",
-                      transform: "translateX(-10px)",
-                      whiteSpace: "nowrap",         // Запрещаем перенос строки
-                      overflow: "hidden",           // Скрываем выходящий за пределы текст
-                      textOverflow: "ellipsis",     // Добавляем многоточие в конце
-                      maxWidth: "100%",             // Ограничиваем максимальную ширину
+                      marginBottom: "10px"
                     }}
                   >
-                    {event.date}
+                    {event.title}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: { md: "16px", sm: "8px" },
+                      color: "rgba(255, 255, 255, 0.7)",
+                      fontFamily: "Montserrat",
+                    }}
+                  >
+                    {event.sport} • {event.discipline}
                   </Typography>
                 </Box>
-                <Box>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      background: "#e11946",
-                      color: "#fff",
-                      textTransform: "none",
-                      fontSize: { md: "15px", sm: "10px" },
-                      fontFamily: "Montserrat",
-                      borderRadius: "20px",
-                      boxShadow: "none",
-                      ":hover": {
-                        background: "#e11946",
-                      },
-                      cursor: "default",
-                    }}
-                  >
-                    подписаться
-                  </Button>
+                
+                <Box sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}>
+                  <Box sx={{ textAlign: "right", marginRight: "20px" }}>
+                    <CalendarIcon sx={{ fontSize: "30px", marginRight: "10px" }} />
+                    <Typography
+                      sx={{
+                        fontSize: { md: "16px", sm: "8px" },
+                        color: "#fff",
+                        fontFamily: "Montserrat",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {event.date_start.split(' ')[0]}
+                      {event.date_end && ` - ${event.date_end.split(' ')[0]}`}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: { md: "14px", sm: "8px" },
+                        color: "rgba(255, 255, 255, 0.7)",
+                        fontFamily: "Montserrat",
+                      }}
+                    >
+                      {event.place}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        background: !isSubscribed ? "#e11946" : "#5500ff",
+                        color: "#fff",
+                        textTransform: "none",
+                        fontSize: { md: "15px", sm: "10px" },
+                        fontFamily: "Montserrat",
+                        borderRadius: "20px",
+                        boxShadow: "none",
+                        ":hover": {
+                          background: "#e11946",
+                        },
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setIsSubscribed(!isSubscribed)}
+                    >
+                      {!isSubscribed ? "подписаться" : "отписаться"}
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
+              
               {selectedEventIndex === index && (
                 <Box
                   sx={{
@@ -347,9 +546,22 @@ const Events = () => {
                     width: "65%",
                   }}
                 >
-                  <Typography sx={{ fontSize: { md: "16px", sm: "10px" }, fontFamily: "Montserrat" }}>
-                    {event.description}
+                  <Typography sx={{ 
+                    fontSize: { md: "16px", sm: "10px" }, 
+                    fontFamily: "Montserrat",
+                    marginBottom: "10px" 
+                  }}>
+                    {event.description || "Описание отсутствует"}
                   </Typography>
+                  {event.participants_num && (
+                    <Typography sx={{ 
+                      fontSize: { md: "14px", sm: "8px" }, 
+                      fontFamily: "Montserrat",
+                      color: "rgba(255, 255, 255, 0.7)" 
+                    }}>
+                      Количество участников: {event.participants_num}
+                    </Typography>
+                  )}
                 </Box>
               )}
             </Box>
