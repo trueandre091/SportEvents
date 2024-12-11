@@ -26,21 +26,29 @@ const filterFieldStyles = {
   }
 };
 
+const sortEventsByDate = (events) => {
+  return [...events].sort((a, b) => new Date(b.date) - new Date(a.date));
+};
+
 const Events = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEventIndex, setSelectedEventIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [events, setEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [isArchive, setIsArchive] = useState(false);
+  const [subscribedEvents, setSubscribedEvents] = useState({});
   const [filters, setFilters] = useState({
-    archive: false,
     date_start: '',
     date_end: '',
     discipline: '',
-    status: '',
-    region: ''
+    region: '',
+    status: ''
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [disciplines, setDisciplines] = useState(new Set());
+  const [statuses, setStatuses] = useState(new Set());
+  const [regions, setRegions] = useState(new Set());
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -53,32 +61,95 @@ const Events = () => {
     setSelectedEventIndex(selectedEventIndex === index ? null : index);
   };
 
-  // Функция сортировки по дате
-  const sortEventsByDate = (events) => {
-    return [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+  // Загрузка событий
+  useEffect(() => {
+    const loadEvents = async () => {
+      const response = await getEvents(isArchive);
+      if (response.ok) {
+        const sortedEvents = sortEventsByDate(response.events);
+        
+        // Собираем уникальные значения
+        const uniqueDisciplines = new Set(sortedEvents.map(event => event.discipline).filter(Boolean));
+        const uniqueStatuses = new Set(sortedEvents.map(event => event.status).filter(Boolean));
+        const uniqueRegions = new Set(sortedEvents.map(event => event.region).filter(Boolean));
+
+        setDisciplines(uniqueDisciplines);
+        setStatuses(uniqueStatuses);
+        setRegions(uniqueRegions);
+        
+        setEvents(sortedEvents);
+        setFilteredEvents(sortedEvents);
+      }
+    };
+    loadEvents();
+  }, [isArchive]);
+
+  // Функция для преобразования даты из формата "DD.MM.YYYY HH:mm" в объект Date
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    const [datePart, timePart] = dateStr.split(' ');
+    const [day, month, year] = datePart.split('.');
+    const [hours, minutes] = timePart.split(':');
+    return new Date(year, month - 1, day, hours, minutes);
   };
 
-  // Загрузка событий с фильтрами
+  // Фильтрация на фронтенде
   useEffect(() => {
-    // Создаем копии объекта filters без свойства archive
-    const { archive: _, ...filterWithoutArchive } = filters;
-    
-    Promise.all([
-      getEvents(false, filterWithoutArchive),
-      getEvents(true, filterWithoutArchive)
-    ]).then(([data1, data2]) => {
-      const allEvents = [...data1.events, ...data2.events];
-      setEvents(sortEventsByDate(allEvents));
-    }).catch(error => {
-      console.error('Ошибка при загрузке событий:', error);
-    });
-  }, [filters]); // Перезагружаем при изменении фильтров
+    let result = [...events];
 
-  // Обраб��тчик изменения фильтров
-  const handleFilterChange = (filterName, value) => {
+    if (filters.date_start || filters.date_end) {
+      result = result.filter(event => {
+        const eventStartDate = parseDate(event.date_start);
+        const eventEndDate = parseDate(event.date_end);
+        const filterStartDate = filters.date_start ? new Date(filters.date_start) : null;
+        const filterEndDate = filters.date_end ? new Date(filters.date_end) : null;
+
+        // Проверяем условия фильтрации
+        const passesStartFilter = !filterStartDate || eventStartDate >= filterStartDate;
+        const passesEndFilter = !filterEndDate || eventEndDate <= filterEndDate;
+
+        return passesStartFilter && passesEndFilter;
+      });
+    }
+
+    if (filters.discipline) {
+      result = result.filter(event => 
+        event.discipline?.toLowerCase().includes(filters.discipline.toLowerCase())
+      );
+    }
+
+    if (filters.status) {
+      result = result.filter(event => 
+        event.status?.toLowerCase() === filters.status.toLowerCase()
+      );
+    }
+
+    if (filters.region) {
+      result = result.filter(event => 
+        event.region?.toLowerCase().includes(filters.region.toLowerCase())
+      );
+    }
+
+    // Сортируем отфильтрованные события
+    result = sortEventsByDate(result);
+    setFilteredEvents(result);
+  }, [filters, events]);
+
+  const handleFilterChange = (field) => (event) => {
     setFilters(prev => ({
       ...prev,
-      [filterName]: value
+      [field]: event.target.value
+    }));
+  };
+
+  const handleArchiveToggle = () => {
+    setIsArchive(prev => !prev);
+  };
+
+  const handleSubscribe = (eventId) => {
+    setSubscribedEvents(prev => ({
+      ...prev,
+      [eventId]: !prev[eventId]
     }));
   };
 
@@ -314,17 +385,17 @@ const Events = () => {
           }}>
             <TextField
               type="date"
-              label="Дата начала"
+              label="Начало"
               value={filters.date_start}
-              onChange={(e) => handleFilterChange('date_start', e.target.value)}
+              onChange={(e) => handleFilterChange('date_start')(e)}
               InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
               sx={filterFieldStyles}
             />
             <TextField
               type="date"
-              label="Дата окончания"
+              label="Окончание"
               value={filters.date_end}
-              onChange={(e) => handleFilterChange('date_end', e.target.value)}
+              onChange={(e) => handleFilterChange('date_end')(e)}
               InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
               sx={filterFieldStyles}
             />
@@ -332,7 +403,7 @@ const Events = () => {
               select
               label="Дисциплина"
               value={filters.discipline}
-              onChange={(e) => handleFilterChange('discipline', e.target.value)}
+              onChange={(e) => handleFilterChange('discipline')(e)}
               InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
               sx={{ ...filterFieldStyles, width: '25%' }}
               SelectProps={{
@@ -353,24 +424,79 @@ const Events = () => {
               }}
             >
               <MenuItem value="">Все</MenuItem>
-              <MenuItem value="Спортивное программирование">Спортивное программирование</MenuItem>
+              {Array.from(disciplines).map((discipline) => (
+                <MenuItem key={discipline} value={discipline}>
+                  {discipline}
+                </MenuItem>
+              ))}
             </TextField>
             <TextField
               select
               label="Статус"
               InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
               value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
+              onChange={(e) => handleFilterChange('status')(e)}
               sx={{ ...filterFieldStyles, width: '25%' }}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      bgcolor: '#313131',
+                      '& .MuiMenuItem-root': {
+                        fontFamily: 'Montserrat',
+                        color: 'rgba(255, 255, 255, 0.3)',
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 0.2)'
+                        }
+                      }
+                    }
+                  }
+                }
+              }}
             >
               <MenuItem value="">Все</MenuItem>
-              <MenuItem value="APPROVED">Одобрено</MenuItem>
+              {Array.from(statuses).map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              label="Регион"
+              value={filters.region}
+              onChange={(e) => handleFilterChange('region')(e)}
+              InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
+              sx={{ ...filterFieldStyles, width: '25%' }}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      bgcolor: '#313131',
+                      '& .MuiMenuItem-root': {
+                        fontFamily: 'Montserrat',
+                        color: 'rgba(255, 255, 255, 0.3)',
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 0.2)'
+                        }
+                      }
+                    }
+                  }
+                }
+              }}
+            >
+              <MenuItem value="">Все</MenuItem>
+              {Array.from(regions).map((region) => (
+                <MenuItem key={region} value={region}>
+                  {region}
+                </MenuItem>
+              ))}
             </TextField>
             <FormControlLabel
               control={
                 <Switch
-                  checked={filters.archive}
-                  onChange={(e) => handleFilterChange('archive', e.target.checked)}
+                  checked={isArchive}
+                  onChange={handleArchiveToggle}
                   sx={{
                     '& .MuiSwitch-switchBase': {
                       color: 'grey.500',
@@ -398,38 +524,10 @@ const Events = () => {
                 }
               }}
             />
-            <TextField
-              select
-              label="Регион"
-              value={filters.region}
-              onChange={(e) => handleFilterChange('region', e.target.value)}
-              InputLabelProps={{ shrink: true, style: { color: 'white', fontFamily: 'Montserrat' } }}
-              sx={{ ...filterFieldStyles, width: '25%' }}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    sx: {
-                      bgcolor: '#313131',
-                      '& .MuiMenuItem-root': {
-                        fontFamily: 'Montserrat',
-                        color: 'rgba(255, 255, 255, 0.3)',
-                        '&:hover': {
-                          bgcolor: 'rgba(255, 255, 255, 0.2)'
-                        }
-                      }
-                    }
-                  }
-                }
-              }}
-            >
-              <MenuItem value="">Все</MenuItem>
-              <MenuItem value="Москва">Москва</MenuItem>
-              <MenuItem value="Санкт-Петербург">Санкт-Петербург</MenuItem>
-            </TextField>
           </Box>
         )}
 
-        {events
+        {filteredEvents
           .filter(event =>
             event.title.toLowerCase().includes(searchQuery.toLowerCase())
           )
@@ -446,11 +544,31 @@ const Events = () => {
                 marginRight: { md: "50px", sm: "0px" },
                 background: "#402fff",
                 borderRadius: "12px",
-                bomdhadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
                 cursor: "pointer",
+                position: "relative",
               }}
               onClick={() => toggleDetails(index)}
             >
+              {event.status === "CONSIDERATION" && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "10px",
+                    right: "10px",
+                    backgroundColor: "#ebbd34",
+                    color: "white",
+                    padding: "5px 10px",
+                    borderRadius: "15px",
+                    fontSize: "12px",
+                    fontFamily: "Montserrat",
+                    zIndex: 1,
+                  }}
+                >
+                  На рассмотрении
+                </Box>
+              )}
+              
               <Box sx={{
                 display: "flex",
                 flexDirection: "row",
@@ -512,22 +630,22 @@ const Events = () => {
                   <Box>
                     <Button
                       variant="contained"
+                      onClick={() => handleSubscribe(event.id)}
                       sx={{
-                        background: !isSubscribed ? "#e11946" : "#5500ff",
-                        color: "#fff",
+                        backgroundColor: subscribedEvents[event.id] ? '#ff1f75' : '#fff',
+                        color: subscribedEvents[event.id] ? '#fff' : '#ff1f75',
+                        '&:hover': {
+                          backgroundColor: subscribedEvents[event.id] ? '#ff1f75' : '#fff',
+                        },
                         textTransform: "none",
                         fontSize: { md: "15px", sm: "10px" },
                         fontFamily: "Montserrat",
                         borderRadius: "20px",
                         boxShadow: "none",
-                        ":hover": {
-                          background: "#e11946",
-                        },
                         cursor: "pointer",
                       }}
-                      onClick={() => setIsSubscribed(!isSubscribed)}
                     >
-                      {!isSubscribed ? "подписаться" : "отписаться"}
+                      {subscribedEvents[event.id] ? 'Отписаться' : 'Подписаться'}
                     </Button>
                   </Box>
                 </Box>
@@ -553,6 +671,15 @@ const Events = () => {
                   }}>
                     {event.description || "Описание отсутствует"}
                   </Typography>
+                  {event.participants && (
+                    <Typography sx={{ 
+                      fontSize: { md: "14px", sm: "8px" }, 
+                      fontFamily: "Montserrat",
+                      color: "rgba(255, 255, 255, 0.7)" 
+                    }}>
+                      {event.participants}
+                    </Typography>
+                  )}
                   {event.participants_num && (
                     <Typography sx={{ 
                       fontSize: { md: "14px", sm: "8px" }, 
@@ -562,6 +689,7 @@ const Events = () => {
                       Количество участников: {event.participants_num}
                     </Typography>
                   )}
+                  
                 </Box>
               )}
             </Box>

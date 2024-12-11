@@ -1,31 +1,12 @@
 const API_URL = '/api';
 
-export const getEvents = async (isArchive, filters) => {
+export const getEvents = async (isArchive) => {
   try {
     const formData = new FormData();
     formData.append('archive', isArchive.toString());
-    
-    const { date_start, date_end, discipline, status } = filters;
-
-    if (date_start) {
-      formData.append('date_start', date_start);
-    }
-    if (date_end) {
-      formData.append('date_end', date_end);
-    }
-    if (discipline) {
-      formData.append('discipline', discipline);
-    }
-    if (status) {
-      formData.append('status', status);
-    }
 
     console.log('Отправляемые данные:', {
-      archive: isArchive,
-      date_start,
-      date_end,
-      discipline,
-      status
+      archive: isArchive
     });
 
     const response = await fetch(`${API_URL}/fsp/events`, {
