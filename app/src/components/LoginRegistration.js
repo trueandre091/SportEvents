@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './styles/LoginRegistration.css';
 import useLoginRegistration from './states/useLoginRegistration';
-import { Box, Typography, TextField, Button } from '@mui/material';
+import { Box, Typography, TextField, Button, Collapse, Fade } from '@mui/material';
 
 const animationAppear = {
   animation: `fadeIn 0.5s ease-in-out`,
@@ -24,13 +24,14 @@ const LoginRegistration = () => {
     isLoading,
     handleEmailChange,
     handlePasswordChange,
-    handleConfirmPasswordChange,
     handleVerificationCodeChange,
     handleSubmit,
     handleVerificationCodeSubmit,
     toggleForm,
     userData,
-    token
+    token,
+    isForgotPassword,
+    handleForgotPassword,
   } = useLoginRegistration();
 
   return (
@@ -71,7 +72,7 @@ const LoginRegistration = () => {
               onClick={toggleForm}
               disableRipple={true}
             >
-              {isRegistering ? 'Войти' : 'Зарегистрироваться'}
+              {!isRegistering ? 'Зарегистрироваться' : 'Войти'}
             </Button>
           </Box>
 
@@ -81,13 +82,13 @@ const LoginRegistration = () => {
               sx={{
                 fontFamily: 'Montserrat',
                 fontSize: '40px',
-                marginTop: isRegistering ? "-20px" : "160px",
+                marginTop: !isRegistering ? isForgotPassword ? "100px" : "160px" : "-20px",
                 transition: "all 0.5s ease-in-out",
                 animation: isRegistering ? "form-enter 0.5s ease-in-out" : "form-exit 0.5s ease-in-out"
               }}>
-              {isRegistering ? 'Регистрация' : 'Войти'}
+              {isForgotPassword ? 'Восстановление' : isRegistering ? 'Регистрация' : 'Войти'}
             </Typography>
-            {!isRegistering && (
+            {!isRegistering && !isForgotPassword && (
               <Button
                 sx={{
                   marginBottom: '4px', color: 'black', fontFamily: 'Montserrat', fontSize: '12px',
@@ -98,12 +99,13 @@ const LoginRegistration = () => {
                   },
                 }}
                 variant="text"
-                onClick={toggleForm}
+                onClick={handleForgotPassword}
                 disableRipple={true}
               >
                 забыли пароль?
               </Button>
             )}
+
           </Box>
 
           <Box
@@ -112,7 +114,7 @@ const LoginRegistration = () => {
               '& > :not(style)': {
                 m: 1,
                 width: '96%',
-                marginBottom: '20px',
+                marginBottom: '10px',
                 borderRadius: '30px',
                 backgroundImage: 'linear-gradient(to right, #6346e8, #3b298a)',
                 '& .MuiFilledInput-root': {
@@ -139,7 +141,11 @@ const LoginRegistration = () => {
                   fontSize: '16px',
                 },
               },
-              marginTop: '30px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              mt: 3,
+              transition: 'all 0.5s ease-in-out'
             }}
             noValidate
             autoComplete="on"
@@ -175,7 +181,6 @@ const LoginRegistration = () => {
                 variant="filled"
                 type="password"
                 value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
                 InputProps={{
                   disableUnderline: true,
                 }}
@@ -184,7 +189,7 @@ const LoginRegistration = () => {
               />
             )}
 
-            {isRegistering && !isCodeRequested && (
+            <Fade in={((isRegistering && !isCodeRequested) || (!isRegistering && isForgotPassword))} timeout={500}>
               <Button
                 variant="contained"
                 onClick={handleSubmit}
@@ -202,7 +207,7 @@ const LoginRegistration = () => {
               >
                 Получить код
               </Button>
-            )}
+            </Fade>
 
             {isRegistering && isCodeRequested && (
               <>
@@ -213,7 +218,8 @@ const LoginRegistration = () => {
                   onChange={handleVerificationCodeChange}
                   className={shakeError ? 'shake-error' : ''}
                   InputProps={{
-                    disableUnderline: true,
+                    disableUnderline:
+                      true,
                   }}
                 />
                 <Button
@@ -226,7 +232,9 @@ const LoginRegistration = () => {
                     padding: '15px',
                     '&:hover': {
                       backgroundColor: '#f0f0f0',
-                    },
+                      transform: 'scale(1.1)',
+                      transition: 'transform 0.2s ease-in-out',
+                    }
                   }}
                 >
                   Отправить
@@ -239,13 +247,13 @@ const LoginRegistration = () => {
 
 
       {token && (
-        <Box 
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100%'
-        }}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%'
+          }}
         >
           <Typography
             variant="h6"
@@ -259,6 +267,14 @@ const LoginRegistration = () => {
               height: '100%'
             }}>
             👋
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              fontFamily: 'Montserrat',
+              fontSize: '40px',
+            }}>
+            Добро пожаловать, Пользователь!
           </Typography>
         </Box>
       )}

@@ -27,12 +27,14 @@
 
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login, register, verifyToken } from '../../api/auth';
+import { login, register, verifyToken, forgotPassword } from '../../api/auth';
 import { setTokenWithExpiry, getTokenFromStorage, removeToken } from '../../utils/tokenUtils';
 import { useAuth } from '../../context/AuthContext';
 
 
 const useLoginRegistration = () => {  
+  const { login: authLogin, userData } = useAuth();
+
   const [isRegistering, setIsRegistering] = React.useState(false);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -44,8 +46,8 @@ const useLoginRegistration = () => {
   const [isCodeRequested, setIsCodeRequested] = React.useState(false);
   const [verificationCode, setVerificationCode] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const [userData, setUserData] = React.useState(null);
   const [token, setToken] = React.useState(getTokenFromStorage());
+  const [isForgotPassword, setIsForgotPassword] = React.useState(false);
 
   React.useEffect(() => {
     const storedToken = getTokenFromStorage();
@@ -61,7 +63,6 @@ const useLoginRegistration = () => {
   }, []);
 
   const navigate = useNavigate();
-  const { login: authLogin } = useAuth();
 
   const handleLoginSuccess = () => {
     authLogin();
@@ -77,29 +78,30 @@ const useLoginRegistration = () => {
   }, []);
 
 
-  const validateForm = React.useCallback( async (newEmail = email, newPassword = password, newConfirmPassword = confirmPassword) => {
-    // Сбрасываем предыдущий таймер, если он был
+  const validateForm = React.useCallback(async (newEmail = email, newPassword = password) => {
+    // Сбрасываем предыдущий таймер
     if (submitTimeoutRef.current) {
       clearTimeout(submitTimeoutRef.current);
       submitTimeoutRef.current = null;
     }
 
-    const allFieldsFilled = newEmail && newPassword && (!isRegistering || (newConfirmPassword && newPassword === newConfirmPassword));
+    const allFieldsFilled = newEmail && newPassword;
     setIsFormValid(allFieldsFilled);
 
-    // Автоматическая отправка только для формы входа
+    // Если все поля заполнены и это форма входа
     if (allFieldsFilled && !isRegistering) {
-      setIsLoading(true);
-      console.log('Все поля заполнены верно, автоматическая отправка формы входа через 2 секунды');
-
-      // Сохраняем ссылку на новый таймер
+      console.log('Поля заполнены, ждем 2 секунды перед отправкой');
+      
+      // Устанавливаем таймер на 2 секунды
       submitTimeoutRef.current = setTimeout(async () => {
-        // Вызов API для отправки данных
+        setIsLoading(true);
         try {
-          console.log('Отправка данных:', { email: newEmail, password: newPassword });
-          
+          console.log('Отправляем запрос на вход');
           const response = await login(newEmail, newPassword);
-          console.log('Получен ответ:', response);
+          
+          if (!response) {
+            throw new Error('Нет ответа от сервера');
+          }
 
           if (response.error) {
             setError(response.error);
@@ -107,48 +109,39 @@ const useLoginRegistration = () => {
             return;
           }
 
-          if (!response.token) {
-            setError('Отсутствует токен в ответе');
-            setShakeError(true);
-            return;
+          if (response.token) {
+            console.log('Успешный вход:', response);
+            saveToken(response.token);
+            authLogin(response.token, response.user);
+            navigate('/events');
+          } else {
+            throw new Error('Отсутствует токен в ответе');
           }
-
-          // Успешный вход
-          console.log('Успешный вход, сохраняем токен и обновляем контекст');
-          saveToken(response.token);
-          authLogin(response.token, response.user); // Обновляем контекст
-          navigate('/events');
 
         } catch (error) {
           console.error('Ошибка в процессе входа:', error);
-          setError('Произошла ошибка при входе');
+          setError(error.message || 'Произошла ошибка при входе');
           setShakeError(true);
         } finally {
           setIsLoading(false);
           setTimeout(() => setShakeError(false), 500);
           submitTimeoutRef.current = null;
         }
-      }, 2000);
+      }, 2000); // Задержка в 2 секунды
     }
-  }, [isRegistering, email, password, confirmPassword, navigate, saveToken, authLogin]);
+  }, [isRegistering, email, password, navigate, authLogin, login, saveToken]);
 
   // Хендлеры для обновления полей формы и проверки
   const handleEmailChange = async(e) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
-    await validateForm(newEmail, password, confirmPassword);
+    await validateForm(newEmail, password);
   };
 
   const handlePasswordChange = async(e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
-    await validateForm(email, newPassword, confirmPassword);
-  };
-
-  const handleConfirmPasswordChange = async(e) => {
-    const newConfirmPassword = e.target.value;
-    setConfirmPassword(newConfirmPassword);
-    await validateForm(email, password, newConfirmPassword);
+    await validateForm(email, newPassword);
   };
 
   const handleVerificationCodeChange = async(e) => {
@@ -158,6 +151,7 @@ const useLoginRegistration = () => {
   // Функция для переключения между регистрацией и входом
   const toggleForm = () => {
     setIsRegistering((prev) => !prev);
+    setIsForgotPassword(false);
   };
 
   // Функция для проверки ответа на 401 ошибку
@@ -166,7 +160,7 @@ const useLoginRegistration = () => {
       console.log('Unauthorized error detected, removing token');
       removeToken();
       setToken(null);
-      setUserData(null);
+      authLogin(null, null);
       navigate('/');
       return true;
     }
@@ -234,7 +228,7 @@ const useLoginRegistration = () => {
       if (response.token) {
         handleLoginSuccess();
         saveToken(response.token);
-        setUserData(response.user);
+        authLogin(response.token, response.user);
         console.log('Токен и данные пользователя установлены', response);
         navigate('/events');
       } else {
@@ -253,12 +247,9 @@ const useLoginRegistration = () => {
     }
   };
 
-  const handleLogout = React.useCallback(() => {
-    removeToken();
-    setToken(null);
-    setUserData(null);
-    navigate('/login');
-  }, [navigate]);
+  const handleForgotPassword = () => {
+    setIsForgotPassword(true);
+  };
 
   return {
     isRegistering,
@@ -272,13 +263,14 @@ const useLoginRegistration = () => {
     isLoading,
     handleEmailChange,
     handlePasswordChange,
-    handleConfirmPasswordChange,
     handleVerificationCodeChange,
     handleSubmit,
     handleVerificationCodeSubmit,
     toggleForm,
     userData,
-    token
+    token,
+    isForgotPassword,
+    handleForgotPassword,
   };
 };
 

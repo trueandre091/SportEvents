@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
 
   const login = useCallback((token, user) => {
+    console.log('Сохраняем данные пользователя:', user);
     setIsAuthenticated(true);
     setUserData(user);
   }, []);

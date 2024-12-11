@@ -184,7 +184,7 @@ function Header() {
           </Typography>
 
           {/* Десктопное меню */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end' }}>
             {pages.map((page) => (
               <Button
                 key={page.title}
@@ -192,7 +192,7 @@ function Header() {
                   handleCloseNavMenu();
                   navigate(page.path);
                 }}
-                sx={{ my: 2, color: 'black', display: 'block' }}
+                sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Montserrat' }}
               >
                 {page.title}
               </Button>
@@ -231,7 +231,7 @@ function Header() {
                   handleCloseUserMenu();
                   handleButtonClick(setting);
                 }}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  <Typography sx={{ textAlign: 'center', fontFamily: 'Montserrat' }}>{setting}</Typography>
                 </MenuItem>
               ))}
             </Menu>

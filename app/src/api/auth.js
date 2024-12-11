@@ -3,19 +3,6 @@ import { getTokenFromStorage, setTokenWithExpiry, removeToken } from '../utils/t
 const API_URL = '/api';
 
 export const login = async (email, password) => {
-  return {
-    "token": "1111",
-    "user": {
-      "id": "1111",
-      "name": "1111",
-      "username": "1111",
-      "email": "1111",
-      "tg_id": "1111",
-      "role": "1111",
-      "region": "1111",
-      "notifications": []
-    }
-  };
   try {
     const formData = new FormData();
     formData.append('email', email);
@@ -56,7 +43,10 @@ export const login = async (email, password) => {
         };
       }
 
-      return data;
+      return {
+        token: data.token,
+        user: data.user // убедимся, что бэк отправляет user
+      };
     } catch (e) {
       console.error('Ошибка парсинга JSON:', e);
       return { error: 'Invalid JSON response from server' };
@@ -69,7 +59,6 @@ export const login = async (email, password) => {
 };
 
 export const register = async (email, password) => {
-  return { response: 200 };
   try {
     const formData = new FormData();
     formData.append('email', email);
@@ -86,7 +75,10 @@ export const register = async (email, password) => {
     const data = await response.json();
     console.log('Response status:', response.status);
     console.log(data);
-    return data;
+    return {
+      token: data.token,
+      user: data.user // убедимся, что бэк отправляет user
+    };
   } catch (error) {
     console.error('Ошибка при регистрации:', error);
     return error;
@@ -115,19 +107,6 @@ export const logout = async () => {
 };
 
 export const verifyToken = async (email, token, tokenType, password = null) => {
-  return {
-    "token": "1111",
-    "user": {
-      "id": "1111",
-      "name": "1111",
-      "username": "1111",
-      "email": "1111",
-      "tg_id": "1111",
-      "role": "1111",
-      "region": "1111",
-      "notifications": []
-    }
-  };
   const formData = new FormData();
   formData.append('email', email);
   formData.append('verify_token', token);
@@ -196,6 +175,30 @@ export const getProfile = async () => {
     return data;
   } catch (error) {
     console.error('Error in getProfile:', error);
+    return error;
+  }
+};
+
+export const forgotPassword = async (email) => {
+  return { response: 200 };
+  try {
+    const formData = new FormData();
+    formData.append('email', email);
+    const response = await fetch(`${API_URL}/auth/forgot_password`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      console.log(data);
+      return data.error || data.message || 'Ошибка при запросе на восстановление пароля';
+    }
+    return { response: 200 };
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
     return error;
   }
 };

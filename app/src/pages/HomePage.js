@@ -11,6 +11,17 @@ const HomePage = () => {
         minHeight: '100vh', // Минимальная высота экрана
       }}
     >
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: { md: '0', sm: '-100%' },
+          backgroundImage: 'linear-gradient(150deg, #ffffff 0%, #533ac2 20%, #1a1a1a 45%, #1a1a1a 50%, #a33e6d 80%, #d481a8 100%)',
+          zIndex: -1,
+        }}
+      />
       <Header /> {/* Шапка сайта */}
 
       <Box
@@ -39,17 +50,31 @@ const HomePage = () => {
             borderRadius: 2,
           }}
         >
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left', color: 'white' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', transform: 'translateX(-45px)' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { md: 'left', sm: 'center' }, color: 'white' }}>
+            <Box 
+            sx={{ 
+              display: 'flex', 
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              transform: { md: 'translateX(-45px)', sm: 'translateX(0px)' },
+              marginBottom: { md: '0px', sm: '30px' }
+            }}>
               <Typography variant='h1'
                 sx={{
                   fontFamily: 'The Nautigal',
-                  fontSize: '150px',
+                  fontSize: { md: '150px', sm: '0px' },
                   fontWeight: '500',
-                  transform: 'translateY(-20px) translateX(-10px)',
+                  transform: { md: 'translateY(-20px) translateX(-10px)', sm: 'translateY(0px) translateX(0px)' },
                   color: 'white',
                 }}>"</Typography>
-              <Typography variant="h6" sx={{ fontFamily: 'Montserrat', fontSize: '50px', fontWeight: 'bold', lineHeight: '1' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontFamily: 'Montserrat',
+                  fontSize: { md: '50px', sm: '40px' },
+                  fontWeight: 'bold',
+                  lineHeight: '1'
+                }}>
                 Федерация спортивного программирования
               </Typography>
             </Box>
