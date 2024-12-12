@@ -9,7 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import AddIcon from '@mui/icons-material/Add';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { getEvents } from '../api/event';
+import { getEvents, createEvent } from '../api/event';
 import MenuDrawer from '../components/MenuDrawer';
 import EventModal from '../components/EventModal';
 import { useAuth } from '../context/AuthContext';
@@ -161,9 +161,24 @@ const AdminEvents = () => {
     setIsArchive(prev => !prev);
   };
 
-  const handleCreateEvent = (eventData) => {
-    // Здесь логика создания события
-    console.log(eventData);
+  const handleCreateEvent = async (eventData) => {
+    try {
+      const response = await createEvent(eventData);
+      if (response.ok) {
+        console.log('Событие успешно создано:', response.data);
+        // Перезагружаем список событий
+        const eventsResponse = await getEvents(isArchive);
+        if (eventsResponse.ok) {
+          const sortedEvents = sortEventsByDate(eventsResponse.events);
+          setEvents(sortedEvents);
+          setFilteredEvents(sortedEvents);
+        }
+      } else {
+        console.error('Ошибка при создании события:', response.error);
+      }
+    } catch (error) {
+      console.error('Ошибка при создании события:', error);
+    }
   };
 
   return (
@@ -672,8 +687,8 @@ const AdminEvents = () => {
       </Box>
       <EventModal 
         open={openModal}
-        onClose={() => setOpenModal(false)}
-        onSubmit={handleCreateEvent}
+        handleClose={() => setOpenModal(false)}
+        onEventCreated={handleCreateEvent}
       />
     </Box>
   );

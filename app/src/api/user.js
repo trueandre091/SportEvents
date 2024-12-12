@@ -298,7 +298,37 @@ export const setupNotification = async (eventId, data) => {
 
     return { ok: true, data: responseData };
   } catch (error) {
-    console.error('Ошибка при настройке уве��омлений:', error);
+    console.error('Ошибка при настройке уведомлений:', error);
     return { ok: false, error: error.message };
+  }
+};
+
+export const getRegions = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('role', 'REGIONAL_ADMIN');
+
+    const response = await fetch(`${API_URL}/user/get`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json'
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Ошибка! Статус: ${response.status}`);
+    }
+
+    const data = await response.json();
+    // Получаем уникальные регионы
+    const uniqueRegions = [...new Set(data.map(user => user.region))].filter(Boolean);
+    
+    console.log('Получены регионы:', uniqueRegions);
+    return { ok: true, regions: uniqueRegions };
+  } catch (error) {
+    console.error('Ошибка при получении регионов:', error);
+    return { ok: false, error: error.message || 'Ошибка при получении регионов' };
   }
 };
