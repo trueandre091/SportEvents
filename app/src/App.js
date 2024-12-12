@@ -5,6 +5,7 @@ import About from './pages/About';
 import Contacts from './pages/Contacts';
 import Regions from './pages/Regions';
 import Profile from './pages/Profile';
+import ProfileEvents from './pages/ProfileEvents';
 import AdminPanel from './pages/AdminPanel';
 import { CssBaseline, Box } from '@mui/material';
 import { BrowserRouter, useLocation, Routes, Route } from 'react-router-dom';
@@ -61,6 +62,16 @@ const AnimatedRoutes = () => {
                 <AdminPanel />
               </PageTransition>
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/profile/events"
+          element={
+            <PrivateRoute>
+              <PageTransition>
+                <ProfileEvents />
+              </PageTransition>
+            </PrivateRoute>
           }
         />
         <Route

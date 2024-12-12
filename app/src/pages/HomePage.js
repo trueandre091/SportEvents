@@ -19,7 +19,20 @@ const HomePage = () => {
           left: 0,
           right: 0,
           bottom: { md: '0', sm: '-100%' },
-          backgroundImage: 'linear-gradient(150deg, #ffffff 0%, #533ac2 20%, #1a1a1a 45%, #1a1a1a 50%, #a33e6d 80%, #d481a8 100%)',
+          background: `
+            radial-gradient(
+              circle at bottom right,
+              #ffffff -10%,
+              #a33e6d 10%,
+              rgba(26, 26, 26, 0.1) 50%
+            ),
+            radial-gradient(
+              circle at top left,
+              #ffffff -10%,
+              #533ac2 10%,
+              rgba(26, 26, 26, 0.1) 50%
+            )
+          `,
           zIndex: -1,
           minWidth: '100vw', // Добавляем минимальную ширину
           minHeight: '100vh', // Добавляем минимальную высоту

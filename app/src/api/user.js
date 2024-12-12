@@ -151,3 +151,95 @@ export const updateUser = async (userData) => {
     return { ok: false, error: error.message };
   }
 };
+
+export const getNotifications = async () => {
+  const token = getTokenFromStorage();
+  
+  try {
+    const response = await fetch(`${API_URL}/user/get_notifications`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка при получении событий');
+    }
+
+    const data = await response.json();
+    console.log('Полученные уведомления:', data);
+    return { ok: true, events: data };
+  } catch (error) {
+    console.error('Ошибка при получении событий пользователя:', error);
+    return { ok: false, error: error.message };
+  }
+};
+
+export const subscribeToEvent = async (eventId) => {
+  const token = getTokenFromStorage();
+  const formData = new FormData();
+  formData.append('id', eventId);
+
+  try {
+    const response = await fetch(`${API_URL}/user/subscribe`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Accept': 'application/json'
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log('Ответ от сервера при подписке:', data);
+
+    if (!response.ok) {
+      console.error('Ошибка при подписке:', data);
+      return { ok: false, error: data.message || 'Ошибка при подписке на событие' };
+    }
+
+    return { 
+      ok: true, 
+      event: data 
+    };
+  } catch (error) {
+    console.error('Ошибка при подписке на событие:', error);
+    return { ok: false, error: error.message || 'Ошибка при подписке на событие' };
+  }
+};
+
+export const unsubscribeToEvent = async (eventId) => {
+  const token = getTokenFromStorage();
+  const formData = new FormData();
+  formData.append('id', eventId);
+
+  try {
+    const response = await fetch(`${API_URL}/user/unsubscribe`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Accept': 'application/json'
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log('Ответ от сервера при подписке:', data);
+
+    if (!response.ok) {
+      console.error('Ошибка при подписке:', data);
+      return { ok: false, error: data.message || 'Ошибка при подписке на событие' };
+    }
+
+    return { 
+      ok: true, 
+      event: data 
+    };
+  } catch (error) {
+    console.error('Ошибка при подписке на событие:', error);
+    return { ok: false, error: error.message || 'Ошибка при подписке на событие' };
+  }
+};
+

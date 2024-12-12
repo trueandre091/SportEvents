@@ -212,7 +212,7 @@ const Profile = () => {
               border: { md: '20px solid white', sm: '10px solid white' }, // Адаптивная рамка
               width: { md: "300px", sm: "200px", xs: "150px" }, // Адаптивная ширина
               height: { md: "300px", sm: "200px", xs: "150px" }, // Адаптивная высота
-              right: { md: "200px", sm: "100px", xs: "50px" }, // Адаптивное позиционирова��ие
+              right: { md: "200px", sm: "100px", xs: "50px" }, // Адаптивное позиционирование
               top: { md: "10px", sm: "5px", xs: "5px" },
               transform: "translateX(-10%)",
               '& .MuiSvgIcon-root': { // Адаптивный размер иконки

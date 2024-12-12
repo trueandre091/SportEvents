@@ -7,6 +7,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import { getEvents } from '../api/event';
 import MenuDrawer from '../components/MenuDrawer';
+import { subscribeToEvent, unsubscribeToEvent, getProfile } from '../api/user';
+import { useAuth } from '../context/AuthContext';
 
 const filterFieldStyles = {
   bgcolor: 'rgba(255, 255, 255, 0.1)', 
@@ -37,7 +39,6 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [isArchive, setIsArchive] = useState(false);
-  const [subscribedEvents, setSubscribedEvents] = useState({});
   const [filters, setFilters] = useState({
     date_start: '',
     date_end: '',
@@ -49,6 +50,7 @@ const Events = () => {
   const [disciplines, setDisciplines] = useState(new Set());
   const [statuses, setStatuses] = useState(new Set());
   const [regions, setRegions] = useState(new Set());
+  const { userData, setUserData } = useAuth();
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -143,11 +145,39 @@ const Events = () => {
     setIsArchive(prev => !prev);
   };
 
-  const handleSubscribe = (eventId) => {
-    setSubscribedEvents(prev => ({
-      ...prev,
-      [eventId]: !prev[eventId]
-    }));
+  const isSubscribed = (eventId) => {
+    return userData?.notifications?.some(
+      notification => notification.event_id === eventId
+    ) || false;
+  };
+
+  const handleSubscribe = async (eventId) => {
+    try {
+      // Проверяем текущий статус подписки
+      const currentlySubscribed = isSubscribed(eventId);
+      
+      // Используем соответствующую функцию API
+      const response = currentlySubscribed 
+        ? await unsubscribeToEvent(eventId)
+        : await subscribeToEvent(eventId);
+      
+      if (response.ok) {
+        // Получаем обновленные данные пользователя
+        const profileResponse = await getProfile();
+        
+        if (profileResponse.ok) {
+          // Обновляем контекст пользователя новыми данными
+          setUserData(profileResponse.user);
+          console.log(`Успешная ${currentlySubscribed ? 'отписка от' : 'подписка на'} событие:`, eventId);
+        } else {
+          console.error('Ошибка при обновлении данных пользователя:', profileResponse.error);
+        }
+      } else {
+        console.error(`Ошибка при ${currentlySubscribed ? 'отписке' : 'подписке'}:`, response.error);
+      }
+    } catch (error) {
+      console.error('Ошибка при выполнении операции:', error);
+    }
   };
 
   return (
@@ -555,23 +585,24 @@ const Events = () => {
 
                   <Box>
                     <Button
-                      variant="contained"
-                      onClick={() => handleSubscribe(event.id)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Предотвращаем всплытие события
+                        handleSubscribe(event.id);
+                      }}
                       sx={{
-                        backgroundColor: subscribedEvents[event.id] ? '#ff1f75' : '#fff',
-                        color: subscribedEvents[event.id] ? '#fff' : '#ff1f75',
+                        position: 'relative',
+                        borderRadius: '20px',
+                        backgroundColor: isSubscribed(event.id) ? '#ff1f75' : 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
                         '&:hover': {
-                          backgroundColor: subscribedEvents[event.id] ? '#ff1f75' : '#fff',
+                          backgroundColor: isSubscribed(event.id) ? '#d41960' : 'rgba(255, 255, 255, 0.3)',
                         },
-                        textTransform: "none",
-                        fontSize: { md: "15px", sm: "10px" },
-                        fontFamily: "Montserrat",
-                        borderRadius: "20px",
-                        boxShadow: "none",
-                        cursor: "pointer",
+                        padding: '5px 15px',
+                        fontSize: '14px',
+                        fontFamily: 'Montserrat',
                       }}
                     >
-                      {subscribedEvents[event.id] ? 'Отписаться' : 'Подписаться'}
+                      {isSubscribed(event.id) ? 'Отписаться' : 'Подписаться'}
                     </Button>
                   </Box>
                 </Box>

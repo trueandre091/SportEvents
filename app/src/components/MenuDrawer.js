@@ -81,7 +81,9 @@ const MenuDrawer = ({ isOpen, toggleDrawer }) => {
         </Box>
         <List sx={{ marginLeft: "50px", marginTop: "10%" }}>
           {[
+            { text: "события", link: "/events" },
             { text: "профиль", link: "/profile" },
+            { text: "подписки", link: "/profile/events" },
             { text: "регионы", link: "/regions" },
             { text: "контакты", link: "/contacts" },
             { text: "о нас", link: "/about" },
