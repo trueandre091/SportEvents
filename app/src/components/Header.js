@@ -27,6 +27,7 @@ import { useAuth } from '../context/AuthContext';
 // Конфигурация пунктов меню
 const pages = [
   { title: 'Все мероприятия', path: '/events' },
+  { title: 'Регионы', path: '/regions' },
   { title: 'О нас', path: '/about' },
   { title: 'Контакты', path: '/contacts' }
 ];

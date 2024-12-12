@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { getTokenFromStorage, setTokenWithExpiry, removeToken } from '../utils/tokenUtils';
-import { getProfile } from '../api/auth';
+import { getProfile } from '../api/user';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const AuthContext = createContext(null);

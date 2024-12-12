@@ -3,11 +3,11 @@ import HomePage from './pages/HomePage';
 import Events from './pages/Events';
 import About from './pages/About';
 import Contacts from './pages/Contacts';
+import Regions from './pages/Regions';
 import Profile from './pages/Profile';
 import AdminPanel from './pages/AdminPanel';
-import LoginRegistration from './components/LoginRegistration';
 import { CssBaseline, Box } from '@mui/material';
-import { BrowserRouter, useLocation, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, useLocation, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from './utils/pageTransition';
@@ -42,6 +42,14 @@ const AnimatedRoutes = () => {
           element={
             <PageTransition>
               <Contacts />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/regions"
+          element={
+            <PageTransition>
+              <Regions />
             </PageTransition>
           }
         />

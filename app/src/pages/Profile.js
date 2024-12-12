@@ -6,18 +6,11 @@ import {
   TextField,
   styled,
   Typography,
-  IconButton,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { Link } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
+import MenuDrawer from '../components/MenuDrawer';
 // Стилизованное текстовое поле
 const StyledTextField = styled(TextField)({
   marginBottom: '16px',
@@ -115,78 +108,7 @@ const Profile = () => {
         }}
       >
       </Box>
-      <IconButton onClick={toggleDrawer} sx={{ position: "absolute", top: "10px", left: "40px", color: "white", flexDirection: "row" }}>
-        <MenuIcon />
-        <Typography
-          variant="h6"
-          sx={{
-            fontFamily: "Montserrat",
-            fontSize: "25px",
-            transform: "translateX(10px)",
-            cursor: "pointer",
-          }}
-        >
-          Меню
-        </Typography>
-      </IconButton>
-      <Drawer
-        anchor="left"
-        open={isOpen}
-        onClose={toggleDrawer}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: { md: "20%", sm: "60%" }, // Для мобильных устройств уже
-          },
-        }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-          <Box onClick={toggleDrawer} sx={{ display: "flex", flexDirection: "row", alignItems: "center", cursor: "pointer" }}>
-            <MenuIcon sx={{ fontSize: "30px", marginLeft: "25px", marginTop: "15%" }} />
-            <Typography
-              variant="h6"
-              sx={{
-                fontFamily: "Montserrat",
-                fontSize: "25px",
-                marginLeft: "10px",
-                marginTop: "15%",
-                cursor: "pointer",
-              }}
-            >
-              Меню
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              position: "absolute",
-              left: "10%",
-              top: "10%",
-              height: "80%",
-              width: "3px",
-              background: "#000", // Цвет полоски
-            }}
-          />
-        </Box>
-        <List sx={{ marginLeft: "50px", marginTop: "10%" }}>
-          {[
-            { text: "профиль", link: "/profile" },
-            { text: "регионы", link: "/regions" },
-            { text: "контакты", link: "/contacts" },
-            { text: "о нас", link: "/about" },
-            { text: "на главную", link: "/" }
-          ].map(({ text, link }) => (
-            <Link to={link} style={{ textDecoration: "none", color: "inherit" }}>
-              <ListItem button key={text}>
-                <ListItemText
-                  primary={text}
-                  primaryTypographyProps={{
-                    fontFamily: "Montserrat", // Задаём шрифт
-                    fontSize: "30px",         // Задаём размер текста
-                  }} />
-              </ListItem>
-            </Link>
-          ))}
-        </List>
-      </Drawer>
+      <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} />
       <Box
         sx={{
           minWidth: { md: "80%", sm: "none" },
@@ -206,7 +128,6 @@ const Profile = () => {
             justifyContent: 'space-between',
             alignItems: 'center',
             background: "#402fff",
-            padding: "30px 40px",
             borderTopLeftRadius: "40px",  // Закругляем только верхние углы
             borderTopRightRadius: "40px",
             overflow: "visible",

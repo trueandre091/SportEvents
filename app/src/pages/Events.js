@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { IconButton, Drawer, List, ListItem, ListItemText, Box, Typography, Button, TextField, InputAdornment, MenuItem, FormControlLabel, Switch } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import CalendarIcon from '@mui/icons-material/CalendarMonth';
+import { Box, Typography, Button, TextField, InputAdornment } from '@mui/material';
+import { MenuItem, FormControlLabel, Switch } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchIcon from '@mui/icons-material/Search';
-import { getEvents } from '../api/events';
+import CalendarIcon from '@mui/icons-material/CalendarMonth';
+import { getEvents } from '../api/event';
+import MenuDrawer from '../components/MenuDrawer';
 
 const filterFieldStyles = {
   bgcolor: 'rgba(255, 255, 255, 0.1)', 
@@ -19,7 +19,7 @@ const filterFieldStyles = {
   },
   '& input': { color: 'rgba(255, 255, 255, 0.3)' },
   '& .MuiSelect-icon': { color: 'rgba(255, 255, 255, 0.3)' },
-  '& .MuiSelect-select': { color: 'rgba(255, 255, 255, 0.3)', fontFamily: 'Montserrat' },
+  '& .MuiSelect-select': { color: 'rgba(255, 255, 255, 1)', fontFamily: 'Montserrat' },
   '& .MuiMenuItem-root': { 
     fontFamily: 'Montserrat',
     color: 'rgba(255, 255, 255, 1)' 
@@ -50,11 +50,8 @@ const Events = () => {
   const [statuses, setStatuses] = useState(new Set());
   const [regions, setRegions] = useState(new Set());
 
-  const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
-    setIsOpen(open);
+  const toggleDrawer = () => {
+    setIsOpen(!isOpen);
   };
 
   const toggleDetails = (index) => {
@@ -182,78 +179,7 @@ const Events = () => {
         }}
       >
       </Box>
-      <IconButton onClick={toggleDrawer(true)} sx={{ position: "absolute", top: "10px", left: "40px", color: "white", flexDirection: "row" }}>
-        <MenuIcon />
-        <Typography
-          variant="h6"
-          sx={{
-            fontFamily: "Montserrat",
-            fontSize: "25px",
-            transform: "translateX(10px)",
-            cursor: "pointer",
-          }}
-        >
-          Меню
-        </Typography>
-      </IconButton>
-      <Drawer
-        anchor="left"
-        open={isOpen}
-        onClose={toggleDrawer(false)}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: { md: "20%", sm: "60%" }, // Для мобильных устройств уже
-          },
-        }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-          <Box onClick={toggleDrawer(false)} sx={{ display: "flex", flexDirection: "row", alignItems: "center", cursor: "pointer" }}>
-            <MenuIcon sx={{ fontSize: "30px", marginLeft: "25px", marginTop: "15%" }} />
-            <Typography
-              variant="h6"
-              sx={{
-                fontFamily: "Montserrat",
-                fontSize: "25px",
-                marginLeft: "10px",
-                marginTop: "15%",
-                cursor: "pointer",
-              }}
-            >
-              Меню
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              position: "absolute",
-              left: "10%",
-              top: "10%",
-              height: "80%",
-              width: "3px",
-              background: "#000", // Цвет полоски
-            }}
-          />
-        </Box>
-        <List sx={{ marginLeft: "50px", marginTop: "10%" }}>
-          {[
-            { text: "профиль", link: "/profile" },
-            { text: "регионы", link: "/regions" },
-            { text: "контакты", link: "/contacts" },
-            { text: "о нас", link: "/about" },
-            { text: "на главную", link: "/" }
-          ].map(({ text, link }) => (
-            <Link to={link} style={{ textDecoration: "none", color: "inherit" }}>
-              <ListItem button key={text}>
-                <ListItemText
-                  primary={text}
-                  primaryTypographyProps={{
-                    fontFamily: "Montserrat", // Задаём шрифт
-                    fontSize: "30px",         // Задаём размер текста
-                  }} />
-              </ListItem>
-            </Link>
-          ))}
-        </List>
-      </Drawer>
+      <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} />
       <Box
         sx={{
           maxWidth: { md: "80%", sm: "none" },
