@@ -252,6 +252,7 @@ const LoginRegistration = () => {
         <Box
           sx={{
             display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
             height: '100%'
@@ -276,7 +277,7 @@ const LoginRegistration = () => {
               fontFamily: 'Montserrat',
               fontSize: '40px',
             }}>
-            Добро пожаловать, Пользователь!
+            Добро пожаловать{userData?.name && `, ${userData?.name}!`}!
           </Typography>
         </Box>
       )}

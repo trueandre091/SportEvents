@@ -325,7 +325,7 @@ const Profile = () => {
                     cursor: 'pointer',
                   }}
                   fullWidth
-                  onClick={() => navigate('/events')}
+                  onClick={() => navigate('/profile/events')}
                 >
                   ваши мероприятия
                 </Button>

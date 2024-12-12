@@ -23,6 +23,7 @@ export const getEvents = async (isArchive) => {
     }
 
     const data = await response.json();
+    console.log('Данные событий:', data);
     return { ok: true, events: data };
   } catch (error) {
     console.error('Ошибка при получении событий:', error);

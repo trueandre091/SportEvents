@@ -7,6 +7,9 @@ import Regions from './pages/Regions';
 import Profile from './pages/Profile';
 import ProfileEvents from './pages/ProfileEvents';
 import AdminPanel from './pages/AdminPanel';
+import AdminRegions from './pages/AdminRegions';
+import AdminEvents from './pages/AdminEvents';
+import AdminStats from './pages/AdminStats';
 import { CssBaseline, Box } from '@mui/material';
 import { BrowserRouter, useLocation, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -55,11 +58,35 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/admin/stats"
+          element={
+              <PageTransition>
+                <AdminStats />
+              </PageTransition>
+          }
+        />
+        <Route
+          path="/admin/events"
+          element={
+              <PageTransition>
+                <AdminEvents />
+              </PageTransition>
+          }
+        />
+        <Route
+          path="/admin/regions"
+          element={
+              <PageTransition>
+                <AdminRegions />
+              </PageTransition>
+          }
+        />
+        <Route
           path="/admin"
           element={
-            <PageTransition>
-              <AdminPanel />
-            </PageTransition>
+              <PageTransition>
+                <AdminPanel />
+              </PageTransition>
           }
         />
         <Route

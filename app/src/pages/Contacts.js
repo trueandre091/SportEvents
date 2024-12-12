@@ -105,12 +105,12 @@ const Contacts = () => {
                 justifyContent: 'space-between',
               }}
             >
-              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '25px', fontWeight: 'bold', lineHeight: '2' }}>Электронная почта: <a href='mailto:info@fsp-russia.com'>info@fsp-russia.com</a></Typography><br />
-              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '25px', fontWeight: 'bold', lineHeight: '2' }}>Телефон: +7 (499) 678-03-05</Typography><br />
-              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '25px', fontWeight: 'bold', lineHeight: '2' }}>Адрес: 125047, г. Москва, 2-я Брестская, д. 8, этаж 9</Typography><br />
-              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '25px', fontWeight: 'bold', lineHeight: '2' }}>Пресс-служба: <a href='mailto:press@fsp-russia.com'>press@fsp-russia.com</a></Typography><br />
-              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '25px', fontWeight: 'bold', lineHeight: '2' }}>ВКонтакте: <a href='https://vk.com/russiafsp'>vk.com/russiafsp</a></Typography><br />
-              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '25px', fontWeight: 'bold', lineHeight: '2' }}>Telegram: <a href='https://t.me/fsprussia'>t.me/fsprussia</a></Typography><br />
+              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '20px', fontWeight: 'bold', lineHeight: '2' }}>Электронная почта: <a href='mailto:info@fsp-russia.com'>info@fsp-russia.com</a></Typography><br />
+              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '20px', fontWeight: 'bold', lineHeight: '2' }}>Телефон: +7 (499) 678-03-05</Typography><br />
+              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '20px', fontWeight: 'bold', lineHeight: '2' }}>Адрес: 125047, г. Москва, 2-я Брестская, д. 8, этаж 9</Typography><br />
+              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '20px', fontWeight: 'bold', lineHeight: '2' }}>Пресс-служба: <a href='mailto:press@fsp-russia.com'>press@fsp-russia.com</a></Typography><br />
+              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '20px', fontWeight: 'bold', lineHeight: '2' }}>ВКонтакте: <a href='https://vk.com/russiafsp'>vk.com/russiafsp</a></Typography><br />
+              <Typography variant='h6' sx={{ fontFamily: 'Montserrat', fontSize: '20px', fontWeight: 'bold', lineHeight: '2' }}>Telegram: <a href='https://t.me/fsprussia'>t.me/fsprussia</a></Typography><br />
             </Box>
           </Box>
           <Box
