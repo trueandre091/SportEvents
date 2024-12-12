@@ -87,3 +87,67 @@ export const getUsers = async (role) => {
     return { ok: false, error: error.message || 'Ошибка при получении пользователей' };
   }
 };
+
+export const updateUser = async (userData) => {
+  const token = getTokenFromStorage();
+  const formData = new FormData();
+
+  // Добавляем только те поля, которые определены в userData
+  if (userData.name !== undefined && userData.name !== null) formData.append('name', userData.name);
+  if (userData.username !== undefined && userData.username !== null) formData.append('username', userData.username);
+  if (userData.region !== undefined && userData.region !== null) formData.append('region', userData.region);
+  if (userData.tg_id !== undefined && userData.tg_id !== null) formData.append('tg_id', userData.tg_id);
+  if (userData.notifications !== undefined && userData.notifications !== null) formData.append('notifications', JSON.stringify(userData.notifications));
+  if (userData.is_verified !== undefined && userData.is_verified !== null) formData.append('is_verified', userData.is_verified);
+  if (userData.role !== undefined && userData.role !== null) formData.append('role', userData.role);
+
+  console.log('Форма данных для отправки:', userData.name, userData.username, userData.region, userData.tg_id, userData.role);
+
+  try {
+    const response = await fetch(`${API_URL}/user/update`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Accept': 'application/json'
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log('Ответ от сервера:', data);
+
+    if (response.status === 401) {
+      console.warn('Токен недействителен, удаляем');
+      removeToken();
+      return { ok: false, error: 'Требуется повторная авторизация' };
+    }
+
+    if (!response.ok) {
+      console.error('Ошибка обновления профиля:', data);
+      return { ok: false, error: data.message || 'Ошибка обновления профиля' };
+    }
+
+    // Обновленная обработка ответа в соответствии с форматом бэкенда
+    const updatedUserData = {
+      id: data.id,
+      name: data.name,
+      username: data.username,
+      email: data.email,
+      tg_id: data.tg_id,
+      role: data.role,
+      region: data.region
+    };
+
+    console.log('Профиль успешно обновлен:', {
+      user: { ...updatedUserData }
+    });
+
+    return { 
+      ok: true, 
+      user: updatedUserData 
+    };
+  } catch (error) {
+    console.error('Ошибка при обновлении профиля:', error);
+    return { ok: false, error: error.message };
+  }
+};

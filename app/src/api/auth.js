@@ -102,7 +102,7 @@ export const logout = async () => {
 export const verifyToken = async (email, token, tokenType, password = null) => {
   const formData = new FormData();
   formData.append('email', email);
-  formData.append('verify_token', token);
+  formData.append('verify_token', parseInt(token));
   formData.append('token_type', tokenType);
   if (password) {
     formData.append('password', password);
@@ -126,17 +126,10 @@ export const verifyToken = async (email, token, tokenType, password = null) => {
       throw new Error(data.error || data.message || 'Ошибка при верификации токена');
     }
 
-    if (data.token) {
-      this.setToken(data.token);
-      if (data.user) {
-        this.setUser(data.user);
-      }
-    }
-
-    return data;
+    return { ok: true, ...data };
   } catch (error) {
     console.error('Ошибка при верификации:', error);
-    return error;
+    return { ok: false, error: error.message || 'Ошибка при верификации' };
   }
 };
 

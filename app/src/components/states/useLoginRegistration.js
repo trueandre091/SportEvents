@@ -228,22 +228,43 @@ const useLoginRegistration = () => {
   const handleVerificationCodeSubmit = async () => {
     setIsLoading(true);
     try {
-      const response = await verifyToken(email, verificationCode, 'registration');
-      if (response.token) {
-        handleLoginSuccess();
+      const response = await verifyToken(email, verificationCode, 'VERIFY_EMAIL');
+      
+      // Проверяем наличие токена и данных пользователя в ответе
+      if (response.ok && response.token && response.user) {
+        // Сохраняем токен
         saveToken(response.token);
-        authLogin(response.token, response.user);
-        console.log('Токен и данные пользователя установлены', response);
+        
+        // Обновляем контекст авторизации с полными данными пользователя
+        authLogin(response.token, {
+          id: response.user.id,
+          name: response.user.name,
+          username: response.user.username,
+          email: response.user.email,
+          tg_id: response.user.tg_id,
+          role: response.user.role,
+          region: response.user.region,
+          notifications: response.user.notifications || []
+        });
+        
+        console.log('Верификация успешна:', {
+          token: response.token.substring(0, 20) + '...',
+          user: { ...response.user, password: '***' }
+        });
+        
         navigate('/events');
       } else {
         if (handleUnauthorized(response)) return;
-        setError('Ошибка при верификации');
+        
+        setError(response.error || 'Ошибка при верификации');
         setShakeError(true);
         setTimeout(() => setShakeError(false), 500);
       }
     } catch (error) {
       if (handleUnauthorized(error)) return;
-      setError('Ошибка при верификации');
+      
+      console.error('Ошибка при верификации:', error);
+      setError(error.message || 'Ошибка при верификации');
       setShakeError(true);
       setTimeout(() => setShakeError(false), 500);
     } finally {

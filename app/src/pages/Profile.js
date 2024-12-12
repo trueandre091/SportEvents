@@ -11,6 +11,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MenuDrawer from '../components/MenuDrawer';
+import { updateUser } from '../api/user';
 // Стилизованное текстовое поле
 const StyledTextField = styled(TextField)({
   marginBottom: '16px',
@@ -28,6 +29,10 @@ const StyledTextField = styled(TextField)({
       '& fieldset': {
         borderColor: 'rgba(255, 255, 255, 0.3)',
       },
+      '& input': {
+        color: 'white !important',
+        '-webkit-text-fill-color': 'white !important',
+      }
     },
   },
   '& .MuiInputLabel-root': {
@@ -38,6 +43,13 @@ const StyledTextField = styled(TextField)({
     color: 'white',
     fontFamily: 'Montserrat',
   },
+  '& .MuiOutlinedInput-input': {
+    color: 'white',
+  },
+  '& .MuiOutlinedInput-input.Mui-disabled': {
+    color: 'white',
+    '-webkit-text-fill-color': 'white',
+  }
 });
 
 const Profile = () => {
@@ -50,9 +62,30 @@ const Profile = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleEditToggle = () => {
+  const handleEditToggle = async () => {
     if (isEditing) {
-      console.log('Saving data:', userData);
+      try {
+        // Подготавливаем данные для отправки
+        const dataToUpdate = {
+          id: userData.id,
+          name: userData.name,
+          username: userData.username,
+          region: userData.region,
+          tg_id: userData.tg_id,
+          role: userData.role
+        };
+
+        const response = await updateUser(dataToUpdate);
+        if (response.ok) {
+          // Обновляем данные пользователя полученными от сервера
+          setUserData(response.user);
+          console.log('Данные успешно обновлены:', response.user);
+        } else {
+          console.error('Ошибка при обновлении данных:', response.error);
+        }
+      } catch (error) {
+        console.error('Ошибка при сохранении:', error);
+      }
     }
     setIsEditing(!isEditing);
   };
@@ -66,7 +99,7 @@ const Profile = () => {
 
   // Функция для безопасного получения значения поля
   const getFieldValue = (field) => {
-    return userData?.[field] || 'отсутствует'; // Возвращаем "отсутствует" если поле null или undefined
+    return userData?.[field] || ''; // Возвращаем пустую строку вместо "отсутствует"
   };
 
   // Функция проверки роли администратора
@@ -93,14 +126,14 @@ const Profile = () => {
           background: `
             radial-gradient(
               circle at bottom right,
-              #ffffff -10%,
-              #a33e6d 10%,
+              #9c9c9c -10%,
+              #a6768c 10%,
               rgba(26, 26, 26, 0.1) 50%
             ),
             radial-gradient(
               circle at top left,
-              #ffffff -10%,
-              #a33e6d 10%,
+              #9c9c9c -10%,
+              #a6768c 10%,
               rgba(26, 26, 26, 0.1) 50%
             )
           `,
@@ -139,7 +172,7 @@ const Profile = () => {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              width: '80%',
+              width: '60%',
               position: 'relative', // Добавляем для контроля пространства
               '&::after': { // Добавляем пространство справа
                 content: '""',
@@ -179,9 +212,9 @@ const Profile = () => {
               border: { md: '20px solid white', sm: '10px solid white' }, // Адаптивная рамка
               width: { md: "300px", sm: "200px", xs: "150px" }, // Адаптивная ширина
               height: { md: "300px", sm: "200px", xs: "150px" }, // Адаптивная высота
-              right: { md: "200px", sm: "100px", xs: "50px" }, // Адаптивное позиционирование
+              right: { md: "200px", sm: "100px", xs: "50px" }, // Адаптивное позиционирова��ие
               top: { md: "10px", sm: "5px", xs: "5px" },
-              transform: "translateX(10%)",
+              transform: "translateX(-10%)",
               '& .MuiSvgIcon-root': { // Адаптивный размер иконки
                 fontSize: { md: 100, sm: 70, xs: 50 }
               },
