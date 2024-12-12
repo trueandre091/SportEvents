@@ -209,7 +209,7 @@ const Events = () => {
         }}
       >
       </Box>
-      <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} />
+      <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} sx={{ position: 'fixed' }} />
       <Box
         sx={{
           maxWidth: { md: "80%", sm: "none" },

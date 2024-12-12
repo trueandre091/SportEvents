@@ -10,10 +10,16 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const MenuDrawer = ({ isOpen, toggleDrawer }) => {
+  const { userData } = useAuth();
   const handleToggle = () => {
     toggleDrawer();
+  };
+
+  const isCentralAdmin = () => {
+    return ['ADMIN', 'CENTRAL_ADMIN'].includes(userData?.role);
   };
 
   return (
@@ -87,7 +93,8 @@ const MenuDrawer = ({ isOpen, toggleDrawer }) => {
             { text: "регионы", link: "/regions" },
             { text: "контакты", link: "/contacts" },
             { text: "о нас", link: "/about" },
-            { text: "на главную", link: "/" }
+            { text: "на главную", link: "/" },
+            isCentralAdmin() && { text: "admin панель", link: "/admin" }
           ].map(({ text, link }) => (
             <Link key={text} to={link} style={{ textDecoration: "none", color: "inherit" }}>
               <ListItem button>

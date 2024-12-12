@@ -9,14 +9,19 @@ import {
   StepContent,
   Paper,
   Button,
-  Tooltip
+  Tooltip,
+  Switch,
+  FormControlLabel,
+  TextField
 } from '@mui/material';
 import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MenuDrawer from '../components/MenuDrawer';
 import { useAuth } from '../context/AuthContext';
-import { unsubscribeToEvent, getProfile } from '../api/user';
+import { unsubscribeToEvent, getProfile, setupNotification } from '../api/user';
 import { getNotifications } from '../api/user';
+import { convertToMoscowTime, formatMoscowDate } from '../utils/dateUtils';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const UserEvents = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +29,9 @@ const UserEvents = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [events, setEvents] = useState([]);
   const { userData, setUserData } = useAuth();
+  const [notificationTime, setNotificationTime] = useState({});
+  const [switchStates, setSwitchStates] = useState({});
+  const [error, setError] = useState(null);
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -47,8 +55,10 @@ const UserEvents = () => {
   };
 
   useEffect(() => {
-    loadEvents();
-  }, [userData?.notifications]);
+    if (userData) {
+      loadEvents();
+    }
+  }, [userData]);
 
   const handleUnsubscribe = async (eventId) => {
     try {
@@ -72,9 +82,9 @@ const UserEvents = () => {
   };
 
   const getTimeStatus = (dateStart, dateEnd) => {
-    const now = new Date();
-    const start = new Date(dateStart);
-    const end = dateEnd ? new Date(dateEnd) : null;
+    const now = convertToMoscowTime(new Date());
+    const start = convertToMoscowTime(dateStart);
+    const end = dateEnd ? convertToMoscowTime(dateEnd) : null;
 
     const formatTimeDiff = (diff) => {
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -106,6 +116,109 @@ const UserEvents = () => {
     }
   };
 
+  const handleNotificationSetup = async (eventId, data) => {
+    try {
+      const response = await setupNotification(eventId, data);
+      console.log(data)
+      
+      if (response.ok) {
+        const profileResponse = await getProfile();
+        if (profileResponse.ok) {
+          setUserData(profileResponse.user);
+        } else {
+          console.error('Ошибка при обновлении профиля:', profileResponse.error);
+        }
+      } else {
+        console.error('Ошибка при настройке уведомлений:', response.error);
+      }
+    } catch (error) {
+      console.error('Ошибка при настройке уведомлений:', error);
+    }
+  };
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const formatDateForApi = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
+
+  const handleDateTimeChange = (e, eventId, event) => {
+    const dateValue = e.target.value;
+    
+    setNotificationTime(prev => ({
+      ...prev,
+      [eventId]: dateValue
+    }));
+    
+    if (dateValue && dateValue.includes('T')) {
+      const [date, time] = dateValue.split('T');
+      if (date && time) {
+        handleNotificationSetup(eventId, {
+          ...event,
+          notification_time: formatDateForApi(dateValue)
+        });
+      }
+    }
+  };
+
+  const handleSwitchChange = async (e, eventId, field) => {
+    setError(null);
+
+    setSwitchStates(prev => ({
+      ...prev,
+      [eventId]: {
+        ...prev[eventId],
+        [field]: e.target.checked
+      }
+    }));
+
+    const currentNotification = userData?.notifications?.find(n => n.event_id === eventId) || {};
+    
+    const updatedData = {
+      notification_time: currentNotification.notification_time || null,
+      email: field === 'email' ? e.target.checked : (currentNotification.email || false),
+      telegram: field === 'telegram' ? e.target.checked : (currentNotification.telegram || false)
+    };
+
+    const response = await setupNotification(eventId, updatedData);
+    
+    if (!response.ok) {
+      setSwitchStates(prev => ({
+        ...prev,
+        [eventId]: {
+          ...prev[eventId],
+          [field]: !e.target.checked
+        }
+      }));
+
+      if (response.error?.includes('User has no telegram id')) {
+        setError('Для настройки уведомлений необходимо добавить Telegram ID в профиле.');
+      } else {
+        console.error('Ошибка при настройке уведомлений:', response.error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    console.log('userData notifications updated:', userData?.notifications);
+  }, [userData?.notifications]);
+
   return (
     <Box sx={{
       position: 'relative',
@@ -135,7 +248,7 @@ const UserEvents = () => {
         }}
       />
       
-      <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} />
+      <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} sx={{ position: 'fixed' }} />
       
       <Box sx={{ 
         maxWidth: { md: "80%", sm: "95%" },
@@ -280,7 +393,7 @@ const UserEvents = () => {
                             color: "rgba(255, 255, 255, 0.7)",
                             fontFamily: "Montserrat",
                           }}>
-                            Дата начала: {event.date_start}
+                            Дата начала: {formatMoscowDate(event.date_start)}
                           </Typography>
                           {event.date_end && (
                             <Typography sx={{
@@ -288,7 +401,7 @@ const UserEvents = () => {
                               color: "rgba(255, 255, 255, 0.7)",
                               fontFamily: "Montserrat",
                             }}>
-                              Дата окончания: {event.date_end}
+                              Дата окончания: {formatMoscowDate(event.date_end)}
                             </Typography>
                           )}
                         </Box>
@@ -309,6 +422,98 @@ const UserEvents = () => {
                           Отписаться
                         </Button>
                       </Box>
+                      
+                      <Box sx={{ 
+                        mt: 2,
+                        p: 2,
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '8px'
+                      }}>
+                        <Typography sx={{
+                          fontSize: { md: "16px", sm: "14px" },
+                          color: "#fff",
+                          fontFamily: "Montserrat",
+                          mb: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1
+                        }}>
+                          <NotificationsIcon /> Настройки уведомлений
+                        </Typography>
+                        
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <input
+                            type="datetime-local"
+                            value={notificationTime[event.id] || formatDateForInput(
+                              userData?.notifications?.find(n => n.event_id === event.id)?.notification_time
+                            )}
+                            onChange={(e) => handleDateTimeChange(e, event.id, event)}
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                              border: '1px solid rgba(255, 255, 255, 0.3)',
+                              borderRadius: '4px',
+                              padding: '8px',
+                              color: 'white',
+                              fontFamily: 'Montserrat',
+                              width: '100%'
+                            }}
+                          />
+
+                          <Box sx={{ display: 'flex', gap: 2 }}>
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={
+                                    switchStates[event.id]?.['email'] !== undefined 
+                                      ? switchStates[event.id]?.['email'] 
+                                      : userData?.notifications?.some(n => n.event_id === event.id && n.email) || false
+                                  }
+                                  onChange={(e) => handleSwitchChange(e, event.id, 'email')}
+                                  sx={{
+                                    '& .MuiSwitch-switchBase.Mui-checked': {
+                                      color: '#ff1f75',
+                                    },
+                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                      backgroundColor: '#ff1f75',
+                                    },
+                                  }}
+                                />
+                              }
+                              label="Email уведомления"
+                              sx={{
+                                fontFamily: 'Montserrat',
+                                color: '#fff',
+                              }}
+                            />
+
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={
+                                    switchStates[event.id]?.['telegram'] !== undefined 
+                                      ? switchStates[event.id]?.['telegram'] 
+                                      : userData?.notifications?.some(n => n.event_id === event.id && n.telegram) || false
+                                  }
+                                  onChange={(e) => handleSwitchChange(e, event.id, 'telegram')}
+                                  sx={{
+                                    '& .MuiSwitch-switchBase.Mui-checked': {
+                                      color: '#402fff',
+                                    },
+                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                      backgroundColor: '#402fff',
+                                    },
+                                  }}
+                                />
+                              }
+                              label="Telegram уведомления"
+                              sx={{
+                                fontFamily: 'Montserrat',
+                                color: '#fff',
+                              }}
+                            />
+                          </Box>
+                        </Box>
+                      </Box>
                     </Box>
                   </Paper>
                 </StepContent>
@@ -323,6 +528,45 @@ const UserEvents = () => {
           </Box>
         )}
       </Box>
+      
+      {error && (
+        <Box 
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'rgba(255, 31, 117, 0.9)',
+            color: 'white',
+            padding: '10px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            maxWidth: '90%',
+            fontFamily: 'Montserrat'
+          }}
+        >
+          <Typography sx={{ fontSize: '14px' }}>
+            {error}
+          </Typography>
+          <Button 
+            variant="text" 
+            color="inherit" 
+            size="small"
+            onClick={() => setError(null)}
+            sx={{ 
+              minWidth: 'auto',
+              padding: '4px 8px',
+              fontSize: '12px'
+            }}
+          >
+            Закрыть
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };

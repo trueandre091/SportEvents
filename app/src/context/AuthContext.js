@@ -6,10 +6,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const AuthContext = createContext(null);
 
 // Список защищенных маршрутов
-const PROTECTED_ROUTES = ['/profile', '/admin'];
+const PROTECTED_ROUTES = ['/profile'];
 
 // Список маршрутов только для администраторов
-const ADMIN_ROUTES = ['/admin'];
+const ADMIN_ROUTES = [];
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!getTokenFromStorage());

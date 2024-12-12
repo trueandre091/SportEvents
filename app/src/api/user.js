@@ -47,9 +47,9 @@ export const getProfile = async () => {
       user: { ...userData, password: '***' }
     });
 
-    return { 
-      ok: true, 
-      user: userData 
+    return {
+      ok: true,
+      user: userData
     };
   } catch (error) {
     console.error('Ошибка при запросе профиля:', error);
@@ -142,9 +142,9 @@ export const updateUser = async (userData) => {
       user: { ...updatedUserData }
     });
 
-    return { 
-      ok: true, 
-      user: updatedUserData 
+    return {
+      ok: true,
+      user: updatedUserData
     };
   } catch (error) {
     console.error('Ошибка при обновлении профиля:', error);
@@ -154,7 +154,7 @@ export const updateUser = async (userData) => {
 
 export const getNotifications = async () => {
   const token = getTokenFromStorage();
-  
+
   try {
     const response = await fetch(`${API_URL}/user/get_notifications`, {
       method: 'POST',
@@ -200,9 +200,9 @@ export const subscribeToEvent = async (eventId) => {
       return { ok: false, error: data.message || 'Ошибка при подписке на событие' };
     }
 
-    return { 
-      ok: true, 
-      event: data 
+    return {
+      ok: true,
+      event: data
     };
   } catch (error) {
     console.error('Ошибка при подписке на событие:', error);
@@ -233,9 +233,9 @@ export const unsubscribeToEvent = async (eventId) => {
       return { ok: false, error: data.message || 'Ошибка при подписке на событие' };
     }
 
-    return { 
-      ok: true, 
-      event: data 
+    return {
+      ok: true,
+      event: data
     };
   } catch (error) {
     console.error('Ошибка при подписке на событие:', error);
@@ -243,3 +243,62 @@ export const unsubscribeToEvent = async (eventId) => {
   }
 };
 
+
+export const setupNotification = async (eventId, data) => {
+  const token = getTokenFromStorage();
+  const formData = new FormData();
+  
+  // Добавляем id события
+  formData.append('id', eventId);
+  
+  // Проверяем наличие значений перед преобразованием
+  if (data.telegram !== undefined) {
+    formData.append('telegram', data.telegram.toString());
+  }
+  
+  if (data.email !== undefined) {
+    formData.append('email', data.email.toString());
+  }
+  
+  // Форматируем дату в нужный формат
+  if (data.notification_time) {
+    const date = new Date(data.notification_time);
+    const formattedDate = date.getFullYear() +
+      '-' + String(date.getMonth() + 1).padStart(2, '0') +
+      '-' + String(date.getDate()).padStart(2, '0') +
+      ' ' + String(date.getHours()).padStart(2, '0') +
+      ':' + String(date.getMinutes()).padStart(2, '0');
+    
+    formData.append('notification_time', formattedDate);
+  }
+
+  console.log('Отправляемые данные:', {
+    id: eventId,
+    telegram: data.telegram,
+    email: data.email,
+    notification_time: formData.get('notification_time')
+  });
+
+  try {
+    const response = await fetch(`${API_URL}/user/set-up-notification`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Accept': 'application/json'
+      },
+      body: formData
+    });
+
+    const responseData = await response.json();
+    console.log('Ответ от сервера при настройке уведомлений:', responseData);
+
+    if (!response.ok) {
+      return { ok: false, error: responseData.message || 'Ошибка при настройке уведомлений' };
+    }
+
+    return { ok: true, data: responseData };
+  } catch (error) {
+    console.error('Ошибка при настройке уве��омлений:', error);
+    return { ok: false, error: error.message };
+  }
+};

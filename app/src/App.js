@@ -57,11 +57,9 @@ const AnimatedRoutes = () => {
         <Route
           path="/admin"
           element={
-            <AdminRoute>
-              <PageTransition>
-                <AdminPanel />
-              </PageTransition>
-            </AdminRoute>
+            <PageTransition>
+              <AdminPanel />
+            </PageTransition>
           }
         />
         <Route

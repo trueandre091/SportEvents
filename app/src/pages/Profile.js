@@ -191,7 +191,7 @@ const Profile = () => {
                 position: 'relative',
               }}
             >
-              Личный кабинет
+              Личный кабинет {userData?.name}
             </Typography>
             <Typography
               sx={{
@@ -202,7 +202,10 @@ const Profile = () => {
                 alignSelf: 'flex-end',
               }}
             >
-              {userData?.role === 'ADMIN' ? 'Администратор' : 'Пользователь'}
+              {userData?.role === 'ADMIN' ? 'администратор' 
+              : userData?.role === 'REGIONAL_ADMIN' ? 'региональный представитель' 
+              : userData?.role === 'CENTRAL_ADMIN' ? 'центральный представитель' 
+              : 'пользователь'}
             </Typography>
           </Box>
           <Avatar
