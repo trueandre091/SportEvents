@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { getTokenFromStorage, setTokenWithExpiry, removeToken } from '../utils/tokenUtils';
 import { getProfile } from '../api/user';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -8,8 +8,13 @@ const AuthContext = createContext(null);
 // Список защищенных маршрутов
 const PROTECTED_ROUTES = ['/profile', '/admin', '/admin/stats', '/admin/events', '/admin/regions', '/admin/users'];
 
-// Список маршрутов только для администраторов
-const ADMIN_ROUTES = ['/admin', '/admin/stats', '/admin/events', '/admin/regions', '/admin/users'];
+// Маршруты и роли, которые имеют к ним доступ
+const ROUTE_ACCESS = {
+  '/admin/regions': ['ADMIN', 'CENTRAL_ADMIN'],
+  '/admin/events': ['ADMIN', 'CENTRAL_ADMIN', 'REGIONAL_ADMIN'],
+  '/admin/stats': ['ADMIN', 'CENTRAL_ADMIN', 'REGIONAL_ADMIN'],
+  '/admin': ['ADMIN', 'CENTRAL_ADMIN', 'REGIONAL_ADMIN']
+};
 
 // Роли, которые имеют доступ к админ панели
 const ADMIN_ROLES = ['ADMIN', 'CENTRAL_ADMIN', 'REGIONAL_ADMIN'];
@@ -20,113 +25,107 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shakeError, setShakeError] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Проверяем, является ли текущий маршрут защищенным
-  const isProtectedRoute = PROTECTED_ROUTES.includes(location.pathname);
+  // Мемоизированные значения
+  const isProtectedRoute = useMemo(() => 
+    PROTECTED_ROUTES.includes(location.pathname),
+    [location.pathname]
+  );
   
-  // Проверяем, является ли текущий маршрут админским
-  const isAdminRoute = ADMIN_ROUTES.some(route => location.pathname.startsWith(route));
+  const isAdminRoute = useMemo(() => 
+    Object.keys(ROUTE_ACCESS).some(route => location.pathname.startsWith(route)),
+    [location.pathname]
+  );
 
-  // Проверяем, имеет ли пользователь права администратора
-  const hasAdminAccess = userData && ADMIN_ROLES.includes(userData.role);
+  const hasAdminAccess = useMemo(() => 
+    userData && ADMIN_ROLES.includes(userData.role),
+    [userData]
+  );
 
+  const hasRouteAccess = useCallback(() => {
+    if (!userData || !isAdminRoute) return false;
+
+    const currentPath = Object.keys(ROUTE_ACCESS).find(route => 
+      location.pathname.startsWith(route)
+    );
+    
+    if (!currentPath) return true;
+    return ROUTE_ACCESS[currentPath].includes(userData.role);
+  }, [userData?.role, location.pathname, isAdminRoute]);
+
+  // Загрузка профиля только при первом рендере
   useEffect(() => {
     const loadUserData = async () => {
-      console.log('Инициализация AuthContext');
-      const token = getTokenFromStorage();
+      if (!isInitialLoad) return;
       
-      if (token) {
-        console.log('Найден токен, проверяем профиль');
-        try {
-          const response = await getProfile();
-          console.log('Полный ответ от getProfile:', response);
-          
-          if (response.ok && response.user && response.user.email) {
-            console.log('Профиль валиден, полученные данные:', {
-              user: { ...response.user, password: '***' }
-            });
-            setUserData(response.user);
-            setIsAuthenticated(true);
+      const token = getTokenFromStorage();
+      if (!token) {
+        setIsAuthenticated(false);
+        setUserData(null);
+        setLoading(false);
+        setIsInitialLoad(false);
+        if (isProtectedRoute) {
+          navigate('/', { replace: true });
+        }
+        return;
+      }
 
-            // Проверяем доступ к админ маршрутам
-            if (isAdminRoute && !ADMIN_ROLES.includes(response.user.role)) {
-              console.log('Нет доступа к админ панели, перенаправление на главную');
-              navigate('/', { replace: true });
-            }
-          } else {
-            console.warn('Профиль невалиден или отсутствуют данные:', response);
-            removeToken();
-            setIsAuthenticated(false);
-            setUserData(null);
-            // Редирект только если мы на защищенном маршруте
-            if (isProtectedRoute) {
-              navigate('/', { replace: true });
-            }
-          }
-        } catch (error) {
-          console.error('Ошибка при загрузке профиля:', error);
+      try {
+        const response = await getProfile();
+        if (response.ok && response.user && response.user.email) {
+          setUserData(response.user);
+          setIsAuthenticated(true);
+        } else {
           removeToken();
           setIsAuthenticated(false);
           setUserData(null);
-          // Редирект только если мы на защищенном маршруте
           if (isProtectedRoute) {
             navigate('/', { replace: true });
           }
         }
-      } else {
-        console.log('Токен не найден, пользователь не аутентифицирован');
-        // Редирект только если мы на защищенном маршруте
+      } catch (error) {
+        removeToken();
+        setIsAuthenticated(false);
+        setUserData(null);
         if (isProtectedRoute) {
           navigate('/', { replace: true });
         }
       }
+      
       setLoading(false);
+      setIsInitialLoad(false);
     };
 
     loadUserData();
-  }, [navigate, location.pathname, isProtectedRoute, isAdminRoute]);
+  }, [isInitialLoad, navigate, isProtectedRoute]);
 
-  // Эффект для проверки доступа при изменении маршрута
+  // Проверка доступа при изменении маршрута
   useEffect(() => {
-    if (isAdminRoute && userData && !ADMIN_ROLES.includes(userData.role)) {
-      console.log('Попытка доступа к админ панели без прав:', {
-        route: location.pathname,
-        userRole: userData.role
-      });
-      navigate('/', { replace: true });
+    if (!isInitialLoad && isAuthenticated && isAdminRoute && userData) {
+      const hasAccess = hasRouteAccess();
+      if (!hasAccess) {
+        navigate('/', { replace: true });
+      }
     }
-  }, [location.pathname, userData, navigate, isAdminRoute]);
+  }, [location.pathname, userData?.role, isAdminRoute, isAuthenticated, isInitialLoad]);
 
   const login = useCallback((token, user) => {
-    console.log('Вход в систему:', {
-      token: token ? token.substring(0, 20) + '...' : 'отсутствует',
-      user: user ? { ...user, password: '***' } : 'отсутствует'
-    });
     setTokenWithExpiry(token);
     setIsAuthenticated(true);
     setUserData(user);
   }, []);
 
   const logout = useCallback(() => {
-    console.log('Выход из системы');
     setIsAuthenticated(false);
     setUserData(null);
     removeToken();
     navigate('/', { replace: true });
-    window.location.reload();
   }, [navigate]);
 
-  useEffect(() => {
-    console.log('Изменение состояния аутентификации:', {
-      isAuthenticated,
-      userData: userData ? { ...userData, password: '***' } : null
-    });
-  }, [isAuthenticated, userData]);
-
   if (loading) {
-    console.log('AuthContext загружается...');
     return null;
   }
 
@@ -141,7 +140,8 @@ export const AuthProvider = ({ children }) => {
       setError,
       shakeError,
       setShakeError,
-      hasAdminAccess
+      hasAdminAccess,
+      hasRouteAccess
     }}>
       {children}
     </AuthContext.Provider>

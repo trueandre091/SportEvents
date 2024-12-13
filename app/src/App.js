@@ -16,7 +16,6 @@ import { AuthProvider } from './context/AuthContext';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from './utils/pageTransition';
 import PrivateRoute from './components/PrivateRoute';
-import AdminRoute from './components/AdminRoute';
 
 // Создаем компонент для анимированных роутов
 const AnimatedRoutes = () => {

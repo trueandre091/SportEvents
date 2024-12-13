@@ -60,11 +60,16 @@ export const getProfile = async () => {
 export const getUsers = async (role) => {
   try {
     const formData = new FormData();
-    formData.append('role', role.toString().toUpperCase());
+    if (role) {
+      formData.append('role', role.toString().toUpperCase());
+    }
 
     const token = getTokenFromStorage();
 
-    console.log("Запрос пользователей по роли:", role.toString().toUpperCase());
+    console.log("Отправляем запрос на получение пользователей:", {
+      role: role,
+      token: token
+    });
 
     const response = await fetch(`${API_URL}/user/get`, {
       method: 'POST',
@@ -75,12 +80,19 @@ export const getUsers = async (role) => {
       body: formData
     });
 
+    console.log("Получен ответ:", {
+      status: response.status,
+      ok: response.ok
+    });
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || `Ошибка! Статус: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log("Получены данные пользователей:", data);
+    
     return { ok: true, users: data };
   } catch (error) {
     console.error('Ошибка при получении пользователей:', error);
@@ -135,7 +147,7 @@ export const updateUser = async (userData) => {
       return { ok: false, error: data.message || 'Ошибка обновления профиля' };
     }
 
-    // Обновленная обработка ответа в соответствии с форматом бэкен��а
+    // Обновленная обработка ответа в соответствии с форматом бэкенда
     const updatedUserData = {
       id: data.id,
       name: data.name,
