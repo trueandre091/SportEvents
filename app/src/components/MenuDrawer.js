@@ -27,7 +27,7 @@ const MenuDrawer = ({ isOpen, toggleDrawer }) => {
       <IconButton 
         onClick={handleToggle}
         sx={{ 
-          position: "absolute", 
+          position: "fixed", 
           top: "10px", 
           left: "40px", 
           color: "white", 

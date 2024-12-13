@@ -1,5 +1,11 @@
 {
+  "name": "app",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
     "framer-motion": "^11.13.5"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }

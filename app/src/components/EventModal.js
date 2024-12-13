@@ -7,16 +7,22 @@ import {
   Button,
   IconButton,
   Grid,
-  Input,
-  Select,
-  MenuItem,
   FormControl,
   InputLabel,
-  CircularProgress
+  Select,
+  MenuItem,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { createEvent } from '../api/event';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { createEvent, updateEvent } from '../api/event';
 import { getRegions } from '../api/user';
+import { useAuth } from '../context/AuthContext';
+import { v4 as uuid } from 'uuid';
 
 const style = {
   position: 'absolute',
@@ -25,39 +31,43 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: '80%',
   maxWidth: 800,
-  bgcolor: '#1a1a1a',
-  border: '2px solid #333',
-  borderRadius: '20px',
+  bgcolor: 'background.paper',
   boxShadow: 24,
   p: 4,
-  color: 'white',
   maxHeight: '90vh',
-  overflowY: 'auto'
+  overflow: 'auto',
+  borderRadius: 2
 };
 
 const inputStyle = {
   '& .MuiOutlinedInput-root': {
-    color: 'white',
     '& fieldset': {
       borderColor: '#333',
     },
     '&:hover fieldset': {
       borderColor: '#666',
     },
-    '&.Mui-focused fieldset': {
-      borderColor: '#888',
-    },
   },
   '& .MuiInputLabel-root': {
-    color: '#888',
+    color: 'rgba(0, 0, 0, 0.7)',
   },
   '& .MuiOutlinedInput-input': {
-    color: 'white',
-  },
-  marginBottom: 2
+    color: 'rgba(0, 0, 0, 0.9)',
+  }
 };
 
-const EventModal = ({ open, handleClose, onEventCreated }) => {
+const buttonStyle = {
+  backgroundColor: '#1976d2',
+  color: 'white',
+  '&:hover': {
+    backgroundColor: '#1565c0',
+  }
+};
+
+const EventModal = ({ open, handleClose, onEventCreated, editMode = false, eventToEdit = null }) => {
+  const { userData } = useAuth();
+  const isAdmin = userData?.role === 'ADMIN' || userData?.role === 'CENTRAL_ADMIN';
+
   const [eventData, setEventData] = useState({
     title: '',
     description: '',
@@ -66,11 +76,12 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
     participants_num: '',
     discipline: '',
     region: '',
-    representative: '',
     place: '',
     date_start: '',
     date_end: '',
-    file: null
+    files: [],
+    status: '',
+    representative: null
   });
 
   const [regions, setRegions] = useState([]);
@@ -95,6 +106,33 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
     }
   }, [open]);
 
+  useEffect(() => {
+    if (editMode && eventToEdit) {
+      // Преобразуем даты из формата "DD.MM.YYYY HH:mm" в "YYYY-MM-DD"
+      const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const [datePart] = dateStr.split(' ');
+        const [day, month, year] = datePart.split('.');
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      };
+
+      // Извлекаем только число из строки participants_num
+      const formatParticipantsNum = (value) => {
+        if (!value) return '';
+        const number = parseInt(value.toString().replace(/[^\d]/g, ''));
+        return isNaN(number) ? '' : number.toString();
+      };
+
+      setEventData({
+        ...eventToEdit,
+        date_start: formatDate(eventToEdit.date_start),
+        date_end: formatDate(eventToEdit.date_end),
+        participants_num: formatParticipantsNum(eventToEdit.participants_num),
+        files: eventToEdit.files || []
+      });
+    }
+  }, [editMode, eventToEdit]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEventData(prev => ({
@@ -103,12 +141,25 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
     }));
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
     setEventData(prev => ({
       ...prev,
-      file: file
+      files: [...(prev.files || []), ...files]
     }));
+  };
+
+  const handleRemoveFile = (indexToRemove) => {
+    setEventData(prev => ({
+      ...prev,
+      files: prev.files.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
+  const formatFileSize = (size) => {
+    if (size < 1024) return size + ' B';
+    if (size < 1024 * 1024) return (size / 1024).toFixed(1) + ' KB';
+    return (size / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   const validateForm = () => {
@@ -122,6 +173,7 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
       return false;
     }
 
+    // Преобразуем строки дат в объекты Date
     const startDate = new Date(eventData.date_start);
     const endDate = new Date(eventData.date_end);
     const now = new Date();
@@ -131,13 +183,18 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(0, 0, 0, 0);
 
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      setError('Неверный формат дат');
+      return false;
+    }
+
     if (startDate > endDate) {
       setError('Дата начала не может быть позже даты окончания');
       return false;
     }
 
-    if (startDate < now || endDate < now) {
-      setError('Даты не могут быть в прошлом');
+    if (startDate < now) {
+      setError('Дата начала не может быть в прошлом');
       return false;
     }
 
@@ -153,20 +210,22 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
 
     try {
       setLoading(true);
-      const response = await createEvent(eventData);
+      const response = editMode
+        ? await updateEvent(eventData)
+        : await createEvent(eventData);
       
       if (response.ok) {
-        console.log('Событие успешно создано:', response.data);
+        console.log(editMode ? 'Событие обновлено:' : 'Событие создано:', response.data);
         if (onEventCreated) {
           onEventCreated();
         }
         handleClose();
       } else {
-        setError(response.error || 'Ошибка при создании события');
+        setError(response.error || `Ошибка при ${editMode ? 'обновлении' : 'создании'} события`);
       }
     } catch (error) {
-      console.error('Ошибка при создании события:', error);
-      setError(error.message || 'Ошибка при создании события');
+      console.error(`Ошибка при ${editMode ? 'обновлении' : 'создании'} события:`, error);
+      setError(error.message || `Ошибка при ${editMode ? 'обновлении' : 'создании'} события`);
     } finally {
       setLoading(false);
     }
@@ -181,31 +240,24 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
     >
       <Box sx={style}>
         <IconButton
+          aria-label="close"
           onClick={handleClose}
           sx={{
             position: 'absolute',
             right: 8,
             top: 8,
-            color: 'white'
+            color: 'grey.500'
           }}
         >
           <CloseIcon />
         </IconButton>
 
         <Typography variant="h6" component="h2" sx={{ mb: 4 }}>
-          Создание нового события
+          {editMode ? 'Редактирование события' : 'Создание нового события'}
         </Typography>
 
         {error && (
-          <Typography 
-            color="error" 
-            sx={{ 
-              mb: 2, 
-              backgroundColor: 'rgba(255, 0, 0, 0.1)', 
-              padding: 1, 
-              borderRadius: 1 
-            }}
-          >
+          <Typography color="error" sx={{ mb: 2 }}>
             {error}
           </Typography>
         )}
@@ -235,19 +287,6 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
             />
           </Grid>
 
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Административное описание"
-              name="admin_description"
-              multiline
-              rows={2}
-              value={eventData.admin_description}
-              onChange={handleChange}
-              sx={inputStyle}
-            />
-          </Grid>
-
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
@@ -266,7 +305,14 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
               name="participants_num"
               type="number"
               value={eventData.participants_num}
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Проверяем, что значение является положительным числом
+                if (!value || (parseInt(value) >= 0)) {
+                  handleChange(e);
+                }
+              }}
+              inputProps={{ min: 0 }}
               sx={inputStyle}
             />
           </Grid>
@@ -283,39 +329,22 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth sx={inputStyle} required>
-              <InputLabel sx={{ color: '#888' }}>Регион</InputLabel>
+            <FormControl fullWidth sx={inputStyle}>
+              <InputLabel>Регион</InputLabel>
               <Select
                 value={eventData.region}
                 name="region"
                 onChange={handleChange}
                 label="Регион"
-                disabled={loading}
+                disabled={editMode && !isAdmin}
               >
-                {loading ? (
-                  <MenuItem disabled>
-                    <CircularProgress size={20} />
+                {regions.map((region) => (
+                  <MenuItem key={region} value={region}>
+                    {region}
                   </MenuItem>
-                ) : (
-                  regions.map((region) => (
-                    <MenuItem key={region} value={region}>
-                      {region}
-                    </MenuItem>
-                  ))
-                )}
+                ))}
               </Select>
             </FormControl>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Представитель (ID)"
-              name="representative"
-              value={eventData.representative}
-              onChange={handleChange}
-              sx={inputStyle}
-            />
           </Grid>
 
           <Grid item xs={12}>
@@ -358,20 +387,93 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
           </Grid>
 
           <Grid item xs={12}>
-            <Input
+            <input
               type="file"
+              multiple
               onChange={handleFileChange}
-              sx={{
-                color: 'white',
-                '&::before': {
-                  borderBottom: '1px solid #333'
-                },
-                '&:hover:not(.Mui-disabled):before': {
-                  borderBottom: '2px solid #666'
-                }
-              }}
+              style={{ display: 'none' }}
+              id="file-input"
             />
+            <label htmlFor="file-input">
+              <Button
+                variant="contained"
+                component="span"
+                sx={buttonStyle}
+              >
+                Загрузить файлы
+              </Button>
+            </label>
           </Grid>
+
+          <Grid item xs={12}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {eventData.files?.map((file, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    position: 'relative',
+                    border: '1px solid #ddd',
+                    borderRadius: 1,
+                    padding: 1
+                  }}
+                >
+                  <Typography variant="body2">{file.name}</Typography>
+                  <IconButton
+                    size="small"
+                    sx={{
+                      position: 'absolute',
+                      top: -8,
+                      right: -8,
+                      bgcolor: 'background.paper'
+                    }}
+                    onClick={() => {
+                      setEventData(prev => ({
+                        ...prev,
+                        files: prev.files.filter((_, i) => i !== index)
+                      }));
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
+          </Grid>
+
+          {isAdmin && editMode && (
+            <>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth sx={inputStyle}>
+                  <InputLabel>Статус</InputLabel>
+                  <Select
+                    value={eventData.status}
+                    name="status"
+                    onChange={handleChange}
+                    label="Статус"
+                  >
+                    <MenuItem value="draft">Черновик</MenuItem>
+                    <MenuItem value="consideration">На рассмотрении</MenuItem>
+                    <MenuItem value="approved">Одобрено</MenuItem>
+                    <MenuItem value="rejected">Отклонено</MenuItem>
+                    <MenuItem value="archived">В архиве</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Административное описание"
+                  name="admin_description"
+                  multiline
+                  rows={2}
+                  value={eventData.admin_description}
+                  onChange={handleChange}
+                  sx={inputStyle}
+                />
+              </Grid>
+            </>
+          )}
 
           <Grid item xs={12}>
             <Button
@@ -386,7 +488,13 @@ const EventModal = ({ open, handleClose, onEventCreated }) => {
                 }
               }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Создать событие'}
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : editMode ? (
+                'Сохранить изменения'
+              ) : (
+                'Создать событие'
+              )}
             </Button>
           </Grid>
         </Grid>

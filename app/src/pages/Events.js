@@ -11,7 +11,7 @@ import { subscribeToEvent, unsubscribeToEvent, getProfile } from '../api/user';
 import { useAuth } from '../context/AuthContext';
 
 const filterFieldStyles = {
-  bgcolor: 'rgba(255, 255, 255, 0.1)', 
+  bgcolor: 'rgba(255, 255, 255, 0.1)',
   borderRadius: '10px',
   '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.3)' },
   '& .MuiOutlinedInput-root': {
@@ -22,9 +22,9 @@ const filterFieldStyles = {
   '& input': { color: 'rgba(255, 255, 255, 0.3)' },
   '& .MuiSelect-icon': { color: 'rgba(255, 255, 255, 0.3)' },
   '& .MuiSelect-select': { color: 'rgba(255, 255, 255, 1)', fontFamily: 'Montserrat' },
-  '& .MuiMenuItem-root': { 
+  '& .MuiMenuItem-root': {
     fontFamily: 'Montserrat',
-    color: 'rgba(255, 255, 255, 1)' 
+    color: 'rgba(255, 255, 255, 1)'
   }
 };
 
@@ -66,7 +66,7 @@ const Events = () => {
       const response = await getEvents(isArchive);
       if (response.ok) {
         const sortedEvents = sortEventsByDate(response.events);
-        
+
         // Собираем уникальные значения
         const uniqueDisciplines = new Set(sortedEvents.map(event => event.discipline).filter(Boolean));
         const uniqueStatuses = new Set(sortedEvents.map(event => event.status).filter(Boolean));
@@ -75,7 +75,7 @@ const Events = () => {
         setDisciplines(uniqueDisciplines);
         setStatuses(uniqueStatuses);
         setRegions(uniqueRegions);
-        
+
         setEvents(sortedEvents);
         setFilteredEvents(sortedEvents);
       }
@@ -112,19 +112,19 @@ const Events = () => {
     }
 
     if (filters.discipline) {
-      result = result.filter(event => 
+      result = result.filter(event =>
         event.discipline?.toLowerCase().includes(filters.discipline.toLowerCase())
       );
     }
 
     if (filters.status) {
-      result = result.filter(event => 
+      result = result.filter(event =>
         event.status?.toLowerCase() === filters.status.toLowerCase()
       );
     }
 
     if (filters.region) {
-      result = result.filter(event => 
+      result = result.filter(event =>
         event.region?.toLowerCase().includes(filters.region.toLowerCase())
       );
     }
@@ -155,16 +155,16 @@ const Events = () => {
     try {
       // Проверяем текущий статус подписки
       const currentlySubscribed = isSubscribed(eventId);
-      
+
       // Используем соответствующую функцию API
-      const response = currentlySubscribed 
+      const response = currentlySubscribed
         ? await unsubscribeToEvent(eventId)
         : await subscribeToEvent(eventId);
-      
+
       if (response.ok) {
         // Получаем обновленные данные пользователя
         const profileResponse = await getProfile();
-        
+
         if (profileResponse.ok) {
           // Обновляем контекст пользователя новыми данными
           setUserData(profileResponse.user);
@@ -524,7 +524,7 @@ const Events = () => {
                   На рассмотрении
                 </Box>
               )}
-              
+
               <Box sx={{
                 display: "flex",
                 flexDirection: "row",
@@ -553,7 +553,7 @@ const Events = () => {
                     {event.sport} • {event.discipline}
                   </Typography>
                 </Box>
-                
+
                 <Box sx={{
                   display: "flex",
                   alignItems: "center",
@@ -607,7 +607,7 @@ const Events = () => {
                   </Box>
                 </Box>
               </Box>
-              
+
               {selectedEventIndex === index && (
                 <Box
                   sx={{
@@ -621,32 +621,127 @@ const Events = () => {
                     width: "65%",
                   }}
                 >
-                  <Typography sx={{ 
-                    fontSize: { md: "16px", sm: "10px" }, 
+                  <Typography sx={{
+                    fontSize: { md: "16px", sm: "10px" },
                     fontFamily: "Montserrat",
-                    marginBottom: "10px" 
+                    marginBottom: "10px"
                   }}>
                     {event.description || "Описание отсутствует"}
                   </Typography>
                   {event.participants && (
-                    <Typography sx={{ 
-                      fontSize: { md: "14px", sm: "8px" }, 
+                    <Typography sx={{
+                      fontSize: { md: "14px", sm: "8px" },
                       fontFamily: "Montserrat",
-                      color: "rgba(255, 255, 255, 0.7)" 
+                      color: "rgba(255, 255, 255, 0.7)"
                     }}>
                       {event.participants}
                     </Typography>
                   )}
                   {event.participants_num && (
-                    <Typography sx={{ 
-                      fontSize: { md: "14px", sm: "8px" }, 
+                    <Typography sx={{
+                      fontSize: { md: "14px", sm: "8px" },
                       fontFamily: "Montserrat",
-                      color: "rgba(255, 255, 255, 0.7)" 
+                      color: "rgba(255, 255, 255, 0.7)"
                     }}>
                       Количество участников: {event.participants_num}
                     </Typography>
                   )}
-                  
+                  {event.files && event.files.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography sx={{
+                        fontSize: { md: "14px", sm: "10px" },
+                        fontFamily: "Montserrat",
+                        fontWeight: "bold",
+                        marginBottom: "10px"
+                      }}>
+                        Прикрепленные файлы:
+                      </Typography>
+                      <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1
+                      }}>
+                        {event.files.map((file, fileIndex) => (
+                          <Box
+                            key={fileIndex}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '8px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                              borderRadius: '4px',
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                              }
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {file.mime_type.startsWith('image/') ? (
+                                <img
+                                  src={file.url}
+                                  alt={file.name}
+                                  style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    objectFit: 'cover',
+                                    borderRadius: '4px'
+                                  }}
+                                />
+                              ) : (
+                                <Box
+                                  sx={{
+                                    width: '50px',
+                                    height: '50px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '4px'
+                                  }}
+                                >
+                                  <Typography sx={{ fontSize: '20px' }}>
+                                    📄
+                                  </Typography>
+                                </Box>
+                              )}
+                              <Box>
+                                <Typography sx={{
+                                  fontSize: { md: "14px", sm: "8px" },
+                                  fontFamily: "Montserrat",
+                                }}>
+                                  {file.name}
+                                </Typography>
+                                <Typography sx={{
+                                  fontSize: { md: "12px", sm: "8px" },
+                                  fontFamily: "Montserrat",
+                                  color: "rgba(255, 255, 255, 0.5)"
+                                }}>
+                                  {(file.size / 1024).toFixed(1)} KB • {new Date(file.uploaded_at).toLocaleDateString()}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Button
+                              href={file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                color: '#fff',
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 255, 255, 0.2)'
+                                },
+                                fontSize: { md: "12px", sm: "8px" },
+                                fontFamily: "Montserrat",
+                              }}
+                            >
+                              Скачать
+                            </Button>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
               )}
             </Box>

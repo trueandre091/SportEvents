@@ -8,8 +8,9 @@ import CalendarIcon from '@mui/icons-material/CalendarMonth';
 import EditIcon from '@mui/icons-material/Edit';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { getEvents, createEvent } from '../api/event';
+import { getEvents, createEvent, archiveEvent } from '../api/event';
 import MenuDrawer from '../components/MenuDrawer';
 import EventModal from '../components/EventModal';
 import { useAuth } from '../context/AuthContext';
@@ -59,6 +60,7 @@ const AdminEvents = () => {
   const { userData, setUserData } = useAuth();
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   const isCentralAdmin = () => {
     return ['ADMIN', 'CENTRAL_ADMIN'].includes(userData?.role);
@@ -161,6 +163,16 @@ const AdminEvents = () => {
     setIsArchive(prev => !prev);
   };
 
+  const handleArchiveEvent = async (eventId) => {
+    const response = await archiveEvent(eventId);
+    if (response.ok) {
+      console.log('Событие успешно архивировано:', response.data);
+      // Перезагружаем список событий
+      const eventsResponse = await getEvents(isArchive);
+      setEvents(eventsResponse.events);
+    }
+  };
+
   const handleCreateEvent = async (eventData) => {
     try {
       const response = await createEvent(eventData);
@@ -178,6 +190,24 @@ const AdminEvents = () => {
       }
     } catch (error) {
       console.error('Ошибка при создании события:', error);
+    }
+  };
+
+  const handleEditClick = (e, event) => {
+    e.stopPropagation();
+    setEditingEvent(event);
+    setOpenModal(true);
+  };
+
+  const handleEventUpdated = async () => {
+    setOpenModal(false);
+    setEditingEvent(null);
+    // Перезагружаем список событий
+    const response = await getEvents(isArchive);
+    if (response.ok) {
+      const sortedEvents = sortEventsByDate(response.events);
+      setEvents(sortedEvents);
+      setFilteredEvents(sortedEvents);
     }
   };
 
@@ -215,6 +245,29 @@ const AdminEvents = () => {
       >
       </Box>
       <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} sx={{ position: 'fixed' }} />
+      <IconButton 
+        onClick={() => navigate('/admin')}
+        sx={{ 
+          position: "fixed", 
+          top: "10px", 
+          left: "180px", 
+          color: "white", 
+          flexDirection: "row" 
+        }}
+      >
+        <ArrowBackIcon />
+        <Typography
+          variant="h6"
+          sx={{
+            fontFamily: "Montserrat",
+            fontSize: "25px",
+            transform: "translateX(10px)",
+            cursor: "pointer",
+          }}
+        >
+          Назад в admin панель
+        </Typography>
+      </IconButton>
       <Box
         sx={{
           maxWidth: { md: "85%", sm: "none" },
@@ -579,7 +632,14 @@ const AdminEvents = () => {
                   </Typography>
                 </Box>
 
-                <Box sx={{ width: "10%" }}>
+                <Box sx={{ width: "10%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <Typography sx={{
+                    fontSize: { md: "14px", sm: "8px" },
+                    color: "rgba(255, 255, 255, 0.7)",
+                    fontFamily: "Montserrat",
+                  }}>
+                    {event.representative?.name || event.representative.email}
+                  </Typography>
                   <Typography sx={{
                     fontSize: { md: "14px", sm: "8px" },
                     color: "rgba(255, 255, 255, 0.7)",
@@ -621,10 +681,7 @@ const AdminEvents = () => {
                   <Box sx={{ display: 'flex', gap: 2 }}>
                     <IconButton
                       sx={{ color: 'white' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Функция редактирования
-                      }}
+                      onClick={(e) => handleEditClick(e, event)}
                     >
                       <EditIcon />
                     </IconButton>
@@ -632,7 +689,7 @@ const AdminEvents = () => {
                       sx={{ color: 'white' }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        // Функция удаления
+                        handleArchiveEvent(event.id);
                       }}
                     >
                       <ArchiveIcon />
@@ -680,6 +737,102 @@ const AdminEvents = () => {
                     </Typography>
                   )}
 
+                  {event.files && event.files.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography sx={{
+                        fontSize: { md: "14px", sm: "10px" },
+                        fontFamily: "Montserrat",
+                        fontWeight: "bold",
+                        marginBottom: "10px"
+                      }}>
+                        Прикрепленные файлы:
+                      </Typography>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        gap: 1
+                      }}>
+                        {event.files.map((file, fileIndex) => (
+                          <Box
+                            key={fileIndex}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '8px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                              borderRadius: '4px',
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                              }
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {file.mime_type.startsWith('image/') ? (
+                                <img 
+                                  src={file.url} 
+                                  alt={file.name}
+                                  style={{ 
+                                    width: '50px', 
+                                    height: '50px', 
+                                    objectFit: 'cover',
+                                    borderRadius: '4px'
+                                  }}
+                                />
+                              ) : (
+                                <Box
+                                  sx={{
+                                    width: '50px',
+                                    height: '50px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '4px'
+                                  }}
+                                >
+                                  <Typography sx={{ fontSize: '20px' }}>
+                                    📄
+                                  </Typography>
+                                </Box>
+                              )}
+                              <Box>
+                                <Typography sx={{
+                                  fontSize: { md: "14px", sm: "8px" },
+                                  fontFamily: "Montserrat",
+                                }}>
+                                  {file.name}
+                                </Typography>
+                                <Typography sx={{
+                                  fontSize: { md: "12px", sm: "8px" },
+                                  fontFamily: "Montserrat",
+                                  color: "rgba(255, 255, 255, 0.5)"
+                                }}>
+                                  {(file.size / 1024).toFixed(1)} KB • {new Date(file.uploaded_at).toLocaleDateString()}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Button
+                              href={file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                color: '#fff',
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 255, 255, 0.2)'
+                                },
+                                fontSize: { md: "12px", sm: "8px" },
+                                fontFamily: "Montserrat",
+                              }}
+                            >
+                              Скачать
+                            </Button>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
               )}
             </Box>
@@ -687,8 +840,13 @@ const AdminEvents = () => {
       </Box>
       <EventModal 
         open={openModal}
-        handleClose={() => setOpenModal(false)}
-        onEventCreated={handleCreateEvent}
+        handleClose={() => {
+          setOpenModal(false);
+          setEditingEvent(null);
+        }}
+        onEventCreated={editingEvent ? handleEventUpdated : handleCreateEvent}
+        editMode={!!editingEvent}
+        eventToEdit={editingEvent}
       />
     </Box>
   );
