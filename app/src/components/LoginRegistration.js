@@ -267,7 +267,7 @@ const LoginRegistration = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              height: '100%'
+              height: '30%'
             }}>
             👋
           </Typography>
@@ -275,7 +275,7 @@ const LoginRegistration = () => {
             variant="h6"
             sx={{
               fontFamily: 'Montserrat',
-              fontSize: '40px',
+              fontSize: '30px',
             }}>
             Добро пожаловать{userData?.name && `, ${userData?.name}!`}!
           </Typography>

@@ -96,7 +96,17 @@ export const updateUser = async (userData) => {
   if (userData.name !== undefined && userData.name !== null) formData.append('name', userData.name);
   if (userData.username !== undefined && userData.username !== null) formData.append('username', userData.username);
   if (userData.region !== undefined && userData.region !== null) formData.append('region', userData.region);
-  if (userData.tg_id !== undefined && userData.tg_id !== null) formData.append('tg_id', userData.tg_id);
+  
+  // Проверяем, что tg_id является числом
+  if (userData.tg_id !== undefined && userData.tg_id !== null) {
+    const tg_id = parseInt(userData.tg_id);
+    if (!isNaN(tg_id)) {
+      formData.append('tg_id', tg_id.toString());
+    } else {
+      formData.append('tg_id', '');
+    }
+  }
+  
   if (userData.notifications !== undefined && userData.notifications !== null) formData.append('notifications', JSON.stringify(userData.notifications));
   if (userData.is_verified !== undefined && userData.is_verified !== null) formData.append('is_verified', userData.is_verified);
   if (userData.role !== undefined && userData.role !== null) formData.append('role', userData.role);
@@ -127,7 +137,7 @@ export const updateUser = async (userData) => {
       return { ok: false, error: data.message || 'Ошибка обновления профиля' };
     }
 
-    // Обновленная обработка ответа в соответствии с форматом бэкенда
+    // Обновленная обработка ответа в соответствии с форматом бэкен��а
     const updatedUserData = {
       id: data.id,
       name: data.name,
@@ -306,7 +316,7 @@ export const setupNotification = async (eventId, data) => {
 export const getRegions = async () => {
   try {
     const formData = new FormData();
-    formData.append('role', 'REGIONAL_ADMIN');
+    formData.append('role', "REGIONAL_ADMIN");
 
     const response = await fetch(`${API_URL}/user/get`, {
       method: 'POST',
@@ -330,5 +340,119 @@ export const getRegions = async () => {
   } catch (error) {
     console.error('Ошибка при получении регионов:', error);
     return { ok: false, error: error.message || 'Ошибка при получении регионов' };
+  }
+};
+
+export const deleteUser = async (userId) => {
+  const token = getTokenFromStorage();
+  const formData = new FormData();
+  formData.append('id', userId);
+
+  try {
+    const response = await fetch(`${API_URL}/user/delete`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Accept': 'application/json'
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log('Ответ от сервера при удалении пользователя:', data);
+
+    if (!response.ok) {
+      console.error('Ошибка при удалении пользователя:', data);
+      return { ok: false, error: data.message || 'Ошибка при удалении пользователя' };
+    }
+
+    return {
+      ok: true,
+      user: data
+    };
+  } catch (error) {
+    console.error('Ошибка при удалении пользователя:', error);
+    return { ok: false, error: error.message || 'Ошибка при удалении пользователя' };
+  }
+};
+
+export const createUser = async (userData) => {
+  const token = getTokenFromStorage();
+  const formData = new FormData();
+
+  // Добавляем только те поля, которые определены в userData
+  if (userData.name !== undefined && userData.name !== null) formData.append('name', userData.name);
+  if (userData.username !== undefined && userData.username !== null) formData.append('username', userData.username);
+  if (userData.email !== undefined && userData.email !== null) formData.append('email', userData.email);
+  if (userData.region !== undefined && userData.region !== null) formData.append('region', userData.region);
+  
+  // Проверяем, что tg_id является числом
+  if (userData.tg_id !== undefined && userData.tg_id !== null) {
+    const tg_id = parseInt(userData.tg_id);
+    if (!isNaN(tg_id)) {
+      formData.append('tg_id', tg_id.toString());
+    } else {
+      formData.append('tg_id', '');
+    }
+  }
+  
+  if (userData.notifications !== undefined && userData.notifications !== null) formData.append('notifications', JSON.stringify(userData.notifications));
+  if (userData.is_verified !== undefined && userData.is_verified !== null) formData.append('is_verified', userData.is_verified);
+  if (userData.role !== undefined && userData.role !== null) formData.append('role', userData.role);
+
+  console.log('Форма данных для отправки:', {
+    name: userData.name,
+    username: userData.username,
+    email: userData.email,
+    region: userData.region,
+    tg_id: userData.tg_id,
+    role: userData.role
+  });
+
+  try {
+    const response = await fetch(`${API_URL}/user/add`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Accept': 'application/json'
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log('Ответ от сервера:', data);
+
+    if (response.status === 401) {
+      console.warn('Токен недействителен, удаляем');
+      removeToken();
+      return { ok: false, error: 'Требуется повторная авторизация' };
+    }
+
+    if (!response.ok) {
+      console.error('Ошибка создания пользователя:', data);
+      return { ok: false, error: data.message || 'Ошибка создания пользователя' };
+    }
+
+    const newUserData = {
+      id: data.id,
+      name: data.name,
+      username: data.username,
+      email: data.email,
+      tg_id: data.tg_id,
+      role: data.role,
+      region: data.region
+    };
+
+    console.log('Пользователь успешно создан:', {
+      user: { ...newUserData }
+    });
+
+    return {
+      ok: true,
+      user: newUserData
+    };
+  } catch (error) {
+    console.error('Ошибка при создании пользователя:', error);
+    return { ok: false, error: error.message };
   }
 };

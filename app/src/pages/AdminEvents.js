@@ -123,14 +123,35 @@ const AdminEvents = () => {
       result = result.filter(event => {
         const eventStartDate = parseDate(event.date_start);
         const eventEndDate = parseDate(event.date_end);
-        const filterStartDate = filters.date_start ? new Date(filters.date_start) : null;
-        const filterEndDate = filters.date_end ? new Date(filters.date_end) : null;
+        const [filterStartYear, filterStartMonth, filterStartDay] = (filters.date_start || '').split('-');
+        const [filterEndYear, filterEndMonth, filterEndDay] = (filters.date_end || '').split('-');
+        
+        const filterStartDate = filters.date_start ? new Date(filterStartYear, filterStartMonth - 1, filterStartDay) : null;
+        const filterEndDate = filters.date_end ? new Date(filterEndYear, filterEndMonth - 1, filterEndDay) : null;
 
-        // Проверяем условия фильтрации
-        const passesStartFilter = !filterStartDate || eventStartDate >= filterStartDate;
-        const passesEndFilter = !filterEndDate || eventEndDate <= filterEndDate;
+        // Если указана только дата начала
+        if (filterStartDate && !filterEndDate) {
+          // Мероприятие длится в выбранный день или начинается позже
+          return eventEndDate >= filterStartDate || eventStartDate >= filterStartDate;
+        }
+        
+        // Если указана только дата окончания
+        if (!filterStartDate && filterEndDate) {
+          // Мероприятие длится в выбранный день или заканчивается до этого дня
+          return eventStartDate <= filterEndDate || eventEndDate <= filterEndDate;
+        }
+        
+        // Если указаны обе даты
+        if (filterStartDate && filterEndDate) {
+          // Мероприятие длится в промежутке или начинается/заканчивается в промежутке
+          const startsInRange = eventStartDate >= filterStartDate && eventStartDate <= filterEndDate;
+          const endsInRange = eventEndDate >= filterStartDate && eventEndDate <= filterEndDate;
+          const spansRange = eventStartDate <= filterStartDate && eventEndDate >= filterEndDate;
+          
+          return startsInRange || endsInRange || spansRange;
+        }
 
-        return passesStartFilter && passesEndFilter;
+        return true;
       });
     }
 
@@ -560,7 +581,9 @@ const AdminEvents = () => {
 
         {filteredEvents
           .filter(event =>
-            event.title.toLowerCase().includes(searchQuery.toLowerCase())
+            event.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.discipline?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.region?.toLowerCase().includes(searchQuery.toLowerCase())
           )
           .map((event, index) => (
             <Box
@@ -624,14 +647,21 @@ const AdminEvents = () => {
                 alignItems: "center",
                 justifyContent: "space-between",
                 marginBottom: selectedEventIndex === index ? "20px" : "0px",
+                gap: 2,
               }}>
-                <Box sx={{ width: "65%" }}>
+                <Box sx={{ 
+                  width: "40%",
+
+                }}>
                   <Typography
                     sx={{
                       fontSize: { md: "20px", sm: "10px" },
                       color: "#fff",
                       fontFamily: "Montserrat",
-                      marginBottom: "10px"
+                      marginBottom: "10px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap"
                     }}
                   >
                     {event.title}
@@ -641,17 +671,31 @@ const AdminEvents = () => {
                       fontSize: { md: "16px", sm: "8px" },
                       color: "rgba(255, 255, 255, 0.7)",
                       fontFamily: "Montserrat",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap"
                     }}
                   >
                     {event.discipline}
                   </Typography>
                 </Box>
 
-                <Box sx={{ minWidth: "10%", display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "flex-start" }}>
+                <Box sx={{ 
+                  width: "20%",
+                  minWidth: "200px",
+                  display: "flex", 
+                  flexDirection: "column", 
+                  alignItems: "flex-start", 
+                  justifyContent: "flex-start"
+                }}>
                   <Typography sx={{
                     fontSize: { md: "14px", sm: "8px" },
                     color: "rgba(255, 255, 255, 0.7)",
                     fontFamily: "Montserrat",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    width: "100%"
                   }}>
                     {event.representative?.name || event.representative.email}
                   </Typography>
@@ -659,6 +703,10 @@ const AdminEvents = () => {
                     fontSize: { md: "14px", sm: "8px" },
                     color: "rgba(255, 255, 255, 0.7)",
                     fontFamily: "Montserrat",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    width: "100%"
                   }}>
                     {event.region}
                   </Typography>
@@ -667,7 +715,8 @@ const AdminEvents = () => {
                 <Box sx={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
+                  justifyContent: "flex-end",
+                  minWidth: "200px",
                 }}>
                   <Box sx={{ textAlign: "right", marginRight: "20px" }}>
                     <CalendarIcon sx={{ fontSize: "30px", marginRight: "10px" }} />

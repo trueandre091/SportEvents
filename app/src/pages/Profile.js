@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Avatar,
   Box,
   Button,
+  IconButton,
   TextField,
   styled,
   Typography,
+  MenuItem,
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MenuDrawer from '../components/MenuDrawer';
-import { updateUser } from '../api/user';
+import { updateUser, getProfile, getRegions } from '../api/user';
 // Стилизованное текстовое поле
 const StyledTextField = styled(TextField)({
   marginBottom: '16px',
@@ -57,6 +62,25 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { userData, setUserData } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editedData, setEditedData] = useState({});
+  const [regions, setRegions] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const profileResponse = await getProfile();
+      if (profileResponse.ok) {
+        setUserData(profileResponse.user);
+        setEditedData(profileResponse.user);
+      }
+
+      const regionsResponse = await getRegions();
+      if (regionsResponse.ok) {
+        setRegions(regionsResponse.regions);
+      }
+    };
+    fetchData();
+  }, []);
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -172,13 +196,14 @@ const Profile = () => {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              width: '60%',
+              width: '80%',
               position: 'relative', // Добавляем для контроля пространства
               '&::after': { // Добавляем пространство справа
                 content: '""',
                 width: { md: '300px', sm: '200px', xs: '150px' },
                 display: 'block'
-              }
+              },
+              gap: 2
             }}
           >
             <Typography
@@ -191,7 +216,7 @@ const Profile = () => {
                 position: 'relative',
               }}
             >
-              Личный кабинет {userData?.name}
+              Профиль
             </Typography>
             <Typography
               sx={{
@@ -243,14 +268,78 @@ const Profile = () => {
                 disabled={!isEditing}
                 InputProps={{ readOnly: !isEditing }}
               />
-              <StyledTextField
+              <TextField
+                select
                 fullWidth
                 label="Регион"
-                value={getFieldValue('region')}
+                value={getFieldValue('region') || ''}
                 onChange={handleChange('region')}
-                disabled={!isEditing}
-                InputProps={{ readOnly: !isEditing }}
-              />
+                disabled={!isEditing || userData.role == 'REGIONAL_ADMIN'}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.5)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.7)',
+                    },
+                    '&.Mui-disabled': {
+                      '& fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                      },
+                      '& input': {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        '-webkit-text-fill-color': 'rgba(255, 255, 255, 0.7)',
+                      },
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    '&.Mui-disabled': {
+                      color: 'rgba(255, 255, 255, 0.7)',
+                    },
+                  },
+                  '& .MuiSelect-icon': {
+                    color: 'rgba(255, 255, 255, 0.7)',
+                  },
+                  '& .MuiInputBase-input': {
+                    color: '#fff',
+                    '&.Mui-disabled': {
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      '-webkit-text-fill-color': 'rgba(255, 255, 255, 0.7)',
+                    },
+                  },
+                  width: '100%',
+                  marginBottom: '15px',
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      sx: {
+                        bgcolor: '#1a1a1a',
+                        '& .MuiMenuItem-root': {
+                          color: '#fff',
+                          '&:hover': {
+                            bgcolor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                          '&.Mui-selected': {
+                            bgcolor: 'rgba(255, 255, 255, 0.2)',
+                          },
+                        },
+                      },
+                    },
+                  },
+                }}
+              >
+                {regions.map((region) => (
+                  <MenuItem key={region} value={region}>
+                    {region}
+                  </MenuItem>
+                ))}
+              </TextField>
               <StyledTextField
                 fullWidth
                 label="Email"
@@ -327,7 +416,7 @@ const Profile = () => {
                   fullWidth
                   onClick={() => navigate('/profile/events')}
                 >
-                  ваши мероприятия
+                  ваши подписки
                 </Button>
                 <Button
                   sx={{

@@ -138,8 +138,14 @@ const EventModal = ({ open, handleClose, onEventCreated, editMode = false, event
         participants_num: formatParticipantsNum(eventToEdit.participants_num),
         files: eventToEdit.files || []
       });
+    } else if (userData?.role === 'REGIONAL_ADMIN') {
+      // Для регионального админа устанавливаем его регион по умолчанию
+      setEventData(prev => ({
+        ...prev,
+        region: userData.region
+      }));
     }
-  }, [editMode, eventToEdit]);
+  }, [editMode, eventToEdit, userData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
