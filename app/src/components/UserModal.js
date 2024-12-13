@@ -13,6 +13,14 @@ import { updateUser, createUser, getRegions } from '../api/user';
 
 const ROLES = ['ADMIN', 'CENTRAL_ADMIN', 'REGIONAL_ADMIN', 'USER'];
 
+// Иерархия ролей (чем меньше число, тем выше роль)
+const ROLE_HIERARCHY = {
+  'ADMIN': 0,
+  'CENTRAL_ADMIN': 1,
+  'REGIONAL_ADMIN': 2,
+  'USER': 3
+};
+
 const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, isCreating = false }) => {
   const [editedUser, setEditedUser] = useState({
     name: '',
@@ -55,11 +63,64 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
     loadRegions();
   }, [user, isCreating, open]);
 
+  // Проверка возможности установки роли
+  const canSetRole = (roleToSet) => {
+    // ADMIN может всё
+    if (currentUserRole === 'ADMIN') return true;
+
+    const currentUserLevel = ROLE_HIERARCHY[currentUserRole];
+    const roleToSetLevel = ROLE_HIERARCHY[roleToSet];
+    const userRoleLevel = user ? ROLE_HIERARCHY[user.role] : Infinity;
+
+    // CENTRAL_ADMIN не может установить роль выше или равную своей
+    if (currentUserRole === 'CENTRAL_ADMIN') {
+      return roleToSetLevel > currentUserLevel;
+    }
+
+    // REGIONAL_ADMIN может установить только роль USER
+    if (currentUserRole === 'REGIONAL_ADMIN') {
+      return roleToSet === 'USER';
+    }
+
+    return false;
+  };
+
+  // Получение доступных для выбора ролей
+  const getAvailableRoles = () => {
+    if (currentUserRole === 'ADMIN') return ROLES;
+    
+    return ROLES.filter(role => {
+      const roleLevel = ROLE_HIERARCHY[role];
+      const currentUserLevel = ROLE_HIERARCHY[currentUserRole];
+      
+      // CENTRAL_ADMIN может назначать роли ниже своей
+      if (currentUserRole === 'CENTRAL_ADMIN') {
+        return roleLevel > currentUserLevel;
+      }
+      
+      // REGIONAL_ADMIN может назначать только USER
+      if (currentUserRole === 'REGIONAL_ADMIN') {
+        return role === 'USER';
+      }
+      
+      return false;
+    });
+  };
+
   const handleChange = (field) => (event) => {
+    const value = event.target.value;
+    
+    // Проверка при изменении роли
+    if (field === 'role' && !canSetRole(value)) {
+      setError('У вас нет прав для установки этой роли');
+      return;
+    }
+
     setEditedUser(prev => ({
       ...prev,
-      [field]: event.target.value
+      [field]: value
     }));
+    setError('');
   };
 
   const validateForm = () => {
@@ -78,6 +139,11 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
     }
     if (!editedUser.role) {
       setError('Роль обязательна');
+      return false;
+    }
+    // Проверка прав на установку роли
+    if (!canSetRole(editedUser.role)) {
+      setError('У вас нет прав для установки этой роли');
       return false;
     }
     return true;
@@ -99,6 +165,7 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
 
       if (response.ok) {
         onUserUpdated(response.user);
+        handleClose();
         setEditedUser({
           name: '',
           username: '',
@@ -108,7 +175,6 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
           region: ''
         });
         setError('');
-        handleClose();
       } else {
         setError(response.error || 'Ошибка при обновлении пользователя');
       }
@@ -128,13 +194,6 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
     });
     setError('');
     handleClose();
-  };
-
-  const canEditRole = (userToEdit) => {
-    if (!isCreating && userToEdit?.role === 'CENTRAL_ADMIN') {
-      return currentUserRole === 'ADMIN';
-    }
-    return true;
   };
 
   return (
@@ -283,7 +342,6 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
             label="Роль"
             value={editedUser.role}
             onChange={handleChange('role')}
-            disabled={!canEditRole(user)}
             required
             fullWidth
             sx={{
@@ -339,7 +397,7 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
               },
             }}
           >
-            {ROLES.map((role) => (
+            {getAvailableRoles().map((role) => (
               <MenuItem key={role} value={role}>
                 {role}
               </MenuItem>
@@ -400,11 +458,6 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
             ))}
           </TextField>
         </Box>
-        {error && (
-          <Box sx={{ color: 'error.main', mt: 2 }}>
-            {error}
-          </Box>
-        )}
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         <Button 

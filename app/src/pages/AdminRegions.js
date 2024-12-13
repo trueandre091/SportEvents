@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, InputAdornment, Button, IconButton } from '@mui/material';
+import { Box, Typography, TextField, InputAdornment, Button, IconButton, FormControlLabel, Switch } from '@mui/material';
 import MenuDrawer from '../components/MenuDrawer';
 import { getUsers, deleteUser } from '../api/user';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import UserModal from '../components/UserModal';
 import { useAuth } from '../context/AuthContext';
@@ -18,6 +19,7 @@ const AdminRegions = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState('');
+  const [showRegularUsers, setShowRegularUsers] = useState(false);
   const navigate = useNavigate();
   const { userData } = useAuth();
 
@@ -39,27 +41,34 @@ const AdminRegions = () => {
 
   useEffect(() => {
     const loadUsers = async () => {
-      // Если текущий пользователь ADMIN, получаем оба типа пользователей
-      if (userData?.role === 'ADMIN') {
-        const [regionalResponse, centralResponse] = await Promise.all([
-          getUsers('REGIONAL_ADMIN'),
-          getUsers('CENTRAL_ADMIN')
-        ]);
-
-        if (regionalResponse.ok && centralResponse.ok) {
-          // Объединяем списки пользователей
-          setUsers([...regionalResponse.users, ...centralResponse.users]);
-        }
-      } else {
-        // Для остальных ролей получаем только региональных администраторов
-        const response = await getUsers('REGIONAL_ADMIN');
+      if (showRegularUsers) {
+        // Загружаем только обычных пользователей
+        const response = await getUsers('USER');
         if (response.ok) {
           setUsers(response.users);
+        }
+      } else {
+        // Если текущий пользователь ADMIN, получаем оба типа администраторов
+        if (userData?.role === 'ADMIN') {
+          const [regionalResponse, centralResponse] = await Promise.all([
+            getUsers('REGIONAL_ADMIN'),
+            getUsers('CENTRAL_ADMIN')
+          ]);
+
+          if (regionalResponse.ok && centralResponse.ok) {
+            setUsers([...regionalResponse.users, ...centralResponse.users]);
+          }
+        } else {
+          // Для остальных ролей получаем только региональных администраторов
+          const response = await getUsers('REGIONAL_ADMIN');
+          if (response.ok) {
+            setUsers(response.users);
+          }
         }
       }
     };
     loadUsers();
-  }, [userData?.role]);
+  }, [userData?.role, showRegularUsers]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -215,7 +224,7 @@ const AdminRegions = () => {
           paddingBottom: "20px",
           width: "100%",
         }}>
-          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
             <TextField
               placeholder="Поиск представителей..."
               value={searchQuery}
@@ -226,19 +235,53 @@ const AdminRegions = () => {
                   color: '#fff',
                   '& fieldset': {
                     borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderRadius: "20px",
                   },
                   '&:hover fieldset': {
                     borderColor: 'rgba(255, 255, 255, 0.5)',
+                    borderRadius: "20px",
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: 'rgba(255, 255, 255, 0.7)',
+                    borderRadius: "20px",
                   },
                 },
                 '& .MuiInputBase-input::placeholder': {
                   color: 'rgba(255, 255, 255, 0.5)',
                   opacity: 1,
                 },
+                borderRadius: "20px",
               }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showRegularUsers}
+                  onChange={(e) => setShowRegularUsers(e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#2196f3',
+                      '&:hover': {
+                        backgroundColor: 'rgba(33, 150, 243, 0.08)',
+                      },
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#2196f3',
+                    },
+                  }}
+                />
+              }
+              label={
+                <Typography sx={{
+                  color: '#fff',
+                  fontFamily: 'Montserrat',
+                  fontSize: '14px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  Пользователи
+                </Typography>
+              }
+              sx={{ margin: 0 }}
             />
             <Button
               variant="contained"
@@ -248,15 +291,22 @@ const AdminRegions = () => {
                 setIsModalOpen(true);
               }}
               sx={{
-                backgroundColor: '#2196f3',
-                color: '#fff',
-                '&:hover': {
-                  backgroundColor: '#1976d2',
-                },
-                whiteSpace: 'nowrap',
+                background: "transparent",
+                color: "#fff",
+                textTransform: "none",
+                fontFamily: "Montserrat",
+                borderRadius: "20px",
+                fontSize: "16px",
+                boxShadow: "none",
+                ":hover": { background: "#ffffff", color: "#000" },
+                cursor: "pointer",
+                transform: "translateY(-4px) translateX(15px)",
+                lineHeight: "1.5",
               }}
+              disableRipple={true}
             >
-              Добавить представителя
+              добавить пользователя
+              <AddIcon sx={{ fontSize: "30px", marginLeft: "10px" }} />
             </Button>
           </Box>
           {Object.entries(groupedUsers).map(([region, users]) => (

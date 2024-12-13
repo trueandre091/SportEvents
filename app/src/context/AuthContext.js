@@ -6,10 +6,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const AuthContext = createContext(null);
 
 // Список защищенных маршрутов
-const PROTECTED_ROUTES = ['/profile'];
+const PROTECTED_ROUTES = ['/profile', '/admin', '/admin/stats', '/admin/events', '/admin/regions', '/admin/users'];
 
 // Список маршрутов только для администраторов
-const ADMIN_ROUTES = [];
+const ADMIN_ROUTES = ['/admin', '/admin/stats', '/admin/events', '/admin/regions', '/admin/users'];
+
+// Роли, которые имеют доступ к админ панели
+const ADMIN_ROLES = ['ADMIN', 'CENTRAL_ADMIN', 'REGIONAL_ADMIN'];
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!getTokenFromStorage());
@@ -22,8 +25,13 @@ export const AuthProvider = ({ children }) => {
 
   // Проверяем, является ли текущий маршрут защищенным
   const isProtectedRoute = PROTECTED_ROUTES.includes(location.pathname);
+  
+  // Проверяем, является ли текущий маршрут админским
+  const isAdminRoute = ADMIN_ROUTES.some(route => location.pathname.startsWith(route));
 
-  // Загрузка данных пользователя при инициализации
+  // Проверяем, имеет ли пользователь права администратора
+  const hasAdminAccess = userData && ADMIN_ROLES.includes(userData.role);
+
   useEffect(() => {
     const loadUserData = async () => {
       console.log('Инициализация AuthContext');
@@ -41,6 +49,12 @@ export const AuthProvider = ({ children }) => {
             });
             setUserData(response.user);
             setIsAuthenticated(true);
+
+            // Проверяем доступ к админ маршрутам
+            if (isAdminRoute && !ADMIN_ROLES.includes(response.user.role)) {
+              console.log('Нет доступа к админ панели, перенаправление на главную');
+              navigate('/', { replace: true });
+            }
           } else {
             console.warn('Профиль невалиден или отсутствуют данные:', response);
             removeToken();
@@ -72,7 +86,18 @@ export const AuthProvider = ({ children }) => {
     };
 
     loadUserData();
-  }, [navigate, location.pathname, isProtectedRoute]);
+  }, [navigate, location.pathname, isProtectedRoute, isAdminRoute]);
+
+  // Эффект для проверки доступа при изменении маршрута
+  useEffect(() => {
+    if (isAdminRoute && userData && !ADMIN_ROLES.includes(userData.role)) {
+      console.log('Попытка доступа к админ панели без прав:', {
+        route: location.pathname,
+        userRole: userData.role
+      });
+      navigate('/', { replace: true });
+    }
+  }, [location.pathname, userData, navigate, isAdminRoute]);
 
   const login = useCallback((token, user) => {
     console.log('Вход в систему:', {
@@ -115,7 +140,8 @@ export const AuthProvider = ({ children }) => {
       error,
       setError,
       shakeError,
-      setShakeError
+      setShakeError,
+      hasAdminAccess
     }}>
       {children}
     </AuthContext.Provider>

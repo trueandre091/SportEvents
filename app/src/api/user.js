@@ -102,8 +102,6 @@ export const updateUser = async (userData) => {
     const tg_id = parseInt(userData.tg_id);
     if (!isNaN(tg_id)) {
       formData.append('tg_id', tg_id.toString());
-    } else {
-      formData.append('tg_id', '');
     }
   }
   
@@ -391,8 +389,6 @@ export const createUser = async (userData) => {
     const tg_id = parseInt(userData.tg_id);
     if (!isNaN(tg_id)) {
       formData.append('tg_id', tg_id.toString());
-    } else {
-      formData.append('tg_id', '');
     }
   }
   

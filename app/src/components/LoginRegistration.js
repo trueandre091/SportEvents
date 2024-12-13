@@ -277,7 +277,7 @@ const LoginRegistration = () => {
               fontFamily: 'Montserrat',
               fontSize: '30px',
             }}>
-            Добро пожаловать{userData?.name && `, ${userData?.name}!`}!
+            Добро пожаловать{userData?.name && `, ${userData?.name}`}!
           </Typography>
         </Box>
       )}

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, Typography, Grid, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Box, Typography, Grid} from '@mui/material';
+import MenuDrawer from '../components/MenuDrawer';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupsIcon from '@mui/icons-material/Groups';
 import SchoolIcon from '@mui/icons-material/School';
@@ -66,48 +66,7 @@ const About = () => {
         }}
       />
 
-      <IconButton onClick={toggleDrawer} sx={{ position: "absolute", top: "10px", left: "40px", color: "white", flexDirection: "row" }}>
-        <MenuIcon />
-        <Typography variant="h6" sx={{ fontFamily: "Montserrat", fontSize: "25px", transform: "translateX(10px)" }}>
-          Меню
-        </Typography>
-      </IconButton>
-
-      <Drawer
-        anchor="left"
-        open={isOpen}
-        onClose={toggleDrawer}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: { md: "20%", sm: "60%" },
-          },
-        }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-          <Box onClick={toggleDrawer} sx={{ display: "flex", flexDirection: "row", alignItems: "center", cursor: "pointer" }}>
-            <MenuIcon sx={{ fontSize: "30px", marginLeft: "25px", marginTop: "15%" }} />
-            <Typography variant="h6" sx={{ fontFamily: "Montserrat", fontSize: "25px", marginLeft: "10px", marginTop: "15%" }}>
-              Меню
-            </Typography>
-          </Box>
-          <Box sx={{ position: "absolute", left: "10%", top: "10%", height: "80%", width: "3px", background: "#000" }} />
-        </Box>
-        <List sx={{ marginLeft: "50px", marginTop: "10%" }}>
-          {[
-            { text: "профиль", link: "/profile" },
-            { text: "регионы", link: "/regions" },
-            { text: "контакты", link: "/contacts" },
-            { text: "события", link: "/events" },
-            { text: "на главную", link: "/" }
-          ].map(({ text, link }) => (
-            <Link to={link} style={{ textDecoration: "none", color: "inherit" }} key={text}>
-              <ListItem button>
-                <ListItemText primary={text} primaryTypographyProps={{ fontFamily: "Montserrat", fontSize: "30px" }} />
-              </ListItem>
-            </Link>
-          ))}
-        </List>
-      </Drawer>
+      <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} />
 
       <Box
         sx={{

@@ -60,33 +60,41 @@ const AnimatedRoutes = () => {
         <Route
           path="/admin/stats"
           element={
+            <PrivateRoute>
               <PageTransition>
                 <AdminStats />
               </PageTransition>
+            </PrivateRoute>
           }
         />
         <Route
           path="/admin/events"
           element={
+            <PrivateRoute>
               <PageTransition>
                 <AdminEvents />
               </PageTransition>
+            </PrivateRoute>
           }
         />
         <Route
           path="/admin/regions"
           element={
+            <PrivateRoute>
               <PageTransition>
                 <AdminRegions />
               </PageTransition>
+            </PrivateRoute>
           }
         />
         <Route
           path="/admin"
           element={
+            <PrivateRoute>
               <PageTransition>
                 <AdminPanel />
               </PageTransition>
+            </PrivateRoute>
           }
         />
         <Route

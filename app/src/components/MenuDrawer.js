@@ -22,6 +22,10 @@ const MenuDrawer = ({ isOpen, toggleDrawer }) => {
     return ['ADMIN', 'CENTRAL_ADMIN'].includes(userData?.role);
   };
 
+  const isRegionalAdmin = () => {
+    return ['REGIONAL_ADMIN'].includes(userData?.role);
+  };
+
   return (
     <>
       <IconButton 
@@ -94,7 +98,7 @@ const MenuDrawer = ({ isOpen, toggleDrawer }) => {
             { text: "контакты", link: "/contacts" },
             { text: "о нас", link: "/about" },
             { text: "на главную", link: "/" },
-            isCentralAdmin() && { text: "admin панель", link: "/admin" }
+            (isCentralAdmin() || isRegionalAdmin()) && { text: "admin панель", link: "/admin" }
           ].map(({ text, link }) => (
             <Link key={text} to={link} style={{ textDecoration: "none", color: "inherit" }}>
               <ListItem button>

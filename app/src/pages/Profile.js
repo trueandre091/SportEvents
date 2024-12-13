@@ -60,7 +60,7 @@ const StyledTextField = styled(TextField)({
 const Profile = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const { userData, setUserData } = useAuth();
+  const { userData, setUserData, hasAdminAccess } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
@@ -124,12 +124,6 @@ const Profile = () => {
   // Функция для безопасного получения значения поля
   const getFieldValue = (field) => {
     return userData?.[field] || ''; // Возвращаем пустую строку вместо "отсутствует"
-  };
-
-  // Функция проверки роли администратора
-  const isAdminRole = () => {
-    const adminRoles = ['ADMIN', 'REGIONAL_ADMIN', 'CENTRAL_ADMIN'];
-    return adminRoles.includes(userData?.role);
   };
 
   return (
@@ -373,23 +367,23 @@ const Profile = () => {
                 mt: 4,
                 justifyContent: 'center'
               }}>
-                {/* Если пользователь админ, показываем кнопку админ-панели */}
-                {isAdminRole() && (
+                {/* Используем hasAdminAccess вместо isAdminRole */}
+                {hasAdminAccess && (
                   <Button
                     sx={{
                       borderRadius: '30px',
-                      padding: '15px 30px', // Увеличенный padding
+                      padding: '15px 30px',
                       textTransform: 'none',
-                      fontSize: '20px', // Увеличенный размер шрифта
+                      fontSize: '20px',
                       fontFamily: 'Montserrat',
                       color: 'white',
-                      backgroundColor: '#5500ff', // Другой цвет для выделения
+                      backgroundColor: '#5500ff',
                       '&:hover': {
                         backgroundColor: '#6a00ff',
                       },
                       transition: 'all 0.3s ease-in-out',
                       cursor: 'pointer',
-                      marginBottom: 2, // Отступ от других кнопок
+                      marginBottom: 2,
                     }}
                     fullWidth
                     onClick={() => navigate('/admin')}
