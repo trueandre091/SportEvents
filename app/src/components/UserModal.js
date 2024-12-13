@@ -194,6 +194,7 @@ const UserModal = ({ open, handleClose, user, onUserUpdated, currentUserRole, is
     });
     setError('');
     handleClose();
+    window.location.reload();
   };
 
   return (

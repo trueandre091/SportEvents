@@ -66,6 +66,7 @@ const AdminEvents = () => {
     message: '',
     severity: 'success'
   });
+  const isRegionalAdmin = userData?.role === 'REGIONAL_ADMIN';
 
   const isCentralAdmin = () => {
     return ['ADMIN', 'CENTRAL_ADMIN'].includes(userData?.role);
@@ -88,23 +89,30 @@ const AdminEvents = () => {
     const loadEvents = async () => {
       const response = await getEvents(isArchive);
       if (response.ok) {
-        const sortedEvents = sortEventsByDate(response.events);
+        let eventsData = response.events;
+
+        // Если пользователь RegionalAdmin, фильтруем события только его региона
+        if (isRegionalAdmin) {
+          eventsData = eventsData.filter(event => event.region === userData.region);
+        }
+
+        const sortedEvents = sortEventsByDate(eventsData);
 
         // Собираем уникальные значения
         const uniqueDisciplines = new Set(sortedEvents.map(event => event.discipline).filter(Boolean));
         const uniqueStatuses = new Set(sortedEvents.map(event => event.status).filter(Boolean));
-        const uniqueRegions = new Set(sortedEvents.map(event => event.region).filter(Boolean));
+        // Собираем регионы только если пользователь не RegionalAdmin
+        const uniqueRegions = isRegionalAdmin ? new Set([userData.region]) : new Set(sortedEvents.map(event => event.region).filter(Boolean));
 
         setDisciplines(uniqueDisciplines);
         setStatuses(uniqueStatuses);
         setRegions(uniqueRegions);
-
         setEvents(sortedEvents);
         setFilteredEvents(sortedEvents);
       }
     };
     loadEvents();
-  }, [isArchive]);
+  }, [isArchive, isRegionalAdmin, userData?.region]);
 
   // Функция для преобразования даты из формата "DD.MM.YYYY HH:mm" в объект Date
   const parseDate = (dateStr) => {
@@ -115,7 +123,7 @@ const AdminEvents = () => {
     return new Date(year, month - 1, day, hours, minutes);
   };
 
-  // Фильтрация на фронтенде
+  // Обработка фильтров
   useEffect(() => {
     let result = [...events];
 
@@ -125,7 +133,7 @@ const AdminEvents = () => {
         const eventEndDate = parseDate(event.date_end);
         const [filterStartYear, filterStartMonth, filterStartDay] = (filters.date_start || '').split('-');
         const [filterEndYear, filterEndMonth, filterEndDay] = (filters.date_end || '').split('-');
-        
+
         const filterStartDate = filters.date_start ? new Date(filterStartYear, filterStartMonth - 1, filterStartDay) : null;
         const filterEndDate = filters.date_end ? new Date(filterEndYear, filterEndMonth - 1, filterEndDay) : null;
 
@@ -134,20 +142,20 @@ const AdminEvents = () => {
           // Мероприятие длится в выбранный день или начинается позже
           return eventEndDate >= filterStartDate || eventStartDate >= filterStartDate;
         }
-        
+
         // Если указана только дата окончания
         if (!filterStartDate && filterEndDate) {
           // Мероприятие длится в выбранный день или заканчивается до этого дня
           return eventStartDate <= filterEndDate || eventEndDate <= filterEndDate;
         }
-        
+
         // Если указаны обе даты
         if (filterStartDate && filterEndDate) {
           // Мероприятие длится в промежутке или начинается/заканчивается в промежутке
           const startsInRange = eventStartDate >= filterStartDate && eventStartDate <= filterEndDate;
           const endsInRange = eventEndDate >= filterStartDate && eventEndDate <= filterEndDate;
           const spansRange = eventStartDate <= filterStartDate && eventEndDate >= filterEndDate;
-          
+
           return startsInRange || endsInRange || spansRange;
         }
 
@@ -167,7 +175,9 @@ const AdminEvents = () => {
       );
     }
 
-    if (filters.region) {
+    if (isRegionalAdmin) {
+      result = result.filter(event => event.region === userData.region);
+    } else if (filters.region) {
       result = result.filter(event =>
         event.region?.toLowerCase().includes(filters.region.toLowerCase())
       );
@@ -206,7 +216,7 @@ const AdminEvents = () => {
           message: `Событие "${eventData.title}" было успешно создано. Можете обновить страницу!`,
           severity: 'success'
         });
-        
+
         // Обновляем список событий
         const eventsResponse = await getEvents(isArchive);
         if (eventsResponse.ok) {
@@ -544,7 +554,7 @@ const AdminEvents = () => {
                 </MenuItem>
               ))}
             </TextField>
-            {isCentralAdmin && <TextField
+            {!isRegionalAdmin && <TextField
               select
               label="Регион"
               value={filters.region}
@@ -649,7 +659,7 @@ const AdminEvents = () => {
                 marginBottom: selectedEventIndex === index ? "20px" : "0px",
                 gap: 2,
               }}>
-                <Box sx={{ 
+                <Box sx={{
                   width: "40%",
 
                 }}>
@@ -680,12 +690,12 @@ const AdminEvents = () => {
                   </Typography>
                 </Box>
 
-                <Box sx={{ 
+                <Box sx={{
                   width: "20%",
                   minWidth: "200px",
-                  display: "flex", 
-                  flexDirection: "column", 
-                  alignItems: "flex-start", 
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
                   justifyContent: "flex-start"
                 }}>
                   <Typography sx={{
@@ -919,10 +929,10 @@ const AdminEvents = () => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={handleSnackbarClose} 
+        <Alert
+          onClose={handleSnackbarClose}
           severity={snackbar.severity}
-          sx={{ 
+          sx={{
             width: '100%',
             fontFamily: 'Montserrat',
             fontSize: '16px',

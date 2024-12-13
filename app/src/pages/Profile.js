@@ -16,7 +16,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MenuDrawer from '../components/MenuDrawer';
-import { updateUser, getProfile, getRegions } from '../api/user';
+import { updateUserProfile, getProfile, getRegions, } from '../api/user';
 // Стилизованное текстовое поле
 const StyledTextField = styled(TextField)({
   marginBottom: '16px',
@@ -99,7 +99,7 @@ const Profile = () => {
           role: userData.role
         };
 
-        const response = await updateUser(dataToUpdate);
+        const response = await updateUserProfile(dataToUpdate);
         if (response.ok) {
           // Обновляем данные пользователя полученными от сервера
           setUserData(response.user);

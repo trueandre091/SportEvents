@@ -75,6 +75,7 @@ const buttonStyle = {
 const EventModal = ({ open, handleClose, onEventCreated, editMode = false, eventToEdit = null }) => {
   const { userData } = useAuth();
   const isAdmin = userData?.role === 'ADMIN' || userData?.role === 'CENTRAL_ADMIN';
+  const isRegionalAdmin = userData?.role === 'REGIONAL_ADMIN';
 
   const [eventData, setEventData] = useState({
     title: '',
@@ -234,6 +235,7 @@ const EventModal = ({ open, handleClose, onEventCreated, editMode = false, event
           onEventCreated();
         }
         handleClose();
+        window.location.reload();
       } else {
         setError(response.error || `Ошибка при ${editMode ? 'обновлении' : 'создании'} события`);
       }
@@ -350,7 +352,7 @@ const EventModal = ({ open, handleClose, onEventCreated, editMode = false, event
                 name="region"
                 onChange={handleChange}
                 label="Регион"
-                disabled={editMode && !isAdmin}
+                disabled={isRegionalAdmin || !isAdmin}
               >
                 {regions.map((region) => (
                   <MenuItem key={region} value={region}>

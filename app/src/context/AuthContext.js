@@ -118,11 +118,23 @@ export const AuthProvider = ({ children }) => {
     setUserData(user);
   }, []);
 
-  const logout = useCallback(() => {
-    setIsAuthenticated(false);
-    setUserData(null);
-    removeToken();
-    navigate('/', { replace: true });
+  const logout = useCallback(async () => {
+    try {
+      // Сначала уведомляем сервер о выходе
+      console.log('Выход из системы');
+    } catch (error) {
+      console.error('Ошибка при выходе из системы:', error);
+    } finally {
+      // Очищаем все локальные данные независимо от результата запроса
+      setIsAuthenticated(false);
+      setUserData(null);
+      removeToken();
+      // Очищаем все данные из localStorage
+      localStorage.clear();
+      // Перенаправляем на главную
+      navigate('/', { replace: true });
+      window.location.reload();
+    }
   }, [navigate]);
 
   if (loading) {
