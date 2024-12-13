@@ -65,7 +65,8 @@ const Events = () => {
     const loadEvents = async () => {
       const response = await getEvents(isArchive);
       if (response.ok) {
-        const sortedEvents = sortEventsByDate(response.events);
+        const filteredEvents = response.events.filter(event => event.status !== 'REJECTED');
+        const sortedEvents = sortEventsByDate(filteredEvents);
 
         // Собираем уникальные значения
         const uniqueDisciplines = new Set(sortedEvents.map(event => event.discipline).filter(Boolean));

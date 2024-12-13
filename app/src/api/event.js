@@ -51,18 +51,19 @@ export const createEvent = async (eventData) => {
     
     // Добавляем все поля в FormData
     Object.keys(eventData).forEach(key => {
-      if (eventData[key] !== null && eventData[key] !== undefined && eventData[key] !== '') {
-        if (key === 'files') {
-          // Добавляем каждый файл отдельно
-          eventData.files.forEach(file => {
-            formData.append('files', file);
-          });
-        } else if (key === 'date_start' || key === 'date_end') {
-          // Преобразуем даты в формат YYYY-MM-DD
+      if (key === 'files') {
+        // Добавляем каждый файл отдельно
+        eventData.files.forEach(file => {
+          formData.append('files', file);
+        });
+      } else if (key === 'date_start' || key === 'date_end') {
+        // Преобразуем даты в формат YYYY-MM-DD
+        if (eventData[key]) {
           formData.append(key, formatDateForApi(eventData[key]));
-        } else {
-          formData.append(key, eventData[key].toString());
         }
+      } else {
+        // Для всех остальных полей отправляем пустую строку вместо null/undefined
+        formData.append(key, eventData[key]?.toString() || '');
       }
     });
 
@@ -93,10 +94,10 @@ export const archiveEvent = async (id) => {
   const token = getTokenFromStorage();
   try {
     const formData = new FormData();
-    formData.append('archive', id.toString());
+    formData.append('id', id.toString());
 
     console.log('Отправляемые данные:', {
-      archive: id
+      id: id
     });
 
     const response = await fetch(`${API_URL}/fsp/events/archive`, {
@@ -131,22 +132,23 @@ export const updateEvent = async (eventData) => {
     
     // Добавляем все поля в FormData
     Object.keys(eventData).forEach(key => {
-      if (eventData[key] !== null && eventData[key] !== undefined && eventData[key] !== '') {
-        if (key === 'files') {
-          // Добавляем каждый файл отдельно
-          eventData.files.forEach(file => {
-            if (file instanceof File) {
-              formData.append('files', file);
-            }
-          });
-        } else if (key === 'date_start' || key === 'date_end') {
-          // Преобразуем даты в формат YYYY-MM-DD
+      if (key === 'files') {
+        // Добавляем каждый файл отдельно
+        eventData.files.forEach(file => {
+          if (file instanceof File) {
+            formData.append('files', file);
+          }
+        });
+      } else if (key === 'date_start' || key === 'date_end') {
+        // Преобразуем даты в формат YYYY-MM-DD
+        if (eventData[key]) {
           formData.append(key, formatDateForApi(eventData[key]));
-        } else if (key === 'representative') {
-          formData.append(key, eventData[key].id);
-        } else {
-          formData.append(key, eventData[key].toString());
         }
+      } else if (key === 'representative') {
+        formData.append(key, eventData[key].id);
+      } else {
+        // Для всех остальных полей отправляем пустую строку вместо null/undefined
+        formData.append(key, eventData[key]?.toString() || '');
       }
     });
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Box, Typography, Button, TextField, InputAdornment, IconButton, Modal, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, Typography, Button, TextField, InputAdornment, IconButton, Modal, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from '@mui/material';
 import { MenuItem, FormControlLabel, Switch } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchIcon from '@mui/icons-material/Search';
@@ -61,6 +61,11 @@ const AdminEvents = () => {
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   const isCentralAdmin = () => {
     return ['ADMIN', 'CENTRAL_ADMIN'].includes(userData?.role);
@@ -159,10 +164,6 @@ const AdminEvents = () => {
     }));
   };
 
-  const handleArchiveToggle = () => {
-    setIsArchive(prev => !prev);
-  };
-
   const handleArchiveEvent = async (eventId) => {
     const response = await archiveEvent(eventId);
     if (response.ok) {
@@ -178,7 +179,14 @@ const AdminEvents = () => {
       const response = await createEvent(eventData);
       if (response.ok) {
         console.log('Событие успешно создано:', response.data);
-        // Перезагружаем список событий
+        setOpenModal(false);
+        setSnackbar({
+          open: true,
+          message: `Событие "${eventData.title}" было успешно создано. Можете обновить страницу!`,
+          severity: 'success'
+        });
+        
+        // Обновляем список событий
         const eventsResponse = await getEvents(isArchive);
         if (eventsResponse.ok) {
           const sortedEvents = sortEventsByDate(eventsResponse.events);
@@ -186,10 +194,19 @@ const AdminEvents = () => {
           setFilteredEvents(sortedEvents);
         }
       } else {
-        console.error('Ошибка при создании события:', response.error);
+        setSnackbar({
+          open: true,
+          message: `Ошибка при создании события: ${response.error}`,
+          severity: 'error'
+        });
       }
     } catch (error) {
       console.error('Ошибка при создании события:', error);
+      setSnackbar({
+        open: true,
+        message: `Ошибка при создании события: ${error.message}`,
+        severity: 'error'
+      });
     }
   };
 
@@ -201,6 +218,11 @@ const AdminEvents = () => {
 
   const handleEventUpdated = async () => {
     setOpenModal(false);
+    setSnackbar({
+      open: true,
+      message: `Событие "${editingEvent.title}" было успешно изменено. Можете обновить страницу!`,
+      severity: 'success'
+    });
     setEditingEvent(null);
     // Перезагружаем список событий
     const response = await getEvents(isArchive);
@@ -209,6 +231,13 @@ const AdminEvents = () => {
       setEvents(sortedEvents);
       setFilteredEvents(sortedEvents);
     }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   return (
@@ -245,14 +274,14 @@ const AdminEvents = () => {
       >
       </Box>
       <MenuDrawer isOpen={isOpen} toggleDrawer={toggleDrawer} sx={{ position: 'fixed' }} />
-      <IconButton 
+      <IconButton
         onClick={() => navigate('/admin')}
-        sx={{ 
-          position: "fixed", 
-          top: "10px", 
-          left: "180px", 
-          color: "white", 
-          flexDirection: "row" 
+        sx={{
+          position: "fixed",
+          top: "10px",
+          left: "180px",
+          color: "white",
+          flexDirection: "row"
         }}
       >
         <ArrowBackIcon />
@@ -526,38 +555,6 @@ const AdminEvents = () => {
               ))}
             </TextField>
             }
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isArchive}
-                  onChange={handleArchiveToggle}
-                  sx={{
-                    '& .MuiSwitch-switchBase': {
-                      color: 'grey.500',
-                      '&.Mui-checked': {
-                        color: '#e11946',
-                        '& + .MuiSwitch-track': {
-                          backgroundColor: '#e11946',
-                          opacity: 0.5,
-                        },
-                      },
-                    },
-                    '& .MuiSwitch-track': {
-                      backgroundColor: 'grey.500',
-                      opacity: 0.3,
-                    },
-                  }}
-                />
-              }
-              label="Архивные"
-              sx={{
-                '& .MuiFormControlLabel-label': {
-                  color: 'white',
-                  fontFamily: 'Montserrat',
-                  fontSize: '16px'
-                }
-              }}
-            />
           </Box>
         )}
 
@@ -602,6 +599,24 @@ const AdminEvents = () => {
                   На рассмотрении
                 </Box>
               )}
+              {event.status === "REJECTED" && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "10px",
+                    right: "10px",
+                    backgroundColor: "#ff0000",
+                    color: "white",
+                    padding: "5px 10px",
+                    borderRadius: "15px",
+                    fontSize: "12px",
+                    fontFamily: "Montserrat",
+                    zIndex: 1,
+                  }}
+                >
+                  Отклонено
+                </Box>
+              )}
 
               <Box sx={{
                 display: "flex",
@@ -632,8 +647,8 @@ const AdminEvents = () => {
                   </Typography>
                 </Box>
 
-                <Box sx={{ width: "10%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <Typography sx={{
+                <Box sx={{ minWidth: "10%", display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "flex-start" }}>
+                  <Typography sx={{
                     fontSize: { md: "14px", sm: "8px" },
                     color: "rgba(255, 255, 255, 0.7)",
                     fontFamily: "Montserrat",
@@ -747,8 +762,8 @@ const AdminEvents = () => {
                       }}>
                         Прикрепленные файлы:
                       </Typography>
-                      <Box sx={{ 
-                        display: 'flex', 
+                      <Box sx={{
+                        display: 'flex',
                         flexDirection: 'column',
                         gap: 1
                       }}>
@@ -769,12 +784,12 @@ const AdminEvents = () => {
                           >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               {file.mime_type.startsWith('image/') ? (
-                                <img 
-                                  src={file.url} 
+                                <img
+                                  src={file.url}
                                   alt={file.name}
-                                  style={{ 
-                                    width: '50px', 
-                                    height: '50px', 
+                                  style={{
+                                    width: '50px',
+                                    height: '50px',
                                     objectFit: 'cover',
                                     borderRadius: '4px'
                                   }}
@@ -838,7 +853,7 @@ const AdminEvents = () => {
             </Box>
           ))}
       </Box>
-      <EventModal 
+      <EventModal
         open={openModal}
         handleClose={() => {
           setOpenModal(false);
@@ -848,6 +863,28 @@ const AdminEvents = () => {
         editMode={!!editingEvent}
         eventToEdit={editingEvent}
       />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity={snackbar.severity}
+          sx={{ 
+            width: '100%',
+            fontFamily: 'Montserrat',
+            fontSize: '16px',
+            '& .MuiAlert-message': {
+              fontFamily: 'Montserrat'
+            }
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

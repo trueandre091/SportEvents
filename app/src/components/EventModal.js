@@ -50,9 +50,17 @@ const inputStyle = {
   },
   '& .MuiInputLabel-root': {
     color: 'rgba(0, 0, 0, 0.7)',
+    fontFamily: 'Montserrat'
   },
   '& .MuiOutlinedInput-input': {
     color: 'rgba(0, 0, 0, 0.9)',
+    fontFamily: 'Montserrat'
+  },
+  '& .MuiSelect-select': {
+    fontFamily: 'Montserrat'
+  },
+  '& .MuiMenuItem-root': {
+    fontFamily: 'Montserrat'
   }
 };
 
@@ -451,11 +459,9 @@ const EventModal = ({ open, handleClose, onEventCreated, editMode = false, event
                     onChange={handleChange}
                     label="Статус"
                   >
-                    <MenuItem value="draft">Черновик</MenuItem>
-                    <MenuItem value="consideration">На рассмотрении</MenuItem>
-                    <MenuItem value="approved">Одобрено</MenuItem>
-                    <MenuItem value="rejected">Отклонено</MenuItem>
-                    <MenuItem value="archived">В архиве</MenuItem>
+                    <MenuItem value="CONSIDERATION">На рассмотрении</MenuItem>
+                    <MenuItem value="APPROVED">Одобрено</MenuItem>
+                    <MenuItem value="REJECTED">Отклонено</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
