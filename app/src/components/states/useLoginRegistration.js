@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom';
 import { login, register, verifyToken, forgotPassword } from '../../api/auth';
 import { setTokenWithExpiry, getTokenFromStorage, removeToken } from '../../utils/tokenUtils';
 import { useAuth } from '../../context/AuthContext';
+import { Box, TextField, Button } from '@mui/material';
 
 
 const useLoginRegistration = () => {  
@@ -231,44 +232,45 @@ const useLoginRegistration = () => {
       const response = await verifyToken(email, verificationCode, 'VERIFY_EMAIL');
       
       // Проверяем наличие токена и данных пользователя в ответе
-      if (response.ok && response.token && response.user) {
+      if (response.ok) {
         // Сохраняем токен
         saveToken(response.token);
         
-        // Обновляем контекст авторизации с полными данными пользователя
+        // Обновляем контекст авторизации с данными пользователя
         authLogin(response.token, {
-          id: response.user.id,
-          name: response.user.name,
-          username: response.user.username,
-          email: response.user.email,
-          tg_id: response.user.tg_id,
-          role: response.user.role,
-          region: response.user.region,
-          notifications: response.user.notifications || []
+          id: response.id,           // Теперь берем напрямую из response
+          name: response.name,
+          username: response.username,
+          email: response.email,
+          tg_id: response.tg_id,
+          role: response.role,
+          region: response.region,
+          notifications: response.notifications || [],
+          is_verified: response.is_verified
         });
         
         console.log('Верификация успешна:', {
           token: response.token.substring(0, 20) + '...',
-          user: { ...response.user, password: '***' }
+          user: {
+            id: response.id,
+            email: response.email,
+            role: response.role
+          }
         });
         
         navigate('/events');
       } else {
-        if (handleUnauthorized(response)) return;
-        
         setError(response.error || 'Ошибка при верификации');
         setShakeError(true);
         setTimeout(() => setShakeError(false), 500);
       }
     } catch (error) {
-      if (handleUnauthorized(error)) return;
-      
       console.error('Ошибка при верификации:', error);
       setError(error.message || 'Ошибка при верификации');
       setShakeError(true);
-      setTimeout(() => setShakeError(false), 500);
     } finally {
       setIsLoading(false);
+      setTimeout(() => setShakeError(false), 500);
     }
   };
 

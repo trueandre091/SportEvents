@@ -115,7 +115,6 @@ const LoginRegistration = () => {
               '& > :not(style)': {
                 m: 1,
                 width: '96%',
-                marginBottom: '10px',
                 borderRadius: '30px',
                 backgroundImage: 'linear-gradient(to right, #6346e8, #3b298a)',
                 '& .MuiFilledInput-root': {
@@ -144,7 +143,7 @@ const LoginRegistration = () => {
               },
               display: 'flex',
               flexDirection: 'column',
-              gap: 2,
+              gap: 1,
               mt: 3,
               transition: 'all 0.5s ease-in-out'
             }}
@@ -212,7 +211,7 @@ const LoginRegistration = () => {
             </Fade>
 
             {isRegistering && isCodeRequested && (
-              <>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center', height: '100%', alignSelf: 'flex-start' }}>
                 <TextField
                   label="Код подтверждения"
                   variant="filled"
@@ -229,19 +228,20 @@ const LoginRegistration = () => {
                   onClick={handleVerificationCodeSubmit}
                   sx={{
                     backgroundColor: '#fff',
-                    color: '#6346e8',
+                    color: '#fff',
                     borderRadius: '30px',
                     padding: '15px',
                     '&:hover': {
                       backgroundColor: '#f0f0f0',
                       transform: 'scale(1.1)',
                       transition: 'transform 0.2s ease-in-out',
-                    }
+                    },
+                    transform: 'translateY(50px)',
                   }}
                 >
                   Отправить
                 </Button>
-              </>
+              </Box>
             )}
           </Box>
         </Box>

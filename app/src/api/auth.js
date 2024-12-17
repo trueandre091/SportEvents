@@ -107,7 +107,6 @@ export const verifyToken = async (email, token, tokenType, password = null) => {
   if (password) {
     formData.append('password', password);
   }
-  console.log(formData);
 
   try {
     const response = await fetch(`${API_URL}/auth/verify_token`, {
@@ -120,13 +119,17 @@ export const verifyToken = async (email, token, tokenType, password = null) => {
 
     const data = await response.json();
     console.log('Response status:', response.status);
-    console.log(data);
+    console.log('Response data:', data);
 
     if (!response.ok) {
       throw new Error(data.error || data.message || 'Ошибка при верификации токена');
     }
 
-    return { ok: true, ...data };
+    return {
+      ok: true,
+      ...data
+    };
+
   } catch (error) {
     console.error('Ошибка при верификации:', error);
     return { ok: false, error: error.message || 'Ошибка при верификации' };
